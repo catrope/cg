@@ -22,40 +22,52 @@
 
 Hit Sphere::intersect(const Ray &ray)
 {
-    /****************************************************
-    * RT1.1: INTERSECTION CALCULATION
-    *
-    * Given: ray, position, r
-    * Sought: intersects? if true: *t
-    * 
-    * Insert calculation of ray/sphere intersection here. 
-    *
-    * You have the sphere's center (C) and radius (r) as well as
-    * the ray's origin (ray.O) and direction (ray.D).
-    *
-    * If the ray does not intersect the sphere, return false.
-    * Otherwise, return true and place the distance of the
-    * intersection point from the ray origin in *t (see example).
-    ****************************************************/
+	/****************************************************
+	* RT1.1: INTERSECTION CALCULATION
+	*
+	* Given: ray, position, r
+	* Sought: intersects? if true: *t
+	* 
+	* Insert calculation of ray/sphere intersection here. 
+	*
+	* You have the sphere's center (C) and radius (r) as well as
+	* the ray's origin (ray.O) and direction (ray.D).
+	*
+	* If the ray does not intersect the sphere, return false.
+	* Otherwise, return true and place the distance of the
+	* intersection point from the ray origin in *t (see example).
+	****************************************************/
+	
+	// t = (D . (C-O)) +/- sqrt( (D . (C-O))^2 - (C-O)^2 + r^2 )
+	// where C=position
+	Vector CO = position - ray.O;
+	double DdotCO = ray.D.dot(CO);
+	double inRoot = DdotCO * DdotCO - CO.length_2() + r*r;
+	if (inRoot < 0) {
+		// No solutions
+		return Hit::NO_HIT();
+	}
+	double t1 = DdotCO - sqrt(inRoot);
+	double t2 = DdotCO + sqrt(inRoot);
+	
+	// Negative values for t are invalid. If both solutions are negative,
+	// there is no "real" intersection
+	if (t1 < 0 && t2 < 0) {
+		return Hit::NO_HIT();
+	}
+	// Return the lowest value in {t1, t2} that is non-negative
+	double t = (t1 <= t2 && t1 >= 0) ? t1 : t2;
 
-    // place holder for actual intersection calculation
+	/****************************************************
+	* RT1.2: NORMAL CALCULATION
+	*
+	* Given: t, C, r
+	* Sought: N
+	* 
+	* Insert calculation of the sphere's normal at the intersection point.
+	****************************************************/
 
-    Vector OC = (position - ray.O).normalized();
-    if (OC.dot(ray.D) < 0.999) {
-        return Hit::NO_HIT();
-    }
-    double t = 1000;
+	Vector N = (ray.at(t) - position).normalize();
 
-    /****************************************************
-    * RT1.2: NORMAL CALCULATION
-    *
-    * Given: t, C, r
-    * Sought: N
-    * 
-    * Insert calculation of the sphere's normal at the intersection point.
-    ****************************************************/
-
-    Vector N /* = ... */;
-
-    return Hit(t,N);
+	return Hit(t,N);
 }

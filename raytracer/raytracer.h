@@ -24,18 +24,18 @@
 
 class Raytracer {
 private:
-    Scene *scene;
+	Scene *scene;
 
-    // Couple of private functions for parsing YAML nodes
-    Material* parseMaterial(const YAML::Node& node);
-    Object* parseObject(const YAML::Node& node);
-    Light* parseLight(const YAML::Node& node);
+	// Couple of private functions for parsing YAML nodes
+	Material* parseMaterial(const YAML::Node& node);
+	Object* parseObject(const YAML::Node& node);
+	Light* parseLight(const YAML::Node& node);
 
 public:
-    Raytracer() { }
+	Raytracer() { }
 
-    bool readScene(const std::string& inputFilename);
-    void renderToFile(const std::string& outputFilename);
+	bool readScene(const std::string& inputFilename);
+	void renderToFile(const std::string& outputFilename);
 };
 
 #endif /* end of include guard: RAYTRACER_H_6GQO67WK */

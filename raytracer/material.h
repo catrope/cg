@@ -21,13 +21,13 @@
 class Material
 {
 public:
-    Color color;        // base color
-    double ka;          // ambient intensity
-    double kd;          // diffuse intensity
-    double ks;          // specular intensity 
-    double n;           // exponent for specular highlight size
+	Color color;		// base color
+	double ka;		// ambient intensity
+	double kd;		// diffuse intensity
+	double ks;		// specular intensity 
+	double n;		// exponent for specular highlight size
 
-    Material() { }
+	Material() { }
 };
 
 #endif /* end of include guard: MATERIAL_H_TWMNT2EJ */
