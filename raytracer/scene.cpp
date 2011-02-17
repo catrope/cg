@@ -58,6 +58,17 @@ Color Scene::trace(const Ray &ray)
 	****************************************************/
 
 	Color color = material->color; // placeholder
+	
+	for (unsigned int i = 0; i < lights.size(); i++) {
+		double dotProduct  = -N.dot((hit - lights[i]->position).normalized());
+		if (dotProduct >= 0) {
+			color *= material->kd * dotProduct;
+		} else {
+			// If the dot product is negative, the light is not
+			// visible to the viewer
+			color.set(0);
+		}
+	}
 
 	return color;
 }
