@@ -32,13 +32,24 @@ int main(int argc, char *argv[])
     }
     std::string ofname;
     if (argc>=3) {
+        // Output filename provided on command line
         ofname = argv[2];
     } else {
+        // Output filename not provided. Replace .yaml with .png and add timestamp
         ofname = argv[1];
         if (ofname.size()>=5 && ofname.substr(ofname.size()-5)==".yaml") {
             ofname = ofname.substr(0,ofname.size()-5);
         }
-        ofname += ".png";
+        
+        // Generate formatted timestamp
+	time_t rawtime;
+	struct tm *timeinfo;
+	char appendix[30];
+	time( &rawtime );
+	timeinfo = localtime( &rawtime );
+	strftime(appendix, 30, "-%Y%m%d-%H%M%S.png", timeinfo);
+        
+        ofname += appendix;
     }
     raytracer.renderToFile(ofname);
 
