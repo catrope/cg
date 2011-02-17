@@ -58,6 +58,10 @@ Color Scene::trace(const Ray &ray)
 	****************************************************/
 
 	Color color = material->color; // placeholder
+	
+	for (unsigned int i = 0; i < lights.size(); i++) {
+		color *= material->kd * N.dot(lights[i]->position - hit);
+	}
 
 	return color;
 }
