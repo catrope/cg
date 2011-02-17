@@ -61,6 +61,7 @@ GLfloat angleX = 0, angleY = 0;
 
 void initVBO(void)
 {
+	// build all the buffers and upload the array data
 	glGenBuffersARB(1, &vboCubeVertices);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeVertices);
 	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW_ARB);
@@ -76,8 +77,10 @@ void initVBO(void)
 
 void destroyVBO(void)
 {
+	// destroy all buffers
 	glDeleteBuffersARB(1, &vboCubeVertices);
 	glDeleteBuffersARB(1, &vboCubeIndices);
+	glDeleteBuffersARB(1, &vboCubeColours);
 }
 
 void display(void)
@@ -90,27 +93,27 @@ void display(void)
 	glRotatef(angleX, 1.0, 0.0, 0.0);
 	glRotatef(angleY, 0.0, 1.0, 0.0);
 
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeVertices);
+	// use the buffer indices
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vboCubeIndices);
-	
+
+	// add the vertex array
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeVertices);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	
-	//glVertexPointer(3, GL_FLOAT, 0, cubeVertices);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	
+	// add the colour array
+	glEnableClientState(GL_COLOR_ARRAY);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeColours);
 	glColorPointer(3, GL_FLOAT, 0, 0);
 
-	// draw a cube
-	//glDrawElements(GL_LINES, 24, GL_UNSIGNED_BYTE, cubeIndices);
+	// draw the quads
 	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, 0);
 
-	// deactivate vertex arrays after drawing
+	// unset the client states
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	// bind with 0, so, switch back to normal pointer operation
+	// unbind the buffers
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	
@@ -132,17 +135,22 @@ void keyboard(unsigned char key, int x, int y)
 void motion(int x, int y)
 {
 	int deltaX, deltaY;
+	
+	// calculate the difference with the previous mouse postions
 	deltaX = x - mouseX;
 	deltaY = y - mouseY;
+	
+	// update the mouse positions
 	mouseX = x;
 	mouseY = y;
 
 	if (mouseButtons[GLUT_LEFT_BUTTON] == GLUT_DOWN)
 	{
+		// update and normalise the angles
 		angleY += 0.3*deltaX;
 		while(angleY<-180.0) angleY += 360.0;
 		while(angleY>180.0) angleY -= 360.0;
-		
+
 		angleX += 0.3*deltaY;
 		while(angleX<-180.0) angleX += 360.0;
 		while(angleX>180.0) angleX -= 360.0;
@@ -153,7 +161,10 @@ void motion(int x, int y)
 
 void mouse (int button, int state, int x, int y) 
 {
+	// store what buttons are pressed
 	mouseButtons[button] = state;
+	
+	// store the mouse positions
 	mouseX = x;
 	mouseY = y;
 }
