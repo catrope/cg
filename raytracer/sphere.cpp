@@ -37,14 +37,26 @@ Hit Sphere::intersect(const Ray &ray)
 	* Otherwise, return true and place the distance of the
 	* intersection point from the ray origin in *t (see example).
 	****************************************************/
-
-	// place holder for actual intersection calculation
-
-	Vector OC = (position - ray.O).normalized();
-	if (OC.dot(ray.D) < 0.999) {
+	
+	// t = (D . (C-O)) +/- sqrt( (D . (C-O))^2 - (C-O)^2 + r^2 )
+	// where C=position
+	Vector CO = position - ray.O;
+	double DdotCO = ray.D.dot(CO);
+	double inRoot = DdotCO * DdotCO - CO.length_2() + r*r;
+	if (inRoot < 0) {
+		// No solutions
 		return Hit::NO_HIT();
 	}
-	double t = 1000;
+	double t1 = DdotCO - sqrt(inRoot);
+	double t2 = DdotCO + sqrt(inRoot);
+	
+	// Negative values for t are invalid. If both solutions are negative,
+	// there is no "real" intersection
+	if (t1 < 0 && t2 < 0) {
+		return Hit::NO_HIT();
+	}
+	// Return the lowest value in {t1, t2} that is non-negative
+	double t = (t1 <= t2 && t1 >= 0) ? t1 : t2;
 
 	/****************************************************
 	* RT1.2: NORMAL CALCULATION
