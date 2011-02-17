@@ -55,8 +55,9 @@ GLuint vboCubeVertices = 0;
 GLuint vboCubeIndices = 0;
 GLuint vboCubeColours = 0;
 
-int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
-int mouseX, mouseY;
+int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
+int mouseX, mouseY;
+GLfloat angleX = 0, angleY = 0;
 
 void initVBO(void)
 {
@@ -86,6 +87,8 @@ void display(void)
 	glColor3f(0.0f,0.0f,1.0f);
 	glLoadIdentity();
 	gluLookAt(0.0,0.0,5.0,0.0,0.0,0.0,0.0,1.0,0.0);
+	glRotatef(angleX, 1.0, 0.0, 0.0);
+	glRotatef(angleY, 0.0, 1.0, 0.0);
 
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeVertices);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vboCubeIndices);
@@ -126,24 +129,33 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
-void motion (int x, int y)
+void motion(int x, int y)
 {
-	const double factor = 20.0; 
-	bool changed = false; 
+	int deltaX, deltaY;
+	deltaX = x - mouseX;
+	deltaY = y - mouseY;
+	mouseX = x;
+	mouseY = y;
 
-	if (buttons[GLUT_LEFT_BUTTON] == GLUT_DOWN)
+	if (mouseButtons[GLUT_LEFT_BUTTON] == GLUT_DOWN)
 	{
-	    camera.orbit(mouseY, mouseY, x, y, glutGet(GLUT_WINDOW_WIDTH),  glutGet(GLUT_WINDOW_HEIGHT)); 
-		setup_view(); 
+		angleY += 0.3*deltaX;
+		while(angleY<-180.0) angleY += 360.0;
+		while(angleY>180.0) angleY -= 360.0;
+		
+		angleX += 0.3*deltaY;
+		while(angleX<-180.0) angleX += 360.0;
+		while(angleX>180.0) angleX -= 360.0;
+		
 		glutPostRedisplay(); 
 	}
 }
 
-void mouse (int button, int state, int x, int y) 
+void mouse (int button, int state, int x, int y) 
 {
-	mouseButtons[button] = state; 
-	mouseX = x; 
-	mouseY = y; 
+	mouseButtons[button] = state;
+	mouseX = x;
+	mouseY = y;
 }
 
 void reshape(int w, int h)
@@ -190,6 +202,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutReshapeFunc(reshape);
+	glutMouseFunc(mouse);
 	glutMotionFunc(motion);
 
 	glutMainLoop();
