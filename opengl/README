@@ -1,0 +1,22 @@
+OpenGL framework
+================
+
+This zip-file contains a very simple OpenGL framework that you can use as a basis
+for the programs you will create for the Computer Graphics course.
+
+You will find build files for both Linux/Unix/OS X as well as Microsoft's IDE for Windows (Visual Studio).
+
+Linux/Unix/OS X
+---------------
+
+For Linux/Unix/OS X you need only two files: openglframework.c and Makefile. You can remove the rest of the files and directories if you would like to unclutter your directory structure.
+
+Building is simply:
+
+  make
+
+
+Visual Studio
+-------------
+
+The rest of the files and directories help in supporting Visual Studio (it includes a copy of freeglut).
