@@ -16,5 +16,5 @@
 
 ostream& operator<<(ostream& s, const Triple& v) 
 {
-    return s << '[' << v.x << ',' << v.y << ',' << v.z << ']';
+	return s << '[' << v.x << ',' << v.y << ',' << v.z << ']';
 }

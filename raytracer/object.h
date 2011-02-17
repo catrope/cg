@@ -24,11 +24,11 @@ class Material;
 
 class Object {
 public:
-    Material *material;
+	Material *material;
 
-    virtual ~Object() { }
+	virtual ~Object() { }
 
-    virtual Hit intersect(const Ray &ray) = 0;
+	virtual Hit intersect(const Ray &ray) = 0;
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */
