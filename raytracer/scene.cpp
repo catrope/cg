@@ -39,10 +39,13 @@ Color Scene::trace(const Ray &ray)
 	Vector V = -ray.D; //the view vector
 
 	// Apply Phong lighting
-	Color color = material->color;
+	Color color(0.0, 0.0, 0.0);
 	
-	// Diffuse lighting
 	for (unsigned int i = 0; i < lights.size(); i++) {
+		// Ambient lighting
+		// TODO
+		
+		// Diffuse lighting
 		/* For each light, calculate the dot product of (-N) and
 		 * the incoming light ray direction (vector from the light
 		 * source to the hit point, normalized to length 1)
@@ -50,12 +53,10 @@ Color Scene::trace(const Ray &ray)
 		 */
 		// Note that (-N).x == -(N.x)
 		double dotProduct  = -N.dot((hit - lights[i]->position).normalized());
+		// If the dot product is negative, the light is not
+		// visible to the viewer
 		if (dotProduct >= 0) {
-			color *= material->kd * dotProduct;
-		} else {
-			// If the dot product is negative, the light is not
-			// visible to the viewer
-			color.set(0);
+			color += material->kd * material->color * lights[i]->color * dotProduct;
 		}
 	}
 
