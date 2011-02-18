@@ -38,7 +38,8 @@ Color Scene::trace(const Ray &ray)
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
 
-	// Apply Phong lighting
+	// Apply Phong lighting model
+	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
 	Color color(0.0, 0.0, 0.0);
 	Color ambient(0.0, 0.0, 0.0); // accumulator for ambient light intensity
 	
