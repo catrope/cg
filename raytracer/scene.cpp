@@ -44,7 +44,7 @@ Color Scene::trace(const Ray &ray)
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
 		// i.e. the reversed direction of the incoming ray
-		double L = (lights[i]->position - hit).normalized();
+		Vector L = (lights[i]->position - hit).normalized();
 		
 		// Ambient lighting
 		// TODO
@@ -55,6 +55,14 @@ Color Scene::trace(const Ray &ray)
 		// visible to the viewer
 		if (NL >= 0) {
 			color += material->kd * material->color * lights[i]->color * NL;
+		}
+		
+		// Specular lighting
+		Vector H = (V + L).normalized();
+		double NH = N.dot(H);
+		// Skip negative dot products, see above
+		if (NH >= 0) {
+			color += material->ks * material->color * lights[i]->color * NH;
 		}
 	}
 
