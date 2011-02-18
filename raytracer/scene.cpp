@@ -42,21 +42,19 @@ Color Scene::trace(const Ray &ray)
 	Color color(0.0, 0.0, 0.0);
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
+		// Normalized vector from the surface to the light source,
+		// i.e. the reversed direction of the incoming ray
+		double L = (lights[i]->position - hit).normalized();
+		
 		// Ambient lighting
 		// TODO
 		
 		// Diffuse lighting
-		/* For each light, calculate the dot product of (-N) and
-		 * the incoming light ray direction (vector from the light
-		 * source to the hit point, normalized to length 1)
-		 * and, if positive, use it to scale the color.
-		 */
-		// Note that (-N).x == -(N.x)
-		double dotProduct  = -N.dot((hit - lights[i]->position).normalized());
+		double NL = N.dot(L);
 		// If the dot product is negative, the light is not
 		// visible to the viewer
-		if (dotProduct >= 0) {
-			color += material->kd * material->color * lights[i]->color * dotProduct;
+		if (NL >= 0) {
+			color += material->kd * material->color * lights[i]->color * NL;
 		}
 	}
 
