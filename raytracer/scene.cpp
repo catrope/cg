@@ -40,14 +40,15 @@ Color Scene::trace(const Ray &ray)
 
 	// Apply Phong lighting
 	Color color(0.0, 0.0, 0.0);
+	Color ambient(0.0, 0.0, 0.0); // accumulator for ambient light intensity
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
 		// i.e. the reversed direction of the incoming ray
 		Vector L = (lights[i]->position - hit).normalized();
 		
-		// Ambient lighting
-		// TODO
+		// This light's contribution to ambient lighting
+		ambient += lights[i]->color;
 		
 		// Diffuse lighting
 		double NL = N.dot(L);
@@ -65,6 +66,10 @@ Color Scene::trace(const Ray &ray)
 			color += material->ks * material->color * lights[i]->color * pow(NH, material->n);
 		}
 	}
+	
+	// Ambient lighting
+	ambient.clamp();
+	color += material->ka * material->color * ambient;
 
 	return color;
 }
