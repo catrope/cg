@@ -62,7 +62,7 @@ Color Scene::trace(const Ray &ray)
 		double NH = N.dot(H);
 		// Skip negative dot products, see above
 		if (NH >= 0) {
-			color += material->ks * material->color * lights[i]->color * NH;
+			color += material->ks * material->color * lights[i]->color * pow(NH, material->n);
 		}
 	}
 
