@@ -59,11 +59,12 @@ Color Scene::trace(const Ray &ray)
 		}
 		
 		// Specular lighting
-		Vector H = (V + L).normalized();
-		double NH = N.dot(H);
-		// Skip negative dot products, see above
-		if (NH >= 0) {
-			color += material->ks * lights[i]->color * pow(NH, material->n);
+		Vector R = -1*L + 2*L.dot(N)*N; // R = -L + 2(L.N)N
+		double VR = V.dot(R);
+		// Skip negative dot products, see above.
+		// We also don't want negative exponents
+		if (VR >= 0 && material->n > 0) {
+			color += material->ks * lights[i]->color * pow(VR, material->n);
 		}
 	}
 	
