@@ -38,28 +38,17 @@ Color Scene::trace(const Ray &ray)
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
 
-
-	/****************************************************
-	* This is where you should insert the color
-	* calculation (Phong model).
-	*
-	* Given: material, hit, N, V, lights[]
-	* Sought: color
-	*
-	* Hints: (see triple.h)
-	*		Triple.dot(Vector)	dot product
-	*		Vector+Vector		vector sum
-	*		Vector-Vector		vector difference
-	*		Point-Point		yields vector
-	*		Vector.normalize()	normalizes vector, returns length
-	*		double*Color		scales each color component (r,g,b)
-	*		Color*Color		ditto
-	*		pow(a,b)		a to the power of b
-	****************************************************/
-
-	Color color = material->color; // placeholder
+	// Apply Phong lighting
+	Color color = material->color;
 	
+	// Diffuse lighting
 	for (unsigned int i = 0; i < lights.size(); i++) {
+		/* For each light, calculate the dot product of (-N) and
+		 * the incoming light ray direction (vector from the light
+		 * source to the hit point, normalized to length 1)
+		 * and, if positive, use it to scale the color.
+		 */
+		// Note that (-N).x == -(N.x)
 		double dotProduct  = -N.dot((hit - lights[i]->position).normalized());
 		if (dotProduct >= 0) {
 			color *= material->kd * dotProduct;
