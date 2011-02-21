@@ -1,6 +1,7 @@
 /*
 * An OpenGL template/framework file for the Computer Graphics course
 * at the University of Groningen.
+* Authors: Roan Kattouw and Jan Paul Posma
 */
 
 // If windows is used, windows.h should be included (before gl.h and glu.h)
@@ -42,7 +43,7 @@
 
 GLfloat cubeVertices[8*3] = {-1,-1,-1, -1,-1, 1, -1, 1,-1,  1,-1,-1, -1, 1, 1,  1,-1, 1,  1, 1,-1,  1, 1, 1};
 GLfloat cubeColours[8*3]  = { 1, 0, 0,  0, 1, 0,  0, 0, 1,  1, 1, 0,  0, 1, 1,  1, 0, 1,  0.8, 0.5, 0.3,  0.3, 0.5, 0.8};
-GLubyte cubeIndices[2*12] = {
+GLubyte cubeIndices[4*6] = {
 		1,5,7,4, // front
 		1,4,2,0, // left
 		1,0,3,5, // bottom
