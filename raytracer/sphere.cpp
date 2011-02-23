@@ -13,6 +13,8 @@
 //  Bert Freudenberg that can be found at
 //  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html 
 //
+//    Roan Kattouw
+//    Jan Paul Posma
 
 #include "sphere.h"
 #include <iostream>

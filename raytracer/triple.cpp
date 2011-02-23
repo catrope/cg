@@ -5,7 +5,10 @@
 //  Created for the Computer Science course "Introduction Computer Graphics"
 //  taught at the University of Groningen by Tobias Isenberg.
 //
-//  Author: Maarten Everts
+//  Authors:
+//    Maarten Everts
+//    Roan Kattouw
+//    Jan Paul Posma
 //
 //  This framework is inspired by and uses code of the raytracer framework of 
 //  Bert Freudenberg that can be found at
