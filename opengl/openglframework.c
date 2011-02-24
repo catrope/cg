@@ -54,6 +54,11 @@ void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfl
 
 void display(void)
 {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
+	glMatrixMode(GL_MODELVIEW);
+	
 	/* Clear all pixels */
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -161,8 +166,10 @@ void reshape(int w, int h)
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
+	gluPerspective(zoom*2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
 	glMatrixMode(GL_MODELVIEW);
+	width = w;
+	height = h;
 }
 
 int main(int argc, char** argv)
