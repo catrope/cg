@@ -8,6 +8,8 @@
 //  Authors:
 //    Maarten Everts
 //    Jasper van de Gronde
+//    Roan Kattouw
+//    Jan Paul Posma
 //
 //  This framework is inspired by and uses code of the raytracer framework of 
 //  Bert Freudenberg that can be found at
@@ -38,37 +40,40 @@ Color Scene::trace(const Ray &ray)
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
 
-
-	/****************************************************
-	* This is where you should insert the color
-	* calculation (Phong model).
-	*
-	* Given: material, hit, N, V, lights[]
-	* Sought: color
-	*
-	* Hints: (see triple.h)
-	*		Triple.dot(Vector)	dot product
-	*		Vector+Vector		vector sum
-	*		Vector-Vector		vector difference
-	*		Point-Point		yields vector
-	*		Vector.normalize()	normalizes vector, returns length
-	*		double*Color		scales each color component (r,g,b)
-	*		Color*Color		ditto
-	*		pow(a,b)		a to the power of b
-	****************************************************/
-
-	Color color = material->color; // placeholder
+	// Apply Phong lighting model
+	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
+	Color color(0.0, 0.0, 0.0);
+	Color ambient(0.0, 0.0, 0.0); // accumulator for ambient light intensity
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
-		double dotProduct  = -N.dot((hit - lights[i]->position).normalized());
-		if (dotProduct >= 0) {
-			color *= material->kd * dotProduct;
-		} else {
-			// If the dot product is negative, the light is not
-			// visible to the viewer
-			color.set(0);
+		// Normalized vector from the surface to the light source,
+		// i.e. the reversed direction of the incoming ray
+		Vector L = (lights[i]->position - hit).normalized();
+		
+		// This light's contribution to ambient lighting
+		ambient += lights[i]->color;
+		
+		// Diffuse lighting
+		double NL = N.dot(L);
+		// If the dot product is negative, the light is not
+		// visible to the viewer
+		if (NL >= 0) {
+			color += material->kd * material->color * lights[i]->color * NL;
+		}
+		
+		// Specular lighting
+		Vector R = -1*L + 2*L.dot(N)*N; // R = -L + 2(L.N)N
+		double VR = V.dot(R);
+		// Skip negative dot products, see above.
+		// We also don't want negative exponents
+		if (VR >= 0 && material->n > 0) {
+			color += material->ks * lights[i]->color * pow(VR, material->n);
 		}
 	}
+	
+	// Ambient lighting
+	ambient.clamp();
+	color += material->ka * material->color * ambient;
 
 	return color;
 }

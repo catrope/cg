@@ -13,6 +13,8 @@
 //  Bert Freudenberg that can be found at
 //  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html 
 //
+//    Roan Kattouw
+//    Jan Paul Posma
 
 #include "sphere.h"
 #include <iostream>
@@ -22,26 +24,17 @@
 
 Hit Sphere::intersect(const Ray &ray)
 {
-	/****************************************************
-	* RT1.1: INTERSECTION CALCULATION
-	*
-	* Given: ray, position, r
-	* Sought: intersects? if true: *t
-	* 
-	* Insert calculation of ray/sphere intersection here. 
-	*
-	* You have the sphere's center (C) and radius (r) as well as
-	* the ray's origin (ray.O) and direction (ray.D).
-	*
-	* If the ray does not intersect the sphere, return false.
-	* Otherwise, return true and place the distance of the
-	* intersection point from the ray origin in *t (see example).
-	****************************************************/
-	
-	// t = (D . (C-O)) +/- sqrt( (D . (C-O))^2 - (C-O)^2 + r^2 )
-	// where C=position
+	/* t = (l . c) +/- sqrt( (l . c)^2 - c^2 + r^2 )
+	 * Formula and derivation found at https://secure.wikimedia.org/wikipedia/en/wiki/Line%E2%80%93sphere_intersection
+	 * In this formula, l is the direction vector of the ray,
+	 * c is the center of the circle, and r is its radius. The origin of
+	 * the ray is assumed to be at (0,0,0). Removing the latter assumption
+	 * and substituting the right letters, we get:
+	 * t = (D . (C-O)) +/- sqrt( (D . (C-O))^2 - (C-O)^2 + r^2 )
+	 * where C=position, O=ray.O and D=ray.D
+	 */
 	Vector CO = position - ray.O;
-	double DdotCO = ray.D.dot(CO);
+	double DdotCO = ray.D.dot(CO); // D.(C-O)
 	double inRoot = DdotCO * DdotCO - CO.length_2() + r*r;
 	if (inRoot < 0) {
 		// No solutions
@@ -58,15 +51,9 @@ Hit Sphere::intersect(const Ray &ray)
 	// Return the lowest value in {t1, t2} that is non-negative
 	double t = (t1 <= t2 && t1 >= 0) ? t1 : t2;
 
-	/****************************************************
-	* RT1.2: NORMAL CALCULATION
-	*
-	* Given: t, C, r
-	* Sought: N
-	* 
-	* Insert calculation of the sphere's normal at the intersection point.
-	****************************************************/
-
+	// Calculate surface normal vector. This is simply the vector from
+	// the center of the sphere to the intersection point, normalized
+	// to length 1.
 	Vector N = (ray.at(t) - position).normalized();
 
 	return Hit(t,N);
