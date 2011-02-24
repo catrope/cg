@@ -18,7 +18,7 @@ char * readTextFile(FILE * fp)
 	if (numRead != numChars) {
 		fprintf(stderr,"Error reading from file.\n");
 	}
-    text[numChars] = 0;
+	text[numChars] = 0;
 	return text;
 }
 
