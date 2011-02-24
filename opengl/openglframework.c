@@ -58,6 +58,9 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	gluLookAt(200.0,200.0,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+	glRotatef(angleX, 1.0, 0.0, 0.0);
+	glRotatef(angleY, 0.0, 1.0, 0.0);
+
 
 	/* Set up other things you may need */
 	/* ... */
