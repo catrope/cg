@@ -18,6 +18,7 @@
 
 #include "scene.h"
 #include "material.h"
+#include <cstdio>
 
 Color Scene::trace(const Ray &ray)
 {
@@ -39,7 +40,21 @@ Color Scene::trace(const Ray &ray)
 	Point hit = ray.at(min_hit.t); //the hit point
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
+	
+	//printf("%f", min_hit.t);
+	switch (mode)
+	{
+		case phong:
+			return calcPhong(material, &hit, &N, &V);
+		case zbuffer:
+			return Color(min_hit.t/1000, min_hit.t/1000, min_hit.t/1000);
+		case normal:
+			return N;
+	}
+}
 
+Color Scene::calcPhong(Material *material, Point *hit, Vector *N, Vector *V)
+{
 	// Apply Phong lighting model
 	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
 	Color color(0.0, 0.0, 0.0);
@@ -48,13 +63,13 @@ Color Scene::trace(const Ray &ray)
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
 		// i.e. the reversed direction of the incoming ray
-		Vector L = (lights[i]->position - hit).normalized();
+		Vector L = (lights[i]->position - *hit).normalized();
 		
 		// This light's contribution to ambient lighting
 		ambient += lights[i]->color;
 		
 		// Diffuse lighting
-		double NL = N.dot(L);
+		double NL = N->dot(L);
 		// If the dot product is negative, the light is not
 		// visible to the viewer
 		if (NL >= 0) {
@@ -62,8 +77,8 @@ Color Scene::trace(const Ray &ray)
 		}
 		
 		// Specular lighting
-		Vector R = -1*L + 2*L.dot(N)*N; // R = -L + 2(L.N)N
-		double VR = V.dot(R);
+		Vector R = -1*L + 2*L.dot(*N)*(*N); // R = -L + 2(L.N)N
+		double VR = V->dot(R);
 		// Skip negative dot products, see above.
 		// We also don't want negative exponents
 		if (VR >= 0 && material->n > 0) {
@@ -74,7 +89,7 @@ Color Scene::trace(const Ray &ray)
 	// Ambient lighting
 	ambient.clamp();
 	color += material->ka * material->color * ambient;
-
+	
 	return color;
 }
 

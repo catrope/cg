@@ -31,6 +31,7 @@ private:
 	std::vector<Object*> objects;
 	std::vector<Light*> lights;
 	Triple eye;
+	Color calcPhong(Material *material, Point *hit, Vector *N, Vector *V);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal
