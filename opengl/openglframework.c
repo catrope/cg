@@ -30,6 +30,8 @@
 #include <GL/glut.h>
 #endif
 
+#include "glslshaders.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -52,15 +54,37 @@ void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfl
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, n);
 }
 
+void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) {
+	GLfloat ambient[] = {r, g, b, 1.0};
+	GLfloat diffuse[] = {r, g, b, 1.0};
+	GLfloat specular[] = {r, g, b, 1.0};
+	GLfloat pos[] = {x, y, z};
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+}
+
 void display(void)
 {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
+	glMatrixMode(GL_MODELVIEW);
+	
 	/* Clear all pixels */
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	gluLookAt(200.0,200.0,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+	glTranslatef(200.0, 200.0, 200.00);
+	glRotatef(angleX, 1.0, 0.0, 0.0);
+	glRotatef(angleY, 0.0, 1.0, 0.0);
+	glTranslatef(-200.0, -200.0, -200.0);
 
-	/* Set up other things you may need */
-	/* ... */
+	setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_DEPTH_TEST);
 
 	setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
 	glPushMatrix();
@@ -158,8 +182,10 @@ void reshape(int w, int h)
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
+	gluPerspective(zoom*2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
 	glMatrixMode(GL_MODELVIEW);
+	width = w;
+	height = h;
 }
 
 int main(int argc, char** argv)
@@ -171,9 +197,10 @@ int main(int argc, char** argv)
 
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800,600);
+	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
+	initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");
 	
 #if defined(NEED_GLEW)
 	/* Init GLEW if needed */
@@ -188,7 +215,7 @@ int main(int argc, char** argv)
 	
 	/* Select clearing (background) color */
 	glClearColor(0.0,0.0,0.0,0.0);
-	glShadeModel(GL_FLAT);
+	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 
 	/* Register GLUT callback functions */

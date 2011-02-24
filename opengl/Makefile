@@ -7,7 +7,7 @@ CC = gcc -g -Wall
 UNAME=$(shell uname)
 
 EXECUTABLE = openglframework
-OBJS = openglframework.o
+OBJS = openglframework.o glslshaders.o
 
 ifeq ($(UNAME),Darwin)
 	LIBS = -lm -framework OpenGL -framework GLUT
