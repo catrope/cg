@@ -44,15 +44,16 @@ int main(int argc, char *argv[])
 		}
 		
 		// Generate formatted timestamp
-	time_t rawtime;
-	struct tm *timeinfo;
-	char appendix[30];
-	time( &rawtime );
-	timeinfo = localtime( &rawtime );
-	strftime(appendix, 30, "-%Y%m%d-%H%M%S.png", timeinfo);
+		time_t rawtime;
+		struct tm *timeinfo;
+		char appendix[30];
+		time( &rawtime );
+		timeinfo = localtime( &rawtime );
+		strftime(appendix, 30, "-%Y%m%d-%H%M%S.png", timeinfo);
 
-	ofname += appendix;
+		ofname += appendix;
 	}
+	
 	raytracer.renderToFile(ofname);
 
 	return 0;
