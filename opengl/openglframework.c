@@ -34,96 +34,67 @@
 #include <stdio.h>
 #include <math.h>
 
-//    2-------6
-//   /|      /|
-//  4-------7 |
-//  | |     | |
-//  | |0----|-|3
-//  |/      |/
-//  1-------5
+#define SPHERE_N (20)
 
-GLfloat cubeVertices[8*3] = {-1,-1,-1, -1,-1, 1, -1, 1,-1,  1,-1,-1, -1, 1, 1,  1,-1, 1,  1, 1,-1,  1, 1, 1};
-GLfloat cubeColours[8*3]  = { 1, 0, 0,  0, 1, 0,  0, 0, 1,  1, 1, 0,  0, 1, 1,  1, 0, 1,  0.8, 0.5, 0.3,  0.3, 0.5, 0.8};
-GLubyte cubeIndices[4*6] = {
-		1,5,7,4, // front
-		1,4,2,0, // left
-		1,0,3,5, // bottom
-		5,7,6,3, // right
-		4,2,6,7, // top
-		0,3,6,2, // back
-	};
-
-GLuint vboCubeVertices = 0;
-GLuint vboCubeIndices = 0;
-GLuint vboCubeColours = 0;
 
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
 GLfloat angleX = 0, angleY = 0, zoom = 1.0;
 
-void initVBO(void)
+void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfloat ks, GLfloat n)
 {
-	// build all the buffers and upload the array data
-	glGenBuffersARB(1, &vboCubeVertices);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeVertices);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW_ARB);
-
-	glGenBuffersARB(1, &vboCubeIndices);
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vboCubeIndices);
-	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW_ARB);
-	
-	glGenBuffersARB(1, &vboCubeColours);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeColours);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(cubeColours), cubeColours, GL_STATIC_DRAW_ARB);
-}
-
-void destroyVBO(void)
-{
-	// destroy all buffers
-	glDeleteBuffersARB(1, &vboCubeVertices);
-	glDeleteBuffersARB(1, &vboCubeIndices);
-	glDeleteBuffersARB(1, &vboCubeColours);
+	GLfloat ambient[] = {ka*r,ka*g,ka*b,1.0};
+	GLfloat diffuse[] = {kd*r,kd*g,kd*b,1.0};
+	GLfloat specular[] = {ks,ks,ks,1.0};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, n);
 }
 
 void display(void)
 {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(zoom*60.0,(GLdouble)width/(GLdouble)height,1.5,20.0);
-	glMatrixMode(GL_MODELVIEW);
-	
 	/* Clear all pixels */
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glColor3f(0.0f,0.0f,1.0f);
 	glLoadIdentity();
-	gluLookAt(0.0,0.0,5.0,0.0,0.0,0.0,0.0,1.0,0.0);
-	glRotatef(angleX, 1.0, 0.0, 0.0);
-	glRotatef(angleY, 0.0, 1.0, 0.0);
+	gluLookAt(200.0,200.0,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
 
-	// use the buffer indices
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vboCubeIndices);
+	/* Set up other things you may need */
+	/* ... */
 
-	// add the vertex array
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeVertices);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
-	
-	// add the colour array
-	glEnableClientState(GL_COLOR_ARRAY);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboCubeColours);
-	glColorPointer(3, GL_FLOAT, 0, 0);
+	setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
+	glPushMatrix();
+	glTranslated(90,320,100);
+	glutSolidSphere(50,SPHERE_N,SPHERE_N);
+	glPopMatrix();
 
-	// draw the quads
-	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, 0);
+	setGlMaterial(0.0f,1.0f,0.0f,0.2,0.3,0.5,8);
+	glPushMatrix();
+	glTranslated(210,270,300);
+	glutSolidSphere(50,SPHERE_N,SPHERE_N);
+	glPopMatrix();
 
-	// unset the client states
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
+	setGlMaterial(1.0f,0.0f,0.0f,0.2,0.7,0.8,32);
+	glPushMatrix();
+	glTranslated(290,170,150);
+	glutSolidSphere(50,SPHERE_N,SPHERE_N);
+	glPopMatrix();
 
-	// unbind the buffers
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-	
+	setGlMaterial(1.0f,0.8f,0.0f,0.2,0.8,0.0,1);
+	glPushMatrix();
+	glTranslated(140,220,400);
+	glutSolidSphere(50,SPHERE_N,SPHERE_N);
+	glPopMatrix();
+
+	setGlMaterial(1.0f,0.5f,0.0f,0.2,0.8,0.5,32);
+	glPushMatrix();
+	glTranslated(110,130,200);
+	glutSolidSphere(50,SPHERE_N,SPHERE_N);
+	glPopMatrix();
+
+	/* Whatever clean up you need */
+	/* ... */
+
 	glutSwapBuffers();
 }
 
@@ -185,8 +156,10 @@ void mouse (int button, int state, int x, int y)
 void reshape(int w, int h)
 {
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
-	width = w;
-	height = h;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
+	glMatrixMode(GL_MODELVIEW);
 }
 
 int main(int argc, char** argv)
@@ -202,8 +175,6 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
 	
-	initVBO();
-
 #if defined(NEED_GLEW)
 	/* Init GLEW if needed */
 	err = glewInit();
@@ -228,8 +199,6 @@ int main(int argc, char** argv)
 	glutMotionFunc(motion);
 
 	glutMainLoop();
-	
-	destroyVBO();
 
 	return 0;
 }
