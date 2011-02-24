@@ -52,6 +52,17 @@ void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfl
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, n);
 }
 
+void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) {
+	GLfloat ambient[] = {r, g, b, 1.0};
+	GLfloat diffuse[] = {r, g, b, 1.0};
+	GLfloat specular[] = {r, g, b, 1.0};
+	GLfloat pos[] = {x, y, z};
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+}
+
 void display(void)
 {
 	glMatrixMode(GL_PROJECTION);
@@ -66,9 +77,10 @@ void display(void)
 	glRotatef(angleX, 1.0, 0.0, 0.0);
 	glRotatef(angleY, 0.0, 1.0, 0.0);
 
-
-	/* Set up other things you may need */
-	/* ... */
+	setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_DEPTH_TEST);
 
 	setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
 	glPushMatrix();
