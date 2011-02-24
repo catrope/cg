@@ -174,7 +174,7 @@ int main(int argc, char** argv)
 
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800,600);
+	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
 	
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 	
 	/* Select clearing (background) color */
 	glClearColor(0.0,0.0,0.0,0.0);
-	glShadeModel(GL_FLAT);
+	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 
 	/* Register GLUT callback functions */
