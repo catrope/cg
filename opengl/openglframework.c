@@ -74,8 +74,10 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	gluLookAt(200.0,200.0,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+	glTranslatef(200.0, 200.0, 200.00);
 	glRotatef(angleX, 1.0, 0.0, 0.0);
 	glRotatef(angleY, 0.0, 1.0, 0.0);
+	glTranslatef(-200.0, -200.0, -200.0);
 
 	setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
 	glEnable(GL_LIGHTING);
