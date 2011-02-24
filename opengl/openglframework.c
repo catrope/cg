@@ -168,7 +168,6 @@ void motion(int x, int y)
 	if (mouseButtons[GLUT_RIGHT_BUTTON] == GLUT_DOWN)
 	{
 		zoom *= exp(0.001*deltaY);
-		printf("%f ", zoom); fflush(stdout);
 		glutPostRedisplay(); 
 	}
 }
