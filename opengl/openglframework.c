@@ -31,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 //    2-------6
 //   /|      /|
@@ -56,8 +57,8 @@ GLuint vboCubeIndices = 0;
 GLuint vboCubeColours = 0;
 
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
-int mouseX, mouseY;
-GLfloat angleX = 0, angleY = 0;
+int mouseX, mouseY, width, height;
+GLfloat angleX = 0, angleY = 0, zoom = 1.0;
 
 void initVBO(void)
 {
@@ -85,6 +86,11 @@ void destroyVBO(void)
 
 void display(void)
 {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(zoom*60.0,(GLdouble)width/(GLdouble)height,1.5,20.0);
+	glMatrixMode(GL_MODELVIEW);
+	
 	/* Clear all pixels */
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glColor3f(0.0f,0.0f,1.0f);
@@ -143,7 +149,7 @@ void motion(int x, int y)
 	// update the mouse positions
 	mouseX = x;
 	mouseY = y;
-
+	
 	if (mouseButtons[GLUT_LEFT_BUTTON] == GLUT_DOWN)
 	{
 		// update and normalise the angles
@@ -155,6 +161,13 @@ void motion(int x, int y)
 		while(angleX<-180.0) angleX += 360.0;
 		while(angleX>180.0) angleX -= 360.0;
 		
+		glutPostRedisplay(); 
+	}
+	
+	if (mouseButtons[GLUT_RIGHT_BUTTON] == GLUT_DOWN)
+	{
+		zoom *= exp(0.001*deltaY);
+		printf("%f ", zoom); fflush(stdout);
 		glutPostRedisplay(); 
 	}
 }
@@ -172,10 +185,8 @@ void mouse (int button, int state, int x, int y)
 void reshape(int w, int h)
 {
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60.0,(GLdouble)w/(GLdouble)h,1.5,20.0);
-	glMatrixMode(GL_MODELVIEW);
+	width = w;
+	height = h;
 }
 
 int main(int argc, char** argv)
@@ -222,3 +233,4 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
