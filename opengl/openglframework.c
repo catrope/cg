@@ -30,6 +30,8 @@
 #include <GL/glut.h>
 #endif
 
+#include "glslshaders.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -198,6 +200,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
+	initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");
 	
 #if defined(NEED_GLEW)
 	/* Init GLEW if needed */
