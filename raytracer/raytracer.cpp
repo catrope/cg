@@ -90,6 +90,16 @@ Light* Raytracer::parseLight(const YAML::Node& node)
 	return new Light(position,color);
 }
 
+Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
+{
+	std::string mode;
+	if(node == NULL) return Scene::phong;
+	*node >> mode;
+	if(mode == "zbuffer") return Scene::zbuffer;
+	else if(mode == "normal") return Scene::normal;
+	else return Scene::phong;
+}
+
 /*
 * Read a scene from file
 */
@@ -113,6 +123,8 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 			// Read scene configuration options
 			scene->setEye(parseTriple(doc["Eye"]));
+			
+			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
 
 			// Read and parse the scene objects
 			const YAML::Node& sceneObjects = doc["Objects"];
