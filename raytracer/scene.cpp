@@ -24,6 +24,7 @@ Color Scene::trace(const Ray &ray)
 {
 	// Find hit object and distance
 	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
+	
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
 		Hit hit(objects[i]->intersect(ray));
@@ -41,15 +42,15 @@ Color Scene::trace(const Ray &ray)
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
 	
-	//printf("%f", min_hit.t);
 	switch (mode)
 	{
-		case phong:
-			return calcPhong(material, &hit, &N, &V);
 		case zbuffer:
 			return Color(min_hit.t/1000, min_hit.t/1000, min_hit.t/1000);
 		case normal:
-			return N;
+			return N/2+0.5;
+		case phong:
+		default:
+			return calcPhong(material, &hit, &N, &V);
 	}
 }
 
