@@ -1,0 +1,100 @@
+---
+#  This is an example scene description for the raytracer framework created 
+#  for the Computer Science course "Introduction to Computer Graphics"
+#  taught at the University of Groningen by Tobias Isenberg.
+#
+#  The scene description format we use is based on YAML, which is a human friendly 
+#  data serialization standard. This gives us a flexible format which should be
+#  fairly easy to make both backward and forward compatible (i.e., by ignoring
+#  unknown directives). In addition parsers are available for many languages.
+#  See http://www.yaml.org/ for more information on YAML.
+#
+#  The example scene description should largely speak for itself. By now
+#  it should be clear that the #-character can be used to insert comments.
+
+RenderMode: "phong"
+
+Eye: [200,200,1000]  
+
+Lights:
+- position: [-200,600,1500]
+  color: [1.0,1.0,1.0]
+
+Objects:
+- type: sphere
+  position: [200,200,200]
+  radius: 50
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: sphere
+  position: [180,220,240]
+  radius: 8
+  material: # white
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: sphere
+  position: [220,220,240]
+  radius: 8
+  material: # white
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: triangle
+  p1: [150,200,200]
+  p2: [200,250,200]
+  p3: [160,280,220]
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: triangle
+  p1: [200,250,200]
+  p2: [250,200,200]
+  p3: [240,280,220]
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: triangle
+  p1: [180,240,200]
+  p2: [220,240,200]
+  p3: [200,280,200]
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: triangle
+  p1: [160,220,210]
+  p2: [200,240,210]
+  p3: [180,280,230]
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+- type: triangle
+  p1: [200,240,210]
+  p2: [240,220,210]
+  p3: [220,280,230]
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
