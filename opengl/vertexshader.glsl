@@ -23,9 +23,9 @@ void main()
 	R = -1*L + 2*dot(L, N)*N;
 	
 	/* Compute the view vector V. The viewer is in (0,0,0) in eye coords,
-	 * so we can simply normalize the vertex position here.
+	 * so we can simply invert and normalize the vertex position here.
 	 */
-	V = normalize(vertexPos);
+	V = normalize(-vertexPos);
 	
 	gl_Position = ftransform();
 }
