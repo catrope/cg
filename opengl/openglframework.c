@@ -58,7 +58,7 @@ void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b
 	GLfloat ambient[] = {r, g, b, 1.0};
 	GLfloat diffuse[] = {r, g, b, 1.0};
 	GLfloat specular[] = {r, g, b, 1.0};
-	GLfloat pos[] = {x, y, z};
+	GLfloat pos[] = {x, y, z, 1.0};
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
