@@ -80,14 +80,16 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V)
 			}
 		}
 		
+		// This light's contribution to ambient lighting
+		ambient += lights[i]->color;
+		
 		// If this light ray is shadowed from this object by some other
-		// object, ignore it.
+		// object, ignore it. We still need this light's contribution
+		// to ambient lighting, though, which is why this check has to
+		// be in this exact place.
 		if (shadowed) {
 			continue;
 		}
-		
-		// This light's contribution to ambient lighting
-		ambient += lights[i]->color;
 		
 		// Diffuse lighting
 		double NL = N->dot(L);
