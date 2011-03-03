@@ -45,7 +45,7 @@ Triple parseTriple(const YAML::Node& node)
 	Triple t;
 	node[0] >> t.x;
 	node[1] >> t.y;
-	node[2] >> t.z;	
+	node[2] >> t.z;
 	return t;
 }
 
@@ -117,6 +117,16 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	else return Scene::phong;
 }
 
+bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)
+{
+	bool retval;
+	if(node == NULL) {
+		return defaultVal;
+	}
+	*node >> retval;
+	return retval;
+}
+
 /*
 * Read a scene from file
 */
@@ -140,8 +150,8 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 			// Read scene configuration options
 			scene->setEye(parseTriple(doc["Eye"]));
-			
 			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
+			scene->setShadows(parseBool(doc.FindValue("Shadows"), false));
 
 			// Read and parse the scene objects
 			const YAML::Node& sceneObjects = doc["Objects"];
