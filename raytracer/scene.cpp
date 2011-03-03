@@ -37,7 +37,6 @@ Color Scene::trace(const Ray &ray)
 	// No hit? Return background color.
 	if (!obj) return Color(0.0, 0.0, 0.0);
 
-	Material *material = obj->material; //the hit objects material
 	Point hit = ray.at(min_hit.t); //the hit point
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
@@ -50,11 +49,11 @@ Color Scene::trace(const Ray &ray)
 			return N/2+0.5;
 		case phong:
 		default:
-			return calcPhong(material, &hit, &N, &V);
+			return calcPhong(obj, &hit, &N, &V);
 	}
 }
 
-Color Scene::calcPhong(Material *material, Point *hit, Vector *N, Vector *V)
+Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V)
 {
 	// Apply Phong lighting model
 	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
@@ -63,8 +62,29 @@ Color Scene::calcPhong(Material *material, Point *hit, Vector *N, Vector *V)
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
-		// i.e. the reversed direction of the incoming ray
+		// i.e. the reversed direction of the incoming light ray
 		Vector L = (lights[i]->position - *hit).normalized();
+		
+		// Construct an object for the incoming light ray and check
+		// whether it intersects any other objects before this one
+		Ray lightRay(lights[i]->position, -1*L);
+		Hit ourHit = obj->intersect(lightRay);
+		bool shadowed = false;
+		for (unsigned int j = 0; j < objects.size(); j++) {
+			if (objects[j] != obj) {
+				Hit hit = objects[j]->intersect(lightRay);
+				if (hit.t < ourHit.t) {
+					shadowed = true;
+					break;
+				}
+			}
+		}
+		
+		// If this light ray is shadowed from this object by some other
+		// object, ignore it.
+		if (shadowed) {
+			continue;
+		}
 		
 		// This light's contribution to ambient lighting
 		ambient += lights[i]->color;
@@ -74,7 +94,7 @@ Color Scene::calcPhong(Material *material, Point *hit, Vector *N, Vector *V)
 		// If the dot product is negative, the light is not
 		// visible to the viewer
 		if (NL >= 0) {
-			color += material->kd * material->color * lights[i]->color * NL;
+			color += obj->material->kd * obj->material->color * lights[i]->color * NL;
 		}
 		
 		// Specular lighting
@@ -82,14 +102,14 @@ Color Scene::calcPhong(Material *material, Point *hit, Vector *N, Vector *V)
 		double VR = V->dot(R);
 		// Skip negative dot products, see above.
 		// We also don't want negative exponents
-		if (VR >= 0 && material->n > 0) {
-			color += material->ks * lights[i]->color * pow(VR, material->n);
+		if (VR >= 0 && obj->material->n > 0) {
+			color += obj->material->ks * lights[i]->color * pow(VR, obj->material->n);
 		}
 	}
 	
 	// Ambient lighting
 	ambient.clamp();
-	color += material->ka * material->color * ambient;
+	color += obj->material->ka * obj->material->color * ambient;
 	
 	return color;
 }
