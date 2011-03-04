@@ -43,7 +43,7 @@ int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
 GLfloat angleX = 0, angleY = 0, zoom = 1.0;
 int apertureSamples = 8;
-float apertureC = 3.0;
+GLdouble apertureC = 3.0;
 
 void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfloat ks, GLfloat n)
 {
@@ -70,11 +70,21 @@ void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b
 void display(void)
 {
 	int i;
-	float r, theta;
+	GLdouble r, theta;
+	GLdouble top, bottom, left, right, aspect;
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
+	
+
+	aspect = (GLdouble)width/(GLdouble)height;
+	top = (GLdouble)tan(zoom*atan2(height/2.0,1000.0)) * (GLdouble)500.0;
+	bottom = -top;
+	left = aspect * bottom;
+	right = aspect * top;
+	glFrustum(left, right, bottom, top, 500.0, 1000.0);
+	//gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
+	
 	glMatrixMode(GL_MODELVIEW);
 	
 	glClear(GL_ACCUM_BUFFER_BIT);
@@ -83,8 +93,8 @@ void display(void)
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
 		
-		r = apertureC * sqrt((float)i);
-		theta = (float)i * 2.399963;
+		r = apertureC * sqrt((GLdouble)i);
+		theta = (GLdouble)i * 2.399963;
 		
 		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
 		
@@ -198,10 +208,6 @@ void mouse (int button, int state, int x, int y)
 void reshape(int w, int h)
 {
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(zoom*2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
-	glMatrixMode(GL_MODELVIEW);
 	width = w;
 	height = h;
 }
