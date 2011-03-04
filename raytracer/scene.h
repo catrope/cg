@@ -31,7 +31,8 @@ private:
 	std::vector<Object*> objects;
 	std::vector<Light*> lights;
 	Triple eye;
-	Color calcPhong(Material *material, Point *hit, Vector *N, Vector *V);
+	bool shadows;
+	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal
@@ -43,6 +44,7 @@ public:
 	void addLight(Light *l);
 	void setEye(Triple e);
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
+	void setShadows(bool b) { shadows = b; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 };
