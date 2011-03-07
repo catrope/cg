@@ -143,7 +143,7 @@ double Raytracer::parseOptionalDouble(const YAML::Node* node, double defaultVal)
 {
 	double retval;
 	if(node == NULL) {
-		return defaultVAl;
+		return defaultVal;
 	}
 	*node >> retval;
 	return retval;
