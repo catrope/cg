@@ -45,21 +45,25 @@ Objects:
 - type: sphere
   position: [290,170,150]
   radius: 50
+  material: # water
+    color: [0.7,0.7,1.0]
+    ka: 0
+    kd: 0
+    ks: 1
+    n: 32
+    refract: true
+    eta: 1.33
+- type: sphere
+  position: [140,220,400]
+  radius: 50
   material: # glass
     color: [1.0,1.0,1.0]
     ka: 0
     kd: 0
     ks: 1
     n: 32
-- type: sphere
-  position: [140,220,400]
-  radius: 50
-  material: # glass
-    color: [1.0,0.8,0.8]
-    ka: 0
-    kd: 0
-    ks: 1
-    n: 32
+    refract: true
+    eta: 1.5
 - type: sphere
   position: [110,130,200]
   radius: 50

@@ -60,58 +60,62 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	Color color(0.0, 0.0, 0.0);
 	Color ambient(0.0, 0.0, 0.0); // accumulator for ambient light intensity
 	
-	for (unsigned int i = 0; i < lights.size(); i++) {
-		// Normalized vector from the surface to the light source,
-		// i.e. the reversed direction of the incoming light ray
-		Vector L = (lights[i]->position - *hit).normalized();
-		
-		// Construct an object for the incoming light ray and check
-		// whether it intersects any other objects before this one
-		Ray lightRay(lights[i]->position, -1*L);
-		Hit ourHit = obj->intersect(lightRay);
-		bool shadowed = false;
-		for (unsigned int j = 0; j < objects.size(); j++) {
-			if (objects[j] != obj) {
-				Hit hit = objects[j]->intersect(lightRay);
-				if (hit.t < ourHit.t) {
-					shadowed = true;
-					break;
+	if (!obj->material->refract)
+	{
+	
+		for (unsigned int i = 0; i < lights.size(); i++) {
+			// Normalized vector from the surface to the light source,
+			// i.e. the reversed direction of the incoming light ray
+			Vector L = (lights[i]->position - *hit).normalized();
+			
+			// Construct an object for the incoming light ray and check
+			// whether it intersects any other objects before this one
+			Ray lightRay(lights[i]->position, -1*L);
+			Hit ourHit = obj->intersect(lightRay);
+			bool shadowed = false;
+			for (unsigned int j = 0; j < objects.size(); j++) {
+				if (objects[j] != obj) {
+					Hit hit = objects[j]->intersect(lightRay);
+					if (hit.t < ourHit.t) {
+						shadowed = true;
+						break;
+					}
 				}
+			}
+			
+			// This light's contribution to ambient lighting
+			ambient += lights[i]->color;
+			
+			// If this light ray is shadowed from this object by some other
+			// object, ignore it. We still need this light's contribution
+			// to ambient lighting, though, which is why this check has to
+			// be in this exact place.
+			if (shadowed) {
+				continue;
+			}
+			
+			// Diffuse lighting
+			double NL = N->dot(L);
+			// If the dot product is negative, the light is not
+			// visible to the viewer
+			if (NL >= 0) {
+				color += obj->material->kd * obj->material->color * lights[i]->color * NL;
+			}
+			
+			// Specular lighting
+			Vector R = -1*L + 2*L.dot(*N)*(*N); // R = -L + 2(L.N)N
+			double VR = V->dot(R);
+			// Skip negative dot products, see above.
+			// We also don't want negative exponents
+			if (VR >= 0 && obj->material->n > 0) {
+				color += obj->material->ks * lights[i]->color * pow(VR, obj->material->n);
 			}
 		}
 		
-		// This light's contribution to ambient lighting
-		ambient += lights[i]->color;
-		
-		// If this light ray is shadowed from this object by some other
-		// object, ignore it. We still need this light's contribution
-		// to ambient lighting, though, which is why this check has to
-		// be in this exact place.
-		if (shadowed) {
-			continue;
-		}
-		
-		// Diffuse lighting
-		double NL = N->dot(L);
-		// If the dot product is negative, the light is not
-		// visible to the viewer
-		if (NL >= 0) {
-			color += obj->material->kd * obj->material->color * lights[i]->color * NL;
-		}
-		
-		// Specular lighting
-		Vector R = -1*L + 2*L.dot(*N)*(*N); // R = -L + 2(L.N)N
-		double VR = V->dot(R);
-		// Skip negative dot products, see above.
-		// We also don't want negative exponents
-		if (VR >= 0 && obj->material->n > 0) {
-			color += obj->material->ks * lights[i]->color * pow(VR, obj->material->n);
-		}
+		// Ambient lighting
+		ambient.clamp();
+		color += obj->material->ka * obj->material->color * ambient;
 	}
-	
-	// Ambient lighting
-	ambient.clamp();
-	color += obj->material->ka * obj->material->color * ambient;
 	
 	// Reflections and refractions
 	if (recursionDepth < maxRecursionDepth) {
@@ -128,38 +132,41 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// away from the surface (i.e. along Vrefl) a tiny bit.
 		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
 		Color reflection = trace(reflected, recursionDepth + 1);
+		color += obj->material->ks * reflection;
 		
-		
-		Vector *T = new Vector();
-		double c;
-		double n = 1.5;
-		if (-V->dot(*N) < 0)
+		if (obj->material->refract)
 		{
-			refract(V, N, n, T);
-			c = V->dot(*N);
-		}
-		else
-		{
-			Vector mN = -(*N);
-			if (refract(V, &mN, 1.0/n, T))
+			Vector *T = new Vector();
+			double c;
+			double n = obj->material->eta;
+			if (-V->dot(*N) < 0)
 			{
-				c = T->dot(*N);
+				refract(V, N, n, T);
+				c = V->dot(*N);
 			}
 			else
 			{
-				color += obj->material->ks * reflection;
-				return color;
+				Vector mN = -(*N);
+				if (refract(V, &mN, 1.0/n, T))
+				{
+					c = T->dot(*N);
+				}
+				else
+				{
+					color = obj->material->color * reflection;
+					return color;
+				}
 			}
+			double R0 = ((n-1.0)*(n-1.0))/((n+1.0)*(n+1.0));
+			double R = R0 + (1.0-R0)*(1.0-c)*(1.0-c)*(1.0-c)*(1.0-c)*(1.0-c);
+			
+			Ray refracted(*hit + 0.01*(*T), *T);
+			Color refraction = trace(refracted, recursionDepth + 1);
+			
+			reflection = R*reflection + (1-R)*refraction;
+			
+			color = obj->material->color * reflection;
 		}
-		double R0 = ((n-1.0)*(n-1.0))/((n+1.0)*(n+1.0));
-		double R = R0 + (1.0-R0)*(1.0-c)*(1.0-c)*(1.0-c)*(1.0-c)*(1.0-c);
-		
-		Ray refracted(*hit + 0.01*(*T), *T);
-		Color refraction = trace(refracted, recursionDepth + 1);
-		
-		reflection = R*reflection + (1-R)*refraction;
-		
-		color += obj->material->ks * reflection;
 	}
 	
 	return color;
