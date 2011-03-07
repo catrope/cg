@@ -14,6 +14,9 @@
 
 RenderMode: "phong"
 
+Shadows: false
+MaxRecursionDepth: 10
+
 Eye: [200,200,1000]  
 
 Lights:
@@ -30,6 +33,19 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
+- type: sphere
+  position: [200,200,270]
+  radius: 10
+  material: # yellowish
+    color: [0.8, 0.8, 0.4]
+    ka: 0.0
+    kd: 0.0
+    ks: 0.0
+    n: 32
+    refract: 1
+    eta: 1.5
 - type: sphere
   position: [180,220,240]
   radius: 8
@@ -39,6 +55,8 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
 - type: sphere
   position: [220,220,240]
   radius: 8
@@ -48,6 +66,8 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
 - type: triangle
   p1: [150,200,200]
   p2: [200,250,200]
@@ -58,6 +78,8 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
 - type: triangle
   p1: [200,250,200]
   p2: [250,200,200]
@@ -68,6 +90,8 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
 - type: triangle
   p1: [180,240,200]
   p2: [220,240,200]
@@ -78,6 +102,8 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
 - type: triangle
   p1: [160,220,210]
   p2: [200,240,210]
@@ -88,6 +114,8 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
 - type: triangle
   p1: [200,240,210]
   p2: [240,220,210]
@@ -98,3 +126,5 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+    refract: 0.5
+    eta: 1.33
