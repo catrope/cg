@@ -113,8 +113,9 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	ambient.clamp();
 	color += obj->material->ka * obj->material->color * ambient;
 	
-	// Reflections
+	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
+		// Reflection		
 		// Compute Vrefl, the reflected vector of V
 		Vector Vrefl = -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
 		
@@ -126,9 +127,62 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// ray to start below the reflection surface and
 		// intersect it immediately, move the starting point
 		// away from the surface (i.e. along Vrefl) a tiny bit.
-		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
-		Color reflection = trace(reflected, recursionDepth + 1);
-		color += obj->material->ks * reflection;
+		if (obj->material->ks > 0) {
+			Ray reflected(*hit + 0.01*Vrefl, Vrefl);
+			Color reflection = trace(reflected, recursionDepth + 1);
+			color += obj->material->ks * reflection;
+		}
+		
+		// Refraction
+		if (obj->material->refract >= 0.01) {
+			// Compute the transmission vector using Snell's law
+			// Formulas from https://secure.wikimedia.org/wikipedia/en/wiki/Snell%27s_law#Vector_form
+			// with L replaced with -V
+			
+			// If the ray is leaving the object rather than entering it,
+			// we need to flip n1 and n2. We can detect this by constructing
+			// a ray that runs along V and starts just past the hit point,
+			// and intersecting that with the object again. If an
+			// intersection is found, that means we're entering the object.
+			Ray Vcont(*hit - 0.01*(*V), -*V);
+			Hit vcHit = obj->intersect(Vcont);
+			double n1, n2;
+			Vector T;
+			// Check for no hit with !(lcHit < infinity), which is what's
+			// used above for finding the closest intersecting object
+			if (vcHit.t < std::numeric_limits<double>::infinity()) {
+				// Intersection found. We're entering
+				n1 = 1;
+				n2 = obj->material->eta;
+			} else {
+				// No intersection. We're exiting
+				n1 = obj->material->eta;
+				n2 = 1;
+			}
+			
+			// cos phi_1 = N.V
+			double cosphi1 = (*N).dot(*V);
+			// cos phi_2 = sqrt( 1 - (n1/n2)^2 * (1 - cosphi1^2) )
+			double inRoot = 1 - ((n1/n2)*(n1/n2) * (1 - cosphi1*cosphi1));
+			if (inRoot < 0) {
+				// Total reflection
+				T = Vrefl;
+			} else if (cosphi1 >= 0) {
+				// T = (n1/n2)(-V) + ( (n1/n2)cosphi1 - cosphi2 )N
+				T = (n1/n2)*(-*V) + ((n1/n2)*cosphi1 - sqrt(inRoot))*(*N);
+			} else {
+				// T = (n1/n2)(-V) + ( (n1/n2)cosphi1 + cosphi2 )N
+				T = (n1/n2)*(-*V) + ((n1/n2)*cosphi1 + sqrt(inRoot))*(*N);
+			}
+			
+			// Like with reflection, trace a ray along T and guard
+			// against roundoff errors
+			Ray refracted(*hit + 0.01*T, T);
+			Color refraction = trace(refracted, recursionDepth + 1);
+			
+			// Blend the refracted color in
+			color = (1 - obj->material->refract)*color + obj->material->refract*refraction;
+		}
 	}
 	
 	return color;

@@ -54,13 +54,13 @@ Objects:
 - type: sphere
   position: [140,220,400]
   radius: 50
-  material: # yellow
-    color: [1.0,0.8,0.0]
+  material: # yellowish
+    color: [0.8, 0.8, 0.4]
     ka: 0.2
     kd: 0.8
-    ks: 0
-    n: 1
-    refract: 0.5
+    ks: 0.8
+    n: 32
+    refract: 0.75
     eta: 1.33
 - type: sphere
   position: [110,130,200]
