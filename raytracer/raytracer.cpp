@@ -57,6 +57,10 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
 	node["n"] >> m->n;
+	m->refract = parseBool(node.FindValue("refract"), false);
+	if (m->refract) {
+		node["eta"] >> m->eta;
+	}
 	return m;
 }
 
