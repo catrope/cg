@@ -55,6 +55,12 @@ Hit Sphere::intersect(const Ray &ray)
 	// the center of the sphere to the intersection point, normalized
 	// to length 1.
 	Vector N = (ray.at(t) - position).normalized();
+	
+	// ...except if the intersection is on the inside of the sphere, in
+	// which case the normal needs to be flipped
+	if (t1 < 0) {
+		N = -N;
+	}
 
 	return Hit(t,N);
 }
