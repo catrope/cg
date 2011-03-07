@@ -14,7 +14,7 @@
 
 RenderMode: "phong"
 
-Shadows: false
+Shadows: true
 MaxRecursionDepth: 10
 
 Eye: [200,200,1000]  
@@ -38,7 +38,7 @@ Objects:
 - type: sphere
   position: [200,200,270]
   radius: 10
-  material: # yellowish
+  material: # glass
     color: [0.8, 0.8, 0.4]
     ka: 0.0
     kd: 0.0
