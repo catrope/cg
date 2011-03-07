@@ -124,8 +124,11 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 			// vector of R.
 			double VL = V->dot(L);
 			if (VL >= 0 && obj->material->n > 0) {
-				// TODO: Use *hit + epsilon?
-				Ray reflected(*hit, R);
+				// To prevent roundoff errors causing the reflected
+				// ray to start below the reflection surface and
+				// intersect it immediately, move the starting point
+				// away from the surface (i.e. along R) a tiny bit.
+				Ray reflected(*hit + 0.01*R, R);
 				Color reflection = trace(reflected, recursionDepth + 1);
 				color += obj->material->ks * reflection * pow(VL, obj->material->n);
 			}
