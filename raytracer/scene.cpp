@@ -113,7 +113,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	ambient.clamp();
 	color += obj->material->ka * obj->material->color * ambient;
 	
-	// Reflections
+	// Reflections and refractions
 	if (recursionDepth < maxRecursionDepth) {
 		// Compute Vrefl, the reflected vector of V
 		Vector Vrefl = -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
@@ -128,10 +128,52 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// away from the surface (i.e. along Vrefl) a tiny bit.
 		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
 		Color reflection = trace(reflected, recursionDepth + 1);
+		
+		
+		Vector *T = new Vector();
+		double c;
+		double n = 1.5;
+		if (-V->dot(*N) < 0)
+		{
+			refract(V, N, n, T);
+			c = V->dot(*N);
+		}
+		else
+		{
+			Vector mN = -(*N);
+			if (refract(V, &mN, 1.0/n, T))
+			{
+				c = T->dot(*N);
+			}
+			else
+			{
+				color += obj->material->ks * reflection;
+				return color;
+			}
+		}
+		double R0 = ((n-1.0)*(n-1.0))/((n+1.0)*(n+1.0));
+		double R = R0 + (1.0-R0)*(1.0-c)*(1.0-c)*(1.0-c)*(1.0-c)*(1.0-c);
+		
+		Ray refracted(*hit + 0.01*(*T), *T);
+		Color refraction = trace(refracted, recursionDepth + 1);
+		
+		reflection = R*reflection + (1-R)*refraction;
+		
 		color += obj->material->ks * reflection;
 	}
 	
 	return color;
+}
+
+bool Scene::refract(Vector *V, Vector *N, double n, Vector *T)
+{
+	double dn = -V->dot(*N); // d.N = -V.N
+	double root = 1 - ((1-dn*dn)/(n*n)); // 1 - (1-dn^2)/n^2
+	
+	if (root < 0) return false;
+	
+	*T = (-(*V)-(*N)*dn)/n - (*N)*sqrt(root); // (d - N *dn) / n - N*sqrt(root)
+	return true;
 }
 
 void Scene::render(Image &img)

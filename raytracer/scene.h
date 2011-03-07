@@ -34,6 +34,7 @@ private:
 	bool shadows;
 	unsigned int maxRecursionDepth;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	bool refract(Vector *V, Vector *N, double n, Vector *T);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal
