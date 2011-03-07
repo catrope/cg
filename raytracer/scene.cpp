@@ -87,7 +87,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// object, ignore it. We still need this light's contribution
 		// to ambient lighting, though, which is why this check has to
 		// be in this exact place.
-		if (shadowed) {
+		if (shadowed && shadows) {
 			continue;
 		}
 		
