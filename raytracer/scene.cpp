@@ -116,22 +116,20 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		
 		// Reflections
 		if (recursionDepth < maxRecursionDepth) {
-			// Trace a ray from this position along R, then treat
-			// the result as the color of an incoming light ray
-			// along R, and calculate its specular component.
+			// Compute Vrefl, the reflected vector of V
+			Vector Vrefl = -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
 			
-			// We need VL instead of VR, because L is the reflected
-			// vector of R.
-			double VL = V->dot(L);
-			if (VL >= 0 && obj->material->n > 0) {
-				// To prevent roundoff errors causing the reflected
-				// ray to start below the reflection surface and
-				// intersect it immediately, move the starting point
-				// away from the surface (i.e. along R) a tiny bit.
-				Ray reflected(*hit + 0.01*R, R);
-				Color reflection = trace(reflected, recursionDepth + 1);
-				color += obj->material->ks * reflection * pow(VL, obj->material->n);
-			}
+			// Trace a ray from this position along Vrefl, then treat
+			// the result as the color of an incoming light ray
+			// along Vrefl, and calculate its specular component.
+
+			// To prevent roundoff errors causing the reflected
+			// ray to start below the reflection surface and
+			// intersect it immediately, move the starting point
+			// away from the surface (i.e. along Vrefl) a tiny bit.
+			Ray reflected(*hit + 0.01*Vrefl, Vrefl);
+			Color reflection = trace(reflected, recursionDepth + 1);
+			color += obj->material->ks * reflection;
 		}
 	}
 	
