@@ -57,10 +57,8 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
 	node["n"] >> m->n;
-	m->refract = parseBool(node.FindValue("refract"), false);
-	if (m->refract) {
-		node["eta"] >> m->eta;
-	}
+	m->refract = parseOptionalDouble(node.FindValue("refract"), 0.0);
+	m->eta = parseOptionalDouble(node.FindValue("eta"), 1.0);
 	return m;
 }
 
@@ -136,6 +134,16 @@ unsigned int Raytracer::parseUnsignedInt(const YAML::Node* node, unsigned int de
 	unsigned int retval;
 	if(node == NULL) {
 		return defaultVal;
+	}
+	*node >> retval;
+	return retval;
+}
+
+double Raytracer::parseOptionalDouble(const YAML::Node* node, double defaultVal)
+{
+	double retval;
+	if(node == NULL) {
+		return defaultVAl;
 	}
 	*node >> retval;
 	return retval;

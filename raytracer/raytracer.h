@@ -36,6 +36,7 @@ private:
 	Scene::RenderMode parseRenderMode(const YAML::Node* node);
 	bool parseBool(const YAML::Node *node, bool defaultVal);
 	unsigned int parseUnsignedInt(const YAML::Node* node, unsigned int defaultVal);
+	double parseOptionalDouble(const YAML::Node *node, double defaultVal);
 
 public:
 	Raytracer() { }
