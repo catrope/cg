@@ -60,7 +60,7 @@ Objects:
     kd: 0.8
     ks: 0
     n: 1
-    refract: true
+    refract: 0.5
     eta: 1.33
 - type: sphere
   position: [110,130,200]
