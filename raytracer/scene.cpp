@@ -107,29 +107,29 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		if (VR >= 0 && obj->material->n > 0) {
 			color += obj->material->ks * lights[i]->color * pow(VR, obj->material->n);
 		}
-		
-		// Reflections
-		if (recursionDepth < maxRecursionDepth) {
-			// Compute Vrefl, the reflected vector of V
-			Vector Vrefl = -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
-			
-			// Trace a ray from this position along Vrefl, then treat
-			// the result as the color of an incoming light ray
-			// along Vrefl, and calculate its specular component.
-
-			// To prevent roundoff errors causing the reflected
-			// ray to start below the reflection surface and
-			// intersect it immediately, move the starting point
-			// away from the surface (i.e. along Vrefl) a tiny bit.
-			Ray reflected(*hit + 0.01*Vrefl, Vrefl);
-			Color reflection = trace(reflected, recursionDepth + 1);
-			color += obj->material->ks * reflection;
-		}
 	}
 	
 	// Ambient lighting
 	ambient.clamp();
 	color += obj->material->ka * obj->material->color * ambient;
+	
+	// Reflections
+	if (recursionDepth < maxRecursionDepth) {
+		// Compute Vrefl, the reflected vector of V
+		Vector Vrefl = -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
+		
+		// Trace a ray from this position along Vrefl, then treat
+		// the result as the color of an incoming light ray
+		// along Vrefl, and calculate its specular component.
+
+		// To prevent roundoff errors causing the reflected
+		// ray to start below the reflection surface and
+		// intersect it immediately, move the starting point
+		// away from the surface (i.e. along Vrefl) a tiny bit.
+		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
+		Color reflection = trace(reflected, recursionDepth + 1);
+		color += obj->material->ks * reflection;
+	}
 	
 	return color;
 }
