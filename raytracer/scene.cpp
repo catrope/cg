@@ -81,10 +81,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		}
 		
 		// This light's contribution to ambient lighting
-		// Don't calculate this for reflections
-		if (recursionDepth == 0 || 1==1) {
-			ambient += lights[i]->color;
-		}
+		ambient += lights[i]->color;
 		
 		// If this light ray is shadowed from this object by some other
 		// object, ignore it. We still need this light's contribution
@@ -95,14 +92,11 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		}
 		
 		// Diffuse lighting
-		// Don't compute diffuse lighting for reflections
-		if (recursionDepth == 0 || 1==1) {
-			double NL = N->dot(L);
-			// If the dot product is negative, the light is not
-			// visible to the viewer
-			if (NL >= 0) {
-				color += obj->material->kd * obj->material->color * lights[i]->color * NL;
-			}
+		double NL = N->dot(L);
+		// If the dot product is negative, the light is not
+		// visible to the viewer
+		if (NL >= 0) {
+			color += obj->material->kd * obj->material->color * lights[i]->color * NL;
 		}
 		
 		// Specular lighting
