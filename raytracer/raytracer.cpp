@@ -127,6 +127,16 @@ bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)
 	return retval;
 }
 
+unsigned int Raytracer::parseUnsignedInt(const YAML::Node* node, unsigned int defaultVal)
+{
+	unsigned int retval;
+	if(node == NULL) {
+		return defaultVal;
+	}
+	*node >> retval;
+	return retval;
+}
+
 /*
 * Read a scene from file
 */
@@ -152,6 +162,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setEye(parseTriple(doc["Eye"]));
 			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
 			scene->setShadows(parseBool(doc.FindValue("Shadows"), false));
+			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
 
 			// Read and parse the scene objects
 			const YAML::Node& sceneObjects = doc["Objects"];

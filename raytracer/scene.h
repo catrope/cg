@@ -32,6 +32,7 @@ private:
 	std::vector<Light*> lights;
 	Triple eye;
 	bool shadows;
+	unsigned int maxRecursionDepth;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V);
 public:
 	enum RenderMode {
@@ -45,6 +46,7 @@ public:
 	void setEye(Triple e);
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
+	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 };
