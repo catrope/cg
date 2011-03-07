@@ -82,7 +82,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		
 		// This light's contribution to ambient lighting
 		// Don't calculate this for reflections
-		if (maxRecursionDepth == 0) {
+		if (recursionDepth == 0) {
 			ambient += lights[i]->color;
 		}
 		
@@ -96,7 +96,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		
 		// Diffuse lighting
 		// Don't compute diffuse lighting for reflections
-		if (maxRecursionDepth == 0) {
+		if (recursionDepth == 0) {
 			double NL = N->dot(L);
 			// If the dot product is negative, the light is not
 			// visible to the viewer
