@@ -120,7 +120,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		if (recursionDepth < maxRecursionDepth) {
 			// TODO: Use *hit + epsilon?
 			Ray reflected(*hit, R);
-			color += trace(reflected, recursionDepth + 1);
+			color += trace(reflected, recursionDepth + 1) * obj->material->color;
 		}
 	}
 	
