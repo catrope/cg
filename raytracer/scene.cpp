@@ -20,7 +20,7 @@
 #include "material.h"
 #include <cstdio>
 
-Color Scene::trace(const Ray &ray)
+Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 {
 	// Find hit object and distance
 	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
@@ -49,11 +49,11 @@ Color Scene::trace(const Ray &ray)
 			return N/2+0.5;
 		case phong:
 		default:
-			return calcPhong(obj, &hit, &N, &V);
+			return calcPhong(obj, &hit, &N, &V, recursionDepth);
 	}
 }
 
-Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V)
+Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
 {
 	// Apply Phong lighting model
 	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
@@ -81,7 +81,10 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V)
 		}
 		
 		// This light's contribution to ambient lighting
-		ambient += lights[i]->color;
+		// Don't calculate this for reflections
+		if (maxRecursionDepth == 0) {
+			ambient += lights[i]->color;
+		}
 		
 		// If this light ray is shadowed from this object by some other
 		// object, ignore it. We still need this light's contribution
@@ -92,11 +95,14 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V)
 		}
 		
 		// Diffuse lighting
-		double NL = N->dot(L);
-		// If the dot product is negative, the light is not
-		// visible to the viewer
-		if (NL >= 0) {
-			color += obj->material->kd * obj->material->color * lights[i]->color * NL;
+		// Don't compute diffuse lighting for reflections
+		if (maxRecursionDepth == 0) {
+			double NL = N->dot(L);
+			// If the dot product is negative, the light is not
+			// visible to the viewer
+			if (NL >= 0) {
+				color += obj->material->kd * obj->material->color * lights[i]->color * NL;
+			}
 		}
 		
 		// Specular lighting
@@ -106,6 +112,15 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V)
 		// We also don't want negative exponents
 		if (VR >= 0 && obj->material->n > 0) {
 			color += obj->material->ks * lights[i]->color * pow(VR, obj->material->n);
+		}
+		
+		// Reflections
+		// Trace a new ray from this position along R and add the
+		// result to color.
+		if (recursionDepth < maxRecursionDepth) {
+			// TODO: Use *hit + epsilon?
+			Ray reflected(*hit, R);
+			color += trace(reflected, recursionDepth + 1);
 		}
 	}
 	
@@ -124,7 +139,7 @@ void Scene::render(Image &img)
 		for (int x = 0; x < w; x++) {
 			Point pixel(x+0.5, h-1-y+0.5, 0);
 			Ray ray(eye, (pixel-eye).normalized());
-			Color col = trace(ray);
+			Color col = trace(ray, 0);
 			col.clamp();
 			img(x,y) = col;
 		}

@@ -33,13 +33,13 @@ private:
 	Triple eye;
 	bool shadows;
 	unsigned int maxRecursionDepth;
-	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V);
+	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal
 	} mode;
 	
-	Color trace(const Ray &ray);
+	Color trace(const Ray &ray, unsigned int recursionDepth);
 	void render(Image &img);
 	void addObject(Object *o);
 	void addLight(Light *l);
