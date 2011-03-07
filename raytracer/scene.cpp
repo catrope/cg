@@ -82,7 +82,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		
 		// This light's contribution to ambient lighting
 		// Don't calculate this for reflections
-		if (recursionDepth == 0) {
+		if (recursionDepth == 0 || 1==1) {
 			ambient += lights[i]->color;
 		}
 		
@@ -96,7 +96,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		
 		// Diffuse lighting
 		// Don't compute diffuse lighting for reflections
-		if (recursionDepth == 0) {
+		if (recursionDepth == 0 || 1==1) {
 			double NL = N->dot(L);
 			// If the dot product is negative, the light is not
 			// visible to the viewer
@@ -115,12 +115,20 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		}
 		
 		// Reflections
-		// Trace a new ray from this position along R and add the
-		// result to color.
 		if (recursionDepth < maxRecursionDepth) {
-			// TODO: Use *hit + epsilon?
-			Ray reflected(*hit, R);
-			color += trace(reflected, recursionDepth + 1) * obj->material->color;
+			// Trace a ray from this position along R, then treat
+			// the result as the color of an incoming light ray
+			// along R, and calculate its specular component.
+			
+			// We need VL instead of VR, because L is the reflected
+			// vector of R.
+			double VL = V->dot(L);
+			if (VL >= 0 && obj->material->n > 0) {
+				// TODO: Use *hit + epsilon?
+				Ray reflected(*hit, R);
+				Color reflection = trace(reflected, recursionDepth + 1);
+				color += obj->material->ks * reflection * pow(VL, obj->material->n);
+			}
 		}
 	}
 	
