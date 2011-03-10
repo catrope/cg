@@ -192,6 +192,7 @@ Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned
 {
 	Color col(0,0,0);
 	
+	// special case to prevent division by zero
 	if (factor == 1)
 	{
 		Ray ray(camera.eye, (origPixel-camera.eye).normalized());
@@ -202,13 +203,20 @@ Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned
 		xvec /= (double)factor-1.0;
 		yvec /= (double)factor-1.0;
 		
-		for (int y = 0; y < factor; y++)
+		for (unsigned int y = 0; y < factor; y++)
 		{
-			for (int x = 0; x < factor; x++)
+			for (unsigned int x = 0; x < factor; x++)
 			{
-				Point pixel = origPixel
-					+ yvec*(double)y - yvec*(double)factor/2.0
-					+ xvec*(double)x - xvec*(double)factor/2.0;
+				Vector xoffset = xvec*(double)x - xvec*(double)factor/2.0;
+				Vector yoffset = yvec*(double)y - yvec*(double)factor/2.0;
+					
+				if (superSamplingJitter)
+				{
+					xoffset += xvec*((double)rand()/(double)RAND_MAX - 0.5);
+					yoffset += yvec*((double)rand()/(double)RAND_MAX - 0.5);
+				}
+				
+				Point pixel = origPixel + xoffset + yoffset;
 				Ray ray(camera.eye, (pixel-camera.eye).normalized());
 				col += trace(ray, 0);
 			}
@@ -224,8 +232,13 @@ void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
 	int h = camera.viewHeight;
+	
+	// calculate the vectors for moving one pixel right or down
 	Vector xvec = (camera.center-camera.eye).normalized().cross(camera.up);
 	Vector yvec = -camera.up;
+	
+	// init random generator
+	srand(time(NULL));
 	
 	for (int y = 0; y < h; y++)
 	{
