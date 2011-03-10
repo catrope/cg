@@ -83,7 +83,7 @@ void display(void)
 	bottom = -top;
 	left = aspect * bottom;
 	right = aspect * top;
-	glFrustum(left, right, bottom, top, 500.0, 1000.0);
+	//glFrustum(left, right, bottom, top, 500.0, 1000.0);
 	//gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
 	
 	glMatrixMode(GL_MODELVIEW);
@@ -99,13 +99,14 @@ void display(void)
 		
 		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
 		
-		gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+		//gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+		gluLookAt(0.0,0.0,5.0,0.0,0.0,0.0,0.0,1.0,0.0);
 		
 		
-		glTranslatef(200.0, 200.0, 200.00);
+		/*glTranslatef(200.0, 200.0, 200.00);
 		glRotatef(angleX, 1.0, 0.0, 0.0);
 		glRotatef(angleY, 0.0, 1.0, 0.0);
-		glTranslatef(-200.0, -200.0, -200.0);
+		glTranslatef(-200.0, -200.0, -200.0);*/
 
 		setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
 		glEnable(GL_LIGHTING);
@@ -209,6 +210,11 @@ void mouse (int button, int state, int x, int y)
 void reshape(int w, int h)
 {
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0,(GLdouble)w/(GLdouble)h,1.5,20.0);
+	glMatrixMode(GL_MODELVIEW);
+	
 	width = w;
 	height = h;
 }
@@ -222,7 +228,7 @@ int main(int argc, char** argv)
 
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
-	glutInitWindowSize(400, 400);
+	glutInitWindowSize(800, 600);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
 	initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");
