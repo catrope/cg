@@ -190,11 +190,16 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 
 void Scene::render(Image &img)
 {
-	int w = img.width();
-	int h = img.height();
+	int w = camera.viewWidth;
+	int h = camera.viewHeight;
+	Vector xvec = (camera.center-camera.eye).normalized().cross(camera.up);
+	Vector yvec = -camera.up;
+	
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			Point pixel(x+0.5, h-1-y+0.5, 0);
+			Point pixel = camera.center
+				+ yvec*(double)y - yvec*(double)h/2.0
+				+ xvec*(double)x - xvec*(double)w/2.0;
 			Ray ray(camera.eye, (pixel-camera.eye).normalized());
 			Color col = trace(ray, 0);
 			col.clamp();
@@ -217,7 +222,7 @@ void Scene::setEye(Triple e)
 {
 	camera.eye = e;
 	camera.center = Vector(e.x, e.y, 0);
-	camera.up = Vector(0,0,1);
+	camera.up = Vector(0,1,0);
 	camera.viewWidth = 400;
 	camera.viewHeight = 400;
 }
@@ -225,4 +230,9 @@ void Scene::setEye(Triple e)
 void Scene::setCamera(Camera c)
 {
 	camera = c;
+}
+
+Camera Scene::getCamera()
+{
+	return camera;
 }

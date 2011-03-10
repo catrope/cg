@@ -52,7 +52,7 @@ Triple parseTriple(const YAML::Node& node)
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
 	Material *m = new Material();
-	node["color"] >> m->color;	
+	node["color"] >> m->color;
 	node["ka"] >> m->ka;
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
@@ -229,7 +229,8 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 void Raytracer::renderToFile(const std::string& outputFilename)
 {
-	Image img(400,400);
+	Camera cam = scene->getCamera();
+	Image img(cam.viewWidth, cam.viewHeight);
 	cout << "Tracing..." << endl;
 	scene->render(img);
 	cout << "Writing image to " << outputFilename << "..." << endl;

@@ -46,6 +46,7 @@ public:
 	void addLight(Light *l);
 	void setEye(Triple e);
 	void setCamera(Camera c);
+	Camera getCamera();
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
