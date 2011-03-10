@@ -24,13 +24,14 @@
 #include "light.h"
 #include "object.h"
 #include "image.h"
+#include "camera.h"
 
 class Scene
 {
 private:
 	std::vector<Object*> objects;
 	std::vector<Light*> lights;
-	Triple eye;
+	Camera camera;
 	bool shadows;
 	unsigned int maxRecursionDepth;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
@@ -44,6 +45,7 @@ public:
 	void addObject(Object *o);
 	void addLight(Light *l);
 	void setEye(Triple e);
+	void setCamera(Camera c);
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }

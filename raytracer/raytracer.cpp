@@ -119,6 +119,17 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	else return Scene::phong;
 }
 
+Camera Raytracer::parseCamera(const YAML::Node& node)
+{
+	Camera cam;
+	cam.eye = parseTriple(node["eye"]);
+	cam.center = parseTriple(node["center"]);
+	cam.up = parseTriple(node["up"]);
+	cam.viewWidth = node["viewSize"][0];
+	cam.viewHeight = node["viewSize"][1];
+	return cam;
+}
+
 bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)
 {
 	bool retval;
@@ -171,7 +182,9 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			parser.GetNextDocument(doc);
 
 			// Read scene configuration options
-			scene->setEye(parseTriple(doc["Eye"]));
+			if (doc.FindValue("Eye")) scene->setEye(parseTriple(doc["Eye"]));
+			else if (doc.FindValue("Camera")) scene->setCamera(parseCamera(doc["Camera"]));
+			
 			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
 			scene->setShadows(parseBool(doc.FindValue("Shadows"), false));
 			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
