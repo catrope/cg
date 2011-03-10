@@ -32,19 +32,23 @@ private:
 	std::vector<Object*> objects;
 	std::vector<Light*> lights;
 	Camera camera;
-	Color calcPhong(Material *material, Point *hit, Vector *N, Vector *V);
+	bool shadows;
+	unsigned int maxRecursionDepth;
+	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal
 	} mode;
 	
-	Color trace(const Ray &ray);
+	Color trace(const Ray &ray, unsigned int recursionDepth);
 	void render(Image &img);
 	void addObject(Object *o);
 	void addLight(Light *l);
 	void setEye(Triple e);
 	void setCamera(Camera c);
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
+	void setShadows(bool b) { shadows = b; }
+	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 };

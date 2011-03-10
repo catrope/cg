@@ -45,7 +45,7 @@ Triple parseTriple(const YAML::Node& node)
 	Triple t;
 	node[0] >> t.x;
 	node[1] >> t.y;
-	node[2] >> t.z;	
+	node[2] >> t.z;
 	return t;
 }
 
@@ -57,6 +57,8 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
 	node["n"] >> m->n;
+	m->refract = parseOptionalDouble(node.FindValue("refract"), 0.0);
+	m->eta = parseOptionalDouble(node.FindValue("eta"), 1.0);
 	return m;
 }
 
@@ -128,6 +130,36 @@ Camera Raytracer::parseCamera(const YAML::Node& node)
 	return cam;
 }
 
+bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)
+{
+	bool retval;
+	if(node == NULL) {
+		return defaultVal;
+	}
+	*node >> retval;
+	return retval;
+}
+
+unsigned int Raytracer::parseUnsignedInt(const YAML::Node* node, unsigned int defaultVal)
+{
+	unsigned int retval;
+	if(node == NULL) {
+		return defaultVal;
+	}
+	*node >> retval;
+	return retval;
+}
+
+double Raytracer::parseOptionalDouble(const YAML::Node* node, double defaultVal)
+{
+	double retval;
+	if(node == NULL) {
+		return defaultVal;
+	}
+	*node >> retval;
+	return retval;
+}
+
 /*
 * Read a scene from file
 */
@@ -154,6 +186,8 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			else if (doc.FindValue("Camera")) scene->setCamera(parseCamera(doc["Camera"]));
 			
 			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
+			scene->setShadows(parseBool(doc.FindValue("Shadows"), false));
+			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
 
 			// Read and parse the scene objects
 			const YAML::Node& sceneObjects = doc["Objects"];
