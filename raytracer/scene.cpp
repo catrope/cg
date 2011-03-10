@@ -188,6 +188,38 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	return color;
 }
 
+Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor)
+{
+	Color col(0,0,0);
+	
+	if (factor == 1)
+	{
+		Ray ray(camera.eye, (origPixel-camera.eye).normalized());
+		col = trace(ray, 0);
+	}
+	else
+	{
+		xvec /= (double)factor-1.0;
+		yvec /= (double)factor-1.0;
+		
+		for (int y = 0; y < factor; y++)
+		{
+			for (int x = 0; x < factor; x++)
+			{
+				Point pixel = origPixel
+					+ yvec*(double)y - yvec*(double)factor/2.0
+					+ xvec*(double)x - xvec*(double)factor/2.0;
+				Ray ray(camera.eye, (pixel-camera.eye).normalized());
+				col += trace(ray, 0);
+			}
+		}
+		col /= factor*factor;
+	}
+	
+	col.clamp();
+	return col;
+}
+
 void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
@@ -195,15 +227,14 @@ void Scene::render(Image &img)
 	Vector xvec = (camera.center-camera.eye).normalized().cross(camera.up);
 	Vector yvec = -camera.up;
 	
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
 			Point pixel = camera.center
 				+ yvec*(double)y - yvec*(double)h/2.0
 				+ xvec*(double)x - xvec*(double)w/2.0;
-			Ray ray(camera.eye, (pixel-camera.eye).normalized());
-			Color col = trace(ray, 0);
-			col.clamp();
-			img(x,y) = col;
+			img(x,y) = superSampleRay(pixel, xvec, yvec, superSamplingFactor);
 		}
 	}
 }
@@ -222,17 +253,7 @@ void Scene::setEye(Triple e)
 {
 	camera.eye = e;
 	camera.center = Vector(e.x, e.y, 0);
-	camera.up = Vector(0,1,0);
+	camera.up = Vector(0,0,1);
 	camera.viewWidth = 400;
 	camera.viewHeight = 400;
-}
-
-void Scene::setCamera(Camera c)
-{
-	camera = c;
-}
-
-Camera Scene::getCamera()
-{
-	return camera;
 }

@@ -34,7 +34,9 @@ private:
 	Camera camera;
 	bool shadows;
 	unsigned int maxRecursionDepth;
+	unsigned int superSamplingFactor;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal
@@ -45,8 +47,9 @@ public:
 	void addObject(Object *o);
 	void addLight(Light *l);
 	void setEye(Triple e);
-	void setCamera(Camera c);
-	Camera getCamera();
+	void setCamera(Camera c) { camera = c; }
+	Camera getCamera() { return camera; }
+	void setSuperSamplingFactor(unsigned int f) { superSamplingFactor = f; }
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }

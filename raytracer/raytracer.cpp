@@ -188,6 +188,11 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
 			scene->setShadows(parseBool(doc.FindValue("Shadows"), false));
 			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
+			
+			if (doc.FindValue("SuperSampling") != NULL) 
+				scene->setSuperSamplingFactor(parseUnsignedInt(doc["SuperSampling"].FindValue("factor"), 1));
+			else
+				scene->setSuperSamplingFactor(1);
 
 			// Read and parse the scene objects
 			const YAML::Node& sceneObjects = doc["Objects"];
