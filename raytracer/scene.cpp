@@ -101,7 +101,7 @@ void Scene::render(Image &img)
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			Point pixel(x+0.5, h-1-y+0.5, 0);
-			Ray ray(eye, (pixel-eye).normalized());
+			Ray ray(camera.eye, (pixel-camera.eye).normalized());
 			Color col = trace(ray);
 			col.clamp();
 			img(x,y) = col;
@@ -121,5 +121,14 @@ void Scene::addLight(Light *l)
 
 void Scene::setEye(Triple e)
 {
-	eye = e;
+	camera.eye = e;
+	camera.center = Vector(e.x, e.y, 0);
+	camera.up = Vector(0,0,1);
+	camera.viewWidth = 400;
+	camera.viewHeight = 400;
+}
+
+void Scene::setCamera(Camera c)
+{
+	camera = c;
 }

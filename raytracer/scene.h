@@ -24,13 +24,14 @@
 #include "light.h"
 #include "object.h"
 #include "image.h"
+#include "camera.h"
 
 class Scene
 {
 private:
 	std::vector<Object*> objects;
 	std::vector<Light*> lights;
-	Triple eye;
+	Camera camera;
 	Color calcPhong(Material *material, Point *hit, Vector *N, Vector *V);
 public:
 	enum RenderMode {
@@ -42,6 +43,7 @@ public:
 	void addObject(Object *o);
 	void addLight(Light *l);
 	void setEye(Triple e);
+	void setCamera(Camera c);
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
