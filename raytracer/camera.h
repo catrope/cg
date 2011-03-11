@@ -13,6 +13,10 @@ public:
 	int viewHeight;
 	double apertureRadius;
 	unsigned int apertureSamples;
+	Vector velocity;
+	Vector acceleration;
+	double exposureTime;
+	unsigned int exposureSamples;
 };
 
 #endif // CAMERA_H

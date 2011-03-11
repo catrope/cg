@@ -129,7 +129,19 @@ Camera Raytracer::parseCamera(const YAML::Node& node)
 	cam.viewHeight = node["viewSize"][1];
 	cam.apertureRadius = parseOptionalDouble(node.FindValue("apertureRadius"), 0.0);
 	cam.apertureSamples = parseUnsignedInt(node.FindValue("apertureSamples"), 1);
+	cam.velocity = parseOptionalTriple(node.FindValue("velocity"), Vector(0,0,0));
+	cam.acceleration = parseOptionalTriple(node.FindValue("acceleration"), Vector(0,0,0));
+	cam.exposureTime = parseOptionalDouble(node.FindValue("exposureTime"), 0.0);
+	cam.exposureSamples = parseUnsignedInt(node.FindValue("exposureSamples"), 1);
 	return cam;
+}
+
+Triple Raytracer::parseOptionalTriple(const YAML::Node* node, Triple defaultVal)
+{
+	if(node == NULL) {
+		return defaultVal;
+	}
+	return parseTriple(*node);
 }
 
 bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)

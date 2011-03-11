@@ -14,10 +14,10 @@
 
 Camera:
     eye: [200,200,1000]
-    center: [200,200,0]
-    up: [0,1,0]
-    viewSize: [400,400]
-    apertureRadius: 10
+    center: [200,200,230]
+    up: [0,0.4,0]
+    viewSize: [800,500]
+    apertureRadius: 5
     apertureSamples: 16
 
 Shadows: true

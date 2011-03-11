@@ -188,7 +188,22 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	return color;
 }
 
-Color Scene::apertureRay(Vector pixel, unsigned int subpixel)
+Color Scene::exposureRay(Point pixel, Point eye)
+{
+	Color col(0,0,0);
+	
+	for (unsigned int i = 0; i < camera.exposureSamples; i++)
+	{
+		double time = (double)i * camera.exposureTime / (double)camera.exposureSamples;
+		Point motionEye = eye + camera.velocity*time + camera.acceleration*time*time/2.0;
+		Ray ray(motionEye, (pixel-motionEye).normalized());
+		col += trace(ray, 0);
+	}
+	col /= camera.exposureSamples;
+	return col;
+}
+
+Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 {
 	Color col(0,0,0);
 	
@@ -203,23 +218,21 @@ Color Scene::apertureRay(Vector pixel, unsigned int subpixel)
 		double r = sqrt((double)i + roffset)*camera.apertureRadius/(camera.up.length()*sqrt(camera.apertureSamples));
 		double theta = (double)(i + subpixel) * 2.399963;
 		
-		Point newEye = camera.eye + xvec*r*cos(theta) + yvec*r*sin(theta);
-		Ray ray(newEye, (pixel-newEye).normalized());
-		col += trace(ray, 0);
+		Point eye = camera.eye + xvec*r*cos(theta) + yvec*r*sin(theta);
+		col += exposureRay(pixel, eye);
 	}
 	col /= camera.apertureSamples;
 	return col;
 }
 
-Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor)
+Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
 {
 	Color col(0,0,0);
 	
 	// special case to prevent division by zero
 	if (factor == 1)
 	{
-		Ray ray(camera.eye, (origPixel-camera.eye).normalized());
-		col = trace(ray, 0);
+		col = apertureRay(origPixel, 0);
 	}
 	else
 	{
@@ -228,10 +241,10 @@ Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned
 		unsigned int subpixel = 0;
 		
 		#pragma omp parallel for
-		for (unsigned int y = 0; y < factor; y++)
+		for (int y = 0; y < (int)factor; y++)
 		{
 			#pragma omp parallel for
-			for (unsigned int x = 0; x < factor; x++)
+			for (int x = 0; x < (int)factor; x++)
 			{
 				Vector xoffset = xvec*(double)x - xvec*(double)factor/2.0;
 				Vector yoffset = yvec*(double)y - yvec*(double)factor/2.0;
@@ -292,7 +305,7 @@ void Scene::addLight(Light *l)
 void Scene::setEye(Triple e)
 {
 	camera.eye = e;
-	camera.center = Vector(e.x, e.y, 0);
+	camera.center = Point(e.x, e.y, 0);
 	camera.up = Vector(0,0,1);
 	camera.viewWidth = 400;
 	camera.viewHeight = 400;
