@@ -1754,6 +1754,40 @@ glmWeld(GLMmodel* model, GLfloat epsilon)
 	return welded;
 }
 
+void
+glmInitVBO(GLMmodel *model)
+{
+	GLfloat *data;
+	GLuint bufferID;
+	int i, j, k;
+	
+	glGenBuffersARB(1, &bufferID);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, model->numtriangles*3*3*2*sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+	data = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+	
+	/* Fill vertices and normals, interleaved */
+	for(i = 0; i < model->numtriangles; i++)
+		for(j = 0; j < 3; j++)
+			for(k = 0; k < 3; k++)
+			{
+				data[18*i+6*j+k] = model->normals[3*model->triangles[i].nindices[j] + k];
+				data[18*i+6*j+k+3] = model->vertices[3*model->triangles[i].vindices[j] + k];
+			}
+	
+	glUnmapBuffer(GL_ARRAY_BUFFER_ARB);
+}
+
+void
+glmDrawVBO(GLMmodel *model)
+{
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glInterleavedArrays(GL_N3F_V3F, 0, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 3*model->numtriangles);
+}
+
+
 
 #if 0
 	/* normals */

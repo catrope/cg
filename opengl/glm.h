@@ -259,6 +259,14 @@ glmList(GLMmodel* model, GLuint mode);
 GLuint
 glmWeld(GLMmodel* model, GLfloat epsilon);
 
+/* glmInitVBO: initialize VBOs
+ */
+void
+glmInitVBO(GLMmodel *model);
+
+void
+glmDrawVBO(GLMmodel *model);
+
 
 #ifdef __cplusplus
 }

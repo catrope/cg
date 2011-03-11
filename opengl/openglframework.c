@@ -97,6 +97,7 @@ void display(void)
 	glmScale(model, 2);
 	glmFacetNormals(model);
 	glmVertexNormals(model, 90);
+	glmInitVBO(model);
 	
 	for (i = 0; i < apertureSamples; i++) {
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -114,7 +115,7 @@ void display(void)
 		glEnable(GL_LIGHT0);
 		glEnable(GL_DEPTH_TEST);
 		
-		glmDraw(model, GLM_SMOOTH);
+		glmDrawVBO(model);
 
 		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
 		glFlush();
