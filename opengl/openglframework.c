@@ -105,55 +105,16 @@ void display(void)
 		r = apertureC * sqrt((GLdouble)i);
 		theta = (GLdouble)i * 2.399963;
 		
-		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
-		
-		/*gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);*/
 		gluLookAt(0.0,0.0,5.0,0.0,0.0,0.0,0.0,1.0,0.0);
 		glRotatef(angleX, 1.0, 0.0, 0.0);
 		glRotatef(angleY, 0.0, 1.0, 0.0);
 		
-		
-		/*glTranslatef(200.0, 200.0, 200.00);
-		glRotatef(angleX, 1.0, 0.0, 0.0);
-		glRotatef(angleY, 0.0, 1.0, 0.0);
-		glTranslatef(-200.0, -200.0, -200.0);*/
-
 		setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_DEPTH_TEST);
 		
 		glmDraw(model, GLM_SMOOTH);
-
-		/*setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
-		glPushMatrix();
-		glTranslated(90,320,100);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
-		glPopMatrix();
-
-		setGlMaterial(0.0f,1.0f,0.0f,0.2,0.3,0.5,8);
-		glPushMatrix();
-		glTranslated(210,270,300);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
-		glPopMatrix();
-
-		setGlMaterial(1.0f,0.0f,0.0f,0.2,0.7,0.8,32);
-		glPushMatrix();
-		glTranslated(290,170,150);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
-		glPopMatrix();
-
-		setGlMaterial(1.0f,0.8f,0.0f,0.2,0.8,0.0,1);
-		glPushMatrix();
-		glTranslated(140,220,400);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
-		glPopMatrix();
-
-		setGlMaterial(1.0f,0.5f,0.0f,0.2,0.8,0.5,32);
-		glPushMatrix();
-		glTranslated(110,130,200);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
-		glPopMatrix();*/
 
 		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
 		glFlush();
