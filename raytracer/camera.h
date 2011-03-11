@@ -17,6 +17,8 @@ public:
 	Vector acceleration;
 	double exposureTime;
 	unsigned int exposureSamples;
+	bool anaglyph;
+	Vector eyesOffset;
 };
 
 #endif // CAMERA_H

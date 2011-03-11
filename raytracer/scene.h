@@ -37,6 +37,7 @@ private:
 	unsigned int superSamplingFactor;
 	bool superSamplingJitter;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	Color anaglyphRay(Point pixel, Point eye);
 	Color exposureRay(Point pixel, Point eye);
 	Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
 	Color apertureRay(Vector pixel, unsigned int subpixel);

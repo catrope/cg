@@ -188,6 +188,27 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	return color;
 }
 
+Color Scene::anaglyphRay(Point pixel, Point eye)
+{
+	if (camera.anaglyph)
+	{
+		Point leftEye = eye - camera.eyesOffset;
+		Point rightEye = eye + camera.eyesOffset;
+		Ray leftRay(leftEye, (pixel-leftEye).normalized());
+		Ray rightRay(rightEye, (pixel-rightEye).normalized());
+		Color leftCol = trace(leftRay, 0);
+		Color rightCol = trace(rightRay, 0);
+		Color finalCol(leftCol.r, rightCol.g, rightCol.b);
+		return finalCol;
+	}
+	else
+	{
+		Ray ray(eye, (pixel-eye).normalized());
+		Color finalCol = trace(ray, 0);
+		return finalCol;
+	}
+}
+
 Color Scene::exposureRay(Point pixel, Point eye)
 {
 	Color col(0,0,0);
@@ -196,8 +217,7 @@ Color Scene::exposureRay(Point pixel, Point eye)
 	{
 		double time = (double)i * camera.exposureTime / (double)camera.exposureSamples;
 		Point motionEye = eye + camera.velocity*time + camera.acceleration*time*time/2.0;
-		Ray ray(motionEye, (pixel-motionEye).normalized());
-		col += trace(ray, 0);
+		col += anaglyphRay(pixel, motionEye);
 	}
 	col /= camera.exposureSamples;
 	return col;
