@@ -120,6 +120,8 @@ void display(void)
 		glFlush();
 	}
 	
+	glmDelete(model);
+	
 	glAccum(GL_RETURN, 1.0);
 
 	glutSwapBuffers();
