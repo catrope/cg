@@ -1758,11 +1758,10 @@ void
 glmInitVBO(GLMmodel *model)
 {
 	GLfloat *data;
-	GLuint bufferID;
 	int i, j, k;
 	
-	glGenBuffersARB(1, &bufferID);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+	glGenBuffersARB(1, &model->bufferID);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, model->bufferID);
 	glBufferDataARB(GL_ARRAY_BUFFER_ARB, model->numtriangles*3*3*2*sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 	data = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 	
@@ -1776,6 +1775,13 @@ glmInitVBO(GLMmodel *model)
 			}
 	
 	glUnmapBuffer(GL_ARRAY_BUFFER_ARB);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+}
+
+void
+glmDestoryVBO(GLMmodel *model)
+{
+	glDeleteBuffersARB(1, &model->bufferID);
 }
 
 void
@@ -1783,8 +1789,10 @@ glmDrawVBO(GLMmodel *model)
 {
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, model->bufferID);
 	glInterleavedArrays(GL_N3F_V3F, 0, 0);
 	glDrawArrays(GL_TRIANGLES, 0, 3*model->numtriangles);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 }
 
 

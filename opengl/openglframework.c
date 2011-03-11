@@ -121,6 +121,7 @@ void display(void)
 		glFlush();
 	}
 	
+	glmDestoryVBO(model);
 	glmDelete(model);
 	
 	glAccum(GL_RETURN, 1.0);

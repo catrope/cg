@@ -99,6 +99,8 @@ typedef struct _GLMmodel {
 	GLMgroup* groups;			/* linked list of groups */
 
 	GLfloat position[3];			/* position of the model */
+	
+	GLuint bufferID;		/* VBO buffer ID */
 
 } GLMmodel;
 
@@ -263,6 +265,9 @@ glmWeld(GLMmodel* model, GLfloat epsilon);
  */
 void
 glmInitVBO(GLMmodel *model);
+
+void
+glmDestroyVBO(GLMmodel *model);
 
 void
 glmDrawVBO(GLMmodel *model);
