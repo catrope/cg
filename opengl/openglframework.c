@@ -43,7 +43,7 @@
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
 GLfloat angleX = 0, angleY = 0, zoom = 1.0;
-int apertureSamples = 8;
+int apertureSamples = 1;
 GLdouble apertureC = 3.0;
 
 void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfloat ks, GLfloat n)
@@ -73,9 +73,10 @@ void display(void)
 	int i;
 	GLdouble r, theta;
 	GLdouble top, bottom, left, right, aspect;
+	GLMmodel *model;
 	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	/*glMatrixMode(GL_PROJECTION);*/
+	/*glLoadIdentity();*/
 	
 
 	aspect = (GLdouble)width/(GLdouble)height;
@@ -83,12 +84,19 @@ void display(void)
 	bottom = -top;
 	left = aspect * bottom;
 	right = aspect * top;
-	//glFrustum(left, right, bottom, top, 500.0, 1000.0);
-	//gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
+	/*glFrustum(left, right, bottom, top, 500.0, 1000.0);*/
+	/*gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);*/
 	
-	glMatrixMode(GL_MODELVIEW);
+	/*glMatrixMode(GL_MODELVIEW);*/
 	
 	glClear(GL_ACCUM_BUFFER_BIT);
+	
+	/* Load GLM model */
+	model = glmReadOBJ("obj/devilduk.obj");
+	glmUnitize(model);
+	glmScale(model, 2);
+	glmFacetNormals(model);
+	glmVertexNormals(model, 90);
 	
 	for (i = 0; i < apertureSamples; i++) {
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -99,8 +107,10 @@ void display(void)
 		
 		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
 		
-		//gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+		/*gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);*/
 		gluLookAt(0.0,0.0,5.0,0.0,0.0,0.0,0.0,1.0,0.0);
+		glRotatef(angleX, 1.0, 0.0, 0.0);
+		glRotatef(angleY, 0.0, 1.0, 0.0);
 		
 		
 		/*glTranslatef(200.0, 200.0, 200.00);
@@ -112,8 +122,10 @@ void display(void)
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_DEPTH_TEST);
+		
+		glmDraw(model, GLM_SMOOTH);
 
-		setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
+		/*setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
 		glPushMatrix();
 		glTranslated(90,320,100);
 		glutSolidSphere(50,SPHERE_N,SPHERE_N);
@@ -141,7 +153,7 @@ void display(void)
 		glPushMatrix();
 		glTranslated(110,130,200);
 		glutSolidSphere(50,SPHERE_N,SPHERE_N);
-		glPopMatrix();
+		glPopMatrix();*/
 
 		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
 		glFlush();
