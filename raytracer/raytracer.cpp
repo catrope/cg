@@ -127,6 +127,8 @@ Camera Raytracer::parseCamera(const YAML::Node& node)
 	cam.up = parseTriple(node["up"]);
 	cam.viewWidth = node["viewSize"][0];
 	cam.viewHeight = node["viewSize"][1];
+	cam.apertureRadius = parseOptionalDouble(node.FindValue("apertureRadius"), 0.0);
+	cam.apertureSamples = parseUnsignedInt(node.FindValue("apertureSamples"), 1);
 	return cam;
 }
 

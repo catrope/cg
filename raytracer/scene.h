@@ -38,6 +38,7 @@ private:
 	bool superSamplingJitter;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
 	Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
+	Color apertureRay(Vector pixel, unsigned int subpixel);
 public:
 	enum RenderMode {
 		phong, zbuffer, normal

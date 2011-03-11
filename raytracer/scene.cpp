@@ -188,6 +188,29 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	return color;
 }
 
+Color Scene::apertureRay(Vector pixel, unsigned int subpixel)
+{
+	Color col(0,0,0);
+	
+	// calculate the vectors for moving one unit right or down
+	Vector xvec = (camera.center-camera.eye).normalized().cross(camera.up).normalized();
+	Vector yvec = -camera.up.normalized();
+	
+	double roffset = fmod((double)subpixel*1.61803399, 1.0);
+	
+	for (unsigned int i = 0; i < camera.apertureSamples; i++)
+	{
+		double r = sqrt((double)i + roffset)*camera.apertureRadius/(camera.up.length()*sqrt(camera.apertureSamples));
+		double theta = (double)(i + subpixel) * 2.399963;
+		
+		Point newEye = camera.eye + xvec*r*cos(theta) + yvec*r*sin(theta);
+		Ray ray(newEye, (pixel-newEye).normalized());
+		col += trace(ray, 0);
+	}
+	col /= camera.apertureSamples;
+	return col;
+}
+
 Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor)
 {
 	Color col(0,0,0);
@@ -200,11 +223,14 @@ Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned
 	}
 	else
 	{
-		xvec /= (double)factor-1.0;
-		yvec /= (double)factor-1.0;
+		xvec /= ((double)factor-1.0);
+		yvec /= ((double)factor-1.0);
+		unsigned int subpixel = 0;
 		
+		#pragma omp parallel for
 		for (unsigned int y = 0; y < factor; y++)
 		{
+			#pragma omp parallel for
 			for (unsigned int x = 0; x < factor; x++)
 			{
 				Vector xoffset = xvec*(double)x - xvec*(double)factor/2.0;
@@ -217,8 +243,7 @@ Color Scene::superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned
 				}
 				
 				Point pixel = origPixel + xoffset + yoffset;
-				Ray ray(camera.eye, (pixel-camera.eye).normalized());
-				col += trace(ray, 0);
+				col += apertureRay(pixel, subpixel++);
 			}
 		}
 		col /= factor*factor;
@@ -240,8 +265,10 @@ void Scene::render(Image &img)
 	// init random generator
 	srand(time(NULL));
 	
+	#pragma omp parallel for
 	for (int y = 0; y < h; y++)
 	{
+		#pragma omp parallel for
 		for (int x = 0; x < w; x++)
 		{
 			Point pixel = camera.center

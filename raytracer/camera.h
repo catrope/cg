@@ -11,6 +11,8 @@ public:
 	Vector up;
 	int viewWidth;
 	int viewHeight;
+	double apertureRadius;
+	unsigned int apertureSamples;
 };
 
 #endif // CAMERA_H
