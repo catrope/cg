@@ -160,7 +160,7 @@ glmFacetNormals(GLMmodel* model);
  * the facet normal. This tends to preserve hard edges. The angle to
  * use depends on the model, but 90 degrees is usually a good start.
  *
- * model - initialized GLMmodel structure
+ * model - GLMmodel structure that glmFacetNormals() has been called on
  * angle - maximum angle (in degrees) to smooth across
  */
 GLvoid
