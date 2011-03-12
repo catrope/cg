@@ -1759,7 +1759,16 @@ glmInitVBO(GLMmodel *model)
 {
 	GLfloat *data;
 	GLuint *indices;
+	GLfloat *unpackedNormals;
 	int i, j, k;
+	
+	/* Preprocessing: unpack the normals array so the indices match up */
+	unpackedNormals = (GLfloat *)malloc(model->numtriangles*3*3*sizeof(GLfloat));
+	for(i = 0; i < model->numtriangles; i++)
+		for(j = 0; j < 3; j++)
+			for(k = 0; k < 3; k++)
+				unpackedNormals[3*model->triangles[i].vindices[j] + k] =
+					model->normals[3*model->triangles[i].nindices[j] + k];
 	
 	glGenBuffersARB(1, &model->vbo);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, model->vbo);
@@ -1779,10 +1788,12 @@ glmInitVBO(GLMmodel *model)
 		for(j = 0; j < 3; j++)
 		{
 			data[6*i+j] = model->vertices[3*i+j];
-			data[6*i+j+3] = model->normals[3*i+j];
+			/*data[6*i+j+3] = model->normals[3*i+j];*/
+			data[6*i+j+3] = unpackedNormals[3*i+j];
 		}
 	glUnmapBuffer(GL_ARRAY_BUFFER_ARB);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	free(unpackedNormals);
 	
 	glGenBuffersARB(1, &model->ibo);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, model->ibo);
@@ -1795,6 +1806,7 @@ glmInitVBO(GLMmodel *model)
 			indices[3*i+j] = model->triangles[i].vindices[j];
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	
 	
 }
 
