@@ -100,7 +100,7 @@ typedef struct _GLMmodel {
 
 	GLfloat position[3];			/* position of the model */
 	
-	GLuint bufferID;		/* VBO buffer ID */
+	GLuint vbo, ibo;		/* buffer IDs */
 
 } GLMmodel;
 
