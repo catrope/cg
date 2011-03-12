@@ -1772,23 +1772,14 @@ glmInitVBO(GLMmodel *model)
 	
 	glGenBuffersARB(1, &model->vbo);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, model->vbo);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, /*model->numtriangles*3*3*2*sizeof(GLfloat)*/model->numvertices*3*2*sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, model->numvertices*3*2*sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 	data = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 	
 	/* Fill vertices and normals, interleaved */
-	/*for(i = 0; i < model->numtriangles; i++)
-		for(j = 0; j < 3; j++)
-			for(k = 0; k < 3; k++)
-			{
-				data[18*i+6*j+k] = model->vertices[3*model->triangles[i].vindices[j] + k];
-				data[18*i+6*j+k+3] = model->normals[3*model->triangles[i].nindices[j] + k];
-			}
-	*/
 	for(i = 0; i < model->numvertices; i++)
 		for(j = 0; j < 3; j++)
 		{
 			data[6*i+j] = model->vertices[3*i+j];
-			/*data[6*i+j+3] = model->normals[3*i+j];*/
 			data[6*i+j+3] = unpackedNormals[3*i+j];
 		}
 	glUnmapBuffer(GL_ARRAY_BUFFER_ARB);
@@ -1826,7 +1817,6 @@ glmDrawVBO(GLMmodel *model)
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, model->ibo);
 	glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), (void *)0);
 	glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void *)(3*sizeof(GLfloat)));
-	/*glDrawArrays(GL_TRIANGLES, 0, 3*model->numtriangles);*/
 	glDrawElements(GL_TRIANGLES, 3*model->numtriangles, GL_UNSIGNED_INT, (void *)0);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
