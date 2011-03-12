@@ -1770,8 +1770,8 @@ glmInitVBO(GLMmodel *model)
 		for(j = 0; j < 3; j++)
 			for(k = 0; k < 3; k++)
 			{
-				data[18*i+6*j+k] = model->normals[3*model->triangles[i].nindices[j] + k];
-				data[18*i+6*j+k+3] = model->vertices[3*model->triangles[i].vindices[j] + k];
+				data[18*i+6*j+k] = model->vertices[3*model->triangles[i].vindices[j] + k];
+				data[18*i+6*j+k+3] = model->normals[3*model->triangles[i].nindices[j] + k];
 			}
 	
 	glUnmapBuffer(GL_ARRAY_BUFFER_ARB);
@@ -1790,7 +1790,8 @@ glmDrawVBO(GLMmodel *model)
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, model->bufferID);
-	glInterleavedArrays(GL_N3F_V3F, 0, 0);
+	glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), (void *)0);
+	glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void *)(3*sizeof(GLfloat)));
 	glDrawArrays(GL_TRIANGLES, 0, 3*model->numtriangles);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 }
