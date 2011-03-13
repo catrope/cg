@@ -19,6 +19,7 @@
 #include "scene.h"
 #include "material.h"
 #include <cstdio>
+#include <cstdlib>
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 {
