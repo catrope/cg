@@ -58,6 +58,8 @@ public:
 	Hit(const double t, const Vector &normal)
 		: t(t), N(normal)
 	{ }
+	
+	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector()); }
 
 	// TODO: Unminify, move to light.cpp
 	static const Hit NO_HIT() { static Hit no_hit(std::numeric_limits<double>::quiet_NaN(),Vector(std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::quiet_NaN())); return no_hit; }
