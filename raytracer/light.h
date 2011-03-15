@@ -60,8 +60,7 @@ public:
 	
 	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector()); }
 
-	// TODO: Unminify, move to light.cpp
-	static const Hit NO_HIT() { static Hit no_hit(std::numeric_limits<double>::quiet_NaN(),Vector(std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::quiet_NaN())); return no_hit; }
+	static const Hit NO_HIT();
 };
 
 #endif /* end of include guard: LIGHT_H_PG2BAJRA */

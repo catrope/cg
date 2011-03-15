@@ -16,3 +16,17 @@
 //
 
 #include "light.h"
+
+const Hit Hit::NO_HIT()
+{
+	// Hit(NaN, Vector(NaN, NaN, NaN)
+	static Hit no_hit(
+		std::numeric_limits<double>::quiet_NaN(),
+		Vector(
+			std::numeric_limits<double>::quiet_NaN(),
+			std::numeric_limits<double>::quiet_NaN(),
+			std::numeric_limits<double>::quiet_NaN()
+		)
+	);
+	return no_hit;
+}
