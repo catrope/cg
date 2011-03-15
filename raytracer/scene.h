@@ -41,7 +41,7 @@ private:
 	Color exposureRay(Point pixel, Point eye);
 	Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
 	Color apertureRay(Vector pixel, unsigned int subpixel);
-	bool intersectRay(const Ray &ray, Hit *h, Object **o);
+	bool intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT);
 public:	
 	enum RenderMode {
 		phong, zbuffer, normal
