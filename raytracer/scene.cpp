@@ -327,7 +327,7 @@ void Scene::setEye(Triple e)
 {
 	camera.eye = e;
 	camera.center = Point(e.x, e.y, 0);
-	camera.up = Vector(0,0,1);
+	camera.up = Vector(0,1,0);
 	camera.viewWidth = 400;
 	camera.viewHeight = 400;
 }
