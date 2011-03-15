@@ -23,20 +23,11 @@
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 {
-	// Find hit object and distance
-	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
-	
-	Object *obj = NULL;
-	for (unsigned int i = 0; i < objects.size(); ++i) {
-		Hit hit(objects[i]->intersect(ray));
-		if (hit.t<min_hit.t) {
-			min_hit = hit;
-			obj = objects[i];
-		}
-	}
-
-	// No hit? Return background color.
-	if (!obj) return Color(0.0, 0.0, 0.0);
+	Hit min_hit;
+	Object *obj;
+	if (!intersectRay(ray, &min_hit, &obj))
+		// No hit? Return background color
+		return Color(0.0, 0.0, 0.0);
 
 	Point hit = ray.at(min_hit.t); //the hit point
 	Vector N = min_hit.N; //the normal at hit point
@@ -52,6 +43,37 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 		default:
 			return calcPhong(obj, &hit, &N, &V, recursionDepth);
 	}
+}
+
+/**
+ * Intersect a ray with all objects in the scene.
+ * @param ray Ray to intersect with all objects
+ * @param h Will be filled with a Hit object if an intersection was found
+ * @param o Will be filled with a pointer to the intersected Object if found
+ * @return Whether an intersection was found. 
+ */
+bool Scene::intersectRay(const Ray &ray, Hit *h, Object **o)
+{
+	// Find hit object and distance
+	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
+	Object *obj = NULL;
+	
+	for (unsigned int i = 0; i < objects.size(); ++i) {
+		Hit hit = objects[i]->intersect(ray);
+		if (hit.t<min_hit.t) {
+			min_hit = hit;
+			obj = objects[i];
+		}
+	}
+	
+	if (obj) {
+		// We have an intersection
+		*h = min_hit;
+		*o = obj;
+		return true;
+	}
+	// No intersection found
+	return false;
 }
 
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
