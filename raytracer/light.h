@@ -39,10 +39,9 @@ public:
 	Point O;
 	Vector D;
 
-	// TODO: Normalize dir on this side, to be sure it's normalized
 	Ray(const Point &from, const Vector &dir)
-		: O(from), D(dir)
-	{ }
+		: O(from)
+	{ D = dir.normalized(); }
 
 	Point at(double t) const
 	{ return O + t*D; }
