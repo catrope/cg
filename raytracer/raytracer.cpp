@@ -102,7 +102,7 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		{
 			std::string texture;
 			*textureNode >> texture;
-			returnObject->setTextureFile(texture);
+			returnObject->texture = Image(texture.c_str());
 		}
 	}
 
