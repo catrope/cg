@@ -25,5 +25,6 @@ Color Object::getColor(const Point &p)
 	
 	double u, v;
 	getTexCoords(p, u, v);
-	return texture(u, v);
+	// u and v are in [0,1] so scale them to the texture dimensions
+	return texture(round(u*texture.width()), round(v*texture.height()));
 }
