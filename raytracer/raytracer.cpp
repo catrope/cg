@@ -97,7 +97,7 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		returnObject->material = parseMaterial(node["material"]);
 		
 		// Read the texture, if present
-		YAML::Node *textureNode = node.FindValue("texture");
+		const YAML::Node *textureNode = node.FindValue("texture");
 		if(textureNode)
 		{
 			std::string texture;
