@@ -45,6 +45,7 @@ int mouseX, mouseY, width, height;
 GLfloat angleX = 0, angleY = 0, zoom = 1.0;
 int apertureSamples = 1;
 GLdouble apertureC = 3.0;
+GLMmodel *model;
 
 void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfloat ks, GLfloat n)
 {
@@ -68,12 +69,28 @@ void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 }
 
+void initVBO(void)
+{
+	/* Load GLM model */
+	model = glmReadOBJ("obj/devilduk.obj");
+	glmUnitize(model);
+	glmScale(model, 2);
+	glmFacetNormals(model);
+	glmVertexNormals(model, 90);
+	glmInitVBO(model);
+}
+
+void destroyVBO(void)
+{
+	glmDestoryVBO(model);
+	glmDelete(model);
+}
+
 void display(void)
 {
 	int i;
 	GLdouble r, theta;
 	GLdouble top, bottom, left, right, aspect;
-	GLMmodel *model;
 	
 	/*glMatrixMode(GL_PROJECTION);*/
 	/*glLoadIdentity();*/
@@ -90,14 +107,6 @@ void display(void)
 	/*glMatrixMode(GL_MODELVIEW);*/
 	
 	glClear(GL_ACCUM_BUFFER_BIT);
-	
-	/* Load GLM model */
-	model = glmReadOBJ("obj/devilduk.obj");
-	glmUnitize(model);
-	glmScale(model, 2);
-	glmFacetNormals(model);
-	glmVertexNormals(model, 90);
-	glmInitVBO(model);
 	
 	for (i = 0; i < apertureSamples; i++) {
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -120,9 +129,6 @@ void display(void)
 		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
 		glFlush();
 	}
-	
-	glmDestoryVBO(model);
-	glmDelete(model);
 	
 	glAccum(GL_RETURN, 1.0);
 
@@ -208,7 +214,8 @@ int main(int argc, char** argv)
 	glutInitWindowSize(800, 600);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
-	initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");
+	initGLSLProgram("vertexshader.glsl", "gooch.glsl");
+	initVBO();
 	
 #if defined(NEED_GLEW)
 	/* Init GLEW if needed */
@@ -234,6 +241,8 @@ int main(int argc, char** argv)
 	glutMotionFunc(motion);
 
 	glutMainLoop();
+	
+	destroyVBO();
 
 	return 0;
 }
