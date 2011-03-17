@@ -27,7 +27,7 @@ public:
 	Sphere(Point position,double r) : position(position), r(r) { }
 
 	virtual Hit intersect(const Ray &ray);
-	virtual void getTexCoords(const Point &p, int &x, int &y);
+	virtual void getTexCoords(const Point &p, double &x, double &y);
 
 	const Point position;
 	const double r;

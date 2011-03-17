@@ -31,7 +31,7 @@ public:
 	virtual ~Object() { }
 
 	virtual Hit intersect(const Ray &ray) = 0;
-	virtual void getTexCoords(const Point &p, int &u, int &v) { u = 0; v = 0; }
+	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */
