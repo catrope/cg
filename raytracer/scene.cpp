@@ -120,7 +120,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// If the dot product is negative, the light is not
 		// visible to the viewer
 		if (NL >= 0) {
-			color += obj->material->kd * obj->material->color * lights[i]->color * NL;
+			color += obj->material->kd * obj->getColor(*hit) * lights[i]->color * NL;
 		}
 		
 		// Specular lighting
@@ -135,7 +135,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	
 	// Ambient lighting
 	ambient.clamp();
-	color += obj->material->ka * obj->material->color * ambient;
+	color += obj->material->ka * obj->getColor(*hit) * ambient;
 	
 	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
