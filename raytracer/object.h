@@ -32,6 +32,12 @@ public:
 
 	virtual Hit intersect(const Ray &ray) = 0;
 	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }
+	
+	void setTextureFile(const unsigned char *file);
+	void setTextureFile(std::string file) { setTextureFile(file.c_str()); }
+
+protected:
+	Color *textureData;
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */

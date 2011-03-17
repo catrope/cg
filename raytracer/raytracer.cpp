@@ -95,6 +95,15 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 	if (returnObject) {
 		// read the material and attach to object
 		returnObject->material = parseMaterial(node["material"]);
+		
+		// Read the texture, if present
+		YAML::Node *textureNode = node.FindValue("texture");
+		if(textureNode)
+		{
+			std::string texture;
+			*textureNode >> texture;
+			returnObject->setTextureFile(texture);
+		}
 	}
 
 	return returnObject;
@@ -147,6 +156,7 @@ Triple Raytracer::parseOptionalTriple(const YAML::Node* node, Triple defaultVal)
 	return parseTriple(*node);
 }
 
+// TODO: Replace all this stuff with a template function
 bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)
 {
 	bool retval;
@@ -180,7 +190,6 @@ double Raytracer::parseOptionalDouble(const YAML::Node* node, double defaultVal)
 /*
 * Read a scene from file
 */
-
 bool Raytracer::readScene(const std::string& inputFilename)
 {
 	// Initialize a new scene
