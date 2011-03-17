@@ -3,7 +3,7 @@ varying vec3 L, N, R, V;
 void main()
 {
 	vec4 finalColor = vec4(0.0);
-	float NL, VR;
+	float NL, VR, NV;
 	vec3 N2, L2, R2, V2;
 	vec4 kCool, kWarm;
 	
@@ -23,6 +23,12 @@ void main()
 	VR = dot(V2, R2);
 	if (VR > 0.0) {
 		finalColor += gl_FrontLightProduct[0].specular * pow(VR, gl_FrontMaterial.shininess);
+	}
+	
+	/* Edges */
+	NV = dot(N2, V2);
+	if (NV > 0.0 && NV < 0.30) {
+		finalColor += vec4(0.4, 0.4, 0.4, 0.0);
 	}
 	
 	gl_FragColor = finalColor;
