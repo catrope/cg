@@ -214,7 +214,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(800, 600);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
-	initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");
+	initGLSLProgram("vertexshader.glsl", "gooch.glsl");
 	initVBO();
 	
 #if defined(NEED_GLEW)
