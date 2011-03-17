@@ -47,15 +47,10 @@ Objects:
   radius: 50
   material: # red
     color: [1.0,0.0,0.0]
-    #ka: 0.2
-    #kd: 0.7
-    #ks: 0.8
-    #n: 32
     ka: 0.2
-    kd: 0.8
-    ks: 0
-    n: 1
-  texture: bluegrid.png
+    kd: 0.7
+    ks: 0.8
+    n: 32
 - type: sphere
   position: [140,220,400]
   radius: 50
@@ -63,10 +58,9 @@ Objects:
     color: [0.8, 0.8, 0.4]
     ka: 0.2
     kd: 0.8
-    ks: 0.8
-    n: 32
-    refract: 0.75
-    eta: 1.33
+    ks: 0
+    n: 1
+  texture: bluegrid.png
 - type: sphere
   position: [110,130,200]
   radius: 50
