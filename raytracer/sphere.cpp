@@ -70,9 +70,9 @@ void Sphere::getTexCoords(const Point &p, double &u, double &v)
 	// Texture mapping for spheres. Formulas from Fundamentals of CG p. 251
 	double theta = acos((p.z - position.z)/r);
 	double phi = atan2(p.y - position.y, p.x - position.x);
-	/*if (phi < 0.0)
-		phi += 2*M_PI;*/
-	phi += M_PI;
+	if (phi < 0.0)
+		phi += 2*M_PI;
 	u = phi/(2*M_PI);
-	v = (M_PI - theta)/M_PI;
+	// The book says v = (M_PI - theta)/M_PI but that results in mirrored v coords
+	v = theta/M_PI;
 }
