@@ -39,6 +39,10 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 			return Color(min_hit.t/1000, min_hit.t/1000, min_hit.t/1000);
 		case normal:
 			return N/2+0.5;
+		case texcoords:
+			int u, v;
+			obj->getTexCoords(hit, u, v);
+			return Color(u, v, 0);
 		case phong:
 		default:
 			return calcPhong(obj, &hit, &N, &V, recursionDepth);

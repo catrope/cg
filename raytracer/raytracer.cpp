@@ -116,6 +116,7 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	*node >> mode;
 	if(mode == "zbuffer") return Scene::zbuffer;
 	else if(mode == "normal") return Scene::normal;
+	else if(mode == "texcoords") return Scene::texcoords;
 	else return Scene::phong;
 }
 
