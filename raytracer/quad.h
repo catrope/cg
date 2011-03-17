@@ -11,7 +11,7 @@ class Quad : public Object
 {
 public:
 	Quad(Point pp1, Point pp2, Point pp3, Point pp4) :
-		p1(pp1), p2(pp2), p3(pp3), p4(pp4)
+		Object(), p1(pp1), p2(pp2), p3(pp3), p4(pp4)
 	{ }
 
 	virtual Hit intersect(const Ray &ray);

@@ -28,7 +28,9 @@ class Material;
 class Object {
 public:
 	Material *material;
-	Image texture;
+	Image *texture;
+	
+	Object() { texture = NULL; }
 
 	virtual ~Object() { }
 

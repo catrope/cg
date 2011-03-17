@@ -52,7 +52,8 @@ Triple parseTriple(const YAML::Node& node)
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
 	Material *m = new Material();
-	node["color"] >> m->color;
+	if(node.FindValue("color"))
+		node["color"] >> m->color;
 	node["ka"] >> m->ka;
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
@@ -102,7 +103,7 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		{
 			std::string texture;
 			*textureNode >> texture;
-			returnObject->texture = Image(texture.c_str());
+			returnObject->texture = new Image((const char *)(texture.c_str()));
 		}
 	}
 

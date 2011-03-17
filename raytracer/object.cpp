@@ -19,12 +19,12 @@
 
 Color Object::getColor(const Point &p)
 {
-	if (texture.size() == 0)
+	if (!texture || texture->size() == 0)
 		// No texture, use material
 		return material->color;
 	
 	double u, v;
 	getTexCoords(p, u, v);
 	// u and v are in [0,1] so scale them to the texture dimensions
-	return texture(round(u*texture.width()), round(v*texture.height()));
+	return texture->colorAt(u, v);
 }
