@@ -29,9 +29,9 @@ Lights:
 Objects:
 - type: sphere
   position: [0,0,149597890]
-  # ?!?!? radius is a single number, not a nested array
   #radius: [6378.1,[0,0.91740769935748826377361893702175,-0.39794863130761038954479576746719]]
   radius: 6378.1
+  axis: [0, 0.91740769935748826377361893702175,-0.39794863130761038954479576746719]
   angle: -90
   texture: earth.png
   material:
