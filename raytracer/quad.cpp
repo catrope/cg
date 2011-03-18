@@ -17,3 +17,8 @@ Hit Quad::intersect(const Ray &ray)
 	
 	return ( (h1.t < inf) ? h1 : h2);
 }
+
+Point Quad::getRotationCenter()
+{
+	return (p1 + p2 + p3 + p4)/4;
+}

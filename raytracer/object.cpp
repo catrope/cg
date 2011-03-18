@@ -17,6 +17,23 @@
 #include "object.h"
 #include "material.h"
 
+Point Object::rotate(const Point &p)
+{
+	/* We need to:
+	 * 1) translate the rotation center to the origin
+	 * 2) rotate rAngle degrees around rVec
+	 * 3) translate back (undo #1)
+	 */
+	Point c = getRotationCenter();
+	return r*(p - c) + c;
+}
+
+Point Object::unRotate(const Point &p)
+{
+	Point c = getRotationCenter();
+	return rInv*(p - c) + c;
+}
+
 Color Object::getColor(const Point &p)
 {
 	if (!texture || texture->size() == 0)

@@ -68,21 +68,26 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 	Object *returnObject = NULL;
 	std::string objectType;
 	node["type"] >> objectType;
+	
+	// Parse angle and axis
+	double angle = parseOptionalDouble(node.FindValue("angle"), 0.0);
+	Vector axis(0, 0, 1);
+	if(node.FindValue("axis"))
+		node["axis"] >> axis;
 
 	if (objectType == "sphere") {
 		Point pos;
 		node["position"] >> pos;
 		double r;
 		node["radius"] >> r;
-		double angle = parseOptionalDouble(node.FindValue("angle"), 0.0);
-		Sphere *sphere = new Sphere(pos, r, angle);
+		Sphere *sphere = new Sphere(pos, r, axis, angle);
 		returnObject = sphere;
 	} else if (objectType == "triangle") {
 		Point p1, p2, p3;
 		node["p1"] >> p1;
 		node["p2"] >> p2;
 		node["p3"] >> p3;
-		Triangle *triangle = new Triangle(p1, p2, p3);
+		Triangle *triangle = new Triangle(p1, p2, p3, axis, angle);
 		returnObject = triangle;
 	} else if (objectType == "quad") {
 		Point p1, p2, p3, p4;
@@ -90,7 +95,7 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["p2"] >> p2;
 		node["p3"] >> p3;
 		node["p4"] >> p4;
-		Quad *quad = new Quad(p1, p2, p3, p4);
+		Quad *quad = new Quad(p1, p2, p3, p4, axis, angle);
 		returnObject = quad;
 	}
 	

@@ -22,21 +22,40 @@
 #include "triple.h"
 #include "light.h"
 #include "image.h"
-
-class Material;
+#include "matrix.h"
+#include "material.h"
 
 class Object {
 public:
 	Material *material;
 	Image *texture;
 	
-	Object() { texture = NULL; }
+	Object(const Vector &rotationVector, double rotationAngle) :
+		r(Matrix::rotationDeg(rotationVector, rotationAngle)),
+		rInv(Matrix::rotationDeg(rotationVector, -rotationAngle))
+	{
+		material = NULL;
+		texture = NULL;
+	}
 
-	virtual ~Object() { }
+	virtual ~Object()
+	{
+		if (texture)
+			delete texture;
+		if (material)
+			delete material;
+	}
 
 	virtual Hit intersect(const Ray &ray) = 0;
+	virtual Point getRotationCenter() = 0;
 	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }
+	
+	Point rotate(const Point &p);
+	Point unRotate(const Point &p);
 	Color getColor(const Point &p);
+
+private:
+	Matrix r, rInv; // rotation matrices
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */

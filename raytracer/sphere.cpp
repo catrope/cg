@@ -68,8 +68,9 @@ Hit Sphere::intersect(const Ray &ray)
 void Sphere::getTexCoords(const Point &p, double &u, double &v)
 {
 	// Texture mapping for spheres. Formulas from Fundamentals of CG p. 251
-	double theta = acos((p.z - position.z)/r);
-	double phi = atan2(p.y - position.y, p.x - position.x) - (angle*M_PI/180.0);
+	Point pr = unRotate(p);
+	double theta = acos((pr.z - position.z)/r);
+	double phi = atan2(pr.y - position.y, pr.x - position.x)/* - (angle*M_PI/180.0)*/;
 	while (phi < 0.0)
 		phi += 2*M_PI;
 	u = phi/(2*M_PI);
