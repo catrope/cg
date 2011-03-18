@@ -134,6 +134,7 @@ Camera Raytracer::parseCamera(const YAML::Node& node)
 	cam.exposureTime = parseOptionalDouble(node.FindValue("exposureTime"), 0.0);
 	cam.exposureSamples = parseUnsignedInt(node.FindValue("exposureSamples"), 1);
 	cam.anaglyph = parseBool(node.FindValue("anaglyph"), false);
+	cam.grey = parseBool(node.FindValue("grey"), false);
 	cam.eyesOffset = parseOptionalTriple(node.FindValue("eyesOffset"), Vector(0,0,0));
 	return cam;
 }

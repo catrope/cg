@@ -19,6 +19,7 @@ public:
 	unsigned int exposureSamples;
 	bool anaglyph;
 	Vector eyesOffset;
+	bool grey;
 };
 
 #endif // CAMERA_H

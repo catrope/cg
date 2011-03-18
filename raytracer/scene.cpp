@@ -198,6 +198,12 @@ Color Scene::anaglyphRay(Point pixel, Point eye)
 		Ray rightRay(rightEye, (pixel-rightEye).normalized());
 		Color leftCol = trace(leftRay, 0);
 		Color rightCol = trace(rightRay, 0);
+		if (camera.grey)
+		{
+			leftCol.set(leftCol.r + leftCol.g + leftCol.b, 3);
+			rightCol.set(rightCol.r + rightCol.g + rightCol.b, 3);
+		}
+		
 		Color finalCol(leftCol.r, rightCol.g, rightCol.b);
 		return finalCol;
 	}
