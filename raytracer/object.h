@@ -29,7 +29,7 @@
 class Object {
 public:
 	Material *material;
-	Image *texture;
+	Image *texture, *specularTexture;
 	
 	Object(const Vector &rotationVector, double rotationAngle) :
 		r(Matrix::rotationDeg(rotationVector, rotationAngle)),
@@ -37,12 +37,15 @@ public:
 	{
 		material = NULL;
 		texture = NULL;
+		specularTexture = NULL;
 	}
 
 	virtual ~Object()
 	{
 		if (texture)
 			delete texture;
+		if (specularTexture)
+			delete specularTexture;
 		if (material)
 			delete material;
 	}
@@ -54,6 +57,7 @@ public:
 	Point rotate(const Point &p);
 	Point unRotate(const Point &p);
 	Color getColor(const Point &p);
+	double getKs(const Point &p);
 
 private:
 	Matrix r, rInv; // rotation matrices

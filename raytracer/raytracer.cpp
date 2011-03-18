@@ -105,11 +105,19 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		
 		// Read the texture, if present
 		const YAML::Node *textureNode = node.FindValue("texture");
-		if(textureNode)
+		if (textureNode)
 		{
 			std::string texture;
 			*textureNode >> texture;
-			returnObject->texture = new Image((const char *)(texture.c_str()));
+			returnObject->texture = new Image(texture.c_str());
+		}
+		// Specular texture
+		const YAML::Node *specTextureNode = node.FindValue("speculartexture");
+		if (specTextureNode)
+		{
+			std::string specTexture;
+			*specTextureNode >> specTexture;
+			returnObject->specularTexture = new Image(specTexture.c_str());
 		}
 	}
 

@@ -59,11 +59,12 @@ Objects:
   axis: [1.5, -1.5, -2.5]
   angle: -120
   texture: earth.png
+  speculartexture: earthspec.png
   material:
     ka: 0.2
     kd: 0.8
     ks: 0
-    n: 1
+    n: 8
 - type: sphere
   position: [110,130,200]
   radius: 50

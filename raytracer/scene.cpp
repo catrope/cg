@@ -81,7 +81,7 @@ inline Vector Scene::reflectVector(Vector *N, Vector *V)
 	return -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
 }
 
-inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks, unsigned int recursionDepth)
 {	
 	// Trace a ray from this position along Vrefl, then treat
 	// the result as the color of an incoming light ray
@@ -91,12 +91,12 @@ inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vec
 	// ray to start below the reflection surface and
 	// intersect it immediately, move the starting point
 	// away from the surface (i.e. along Vrefl) a tiny bit.
-	if (obj->material->ks > 0)
+	if (ks > 0)
 	{
 		Vector Vrefl = reflectVector(N, V);
 		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
 		Color reflection = trace(reflected, recursionDepth + 1);
-		*color += obj->material->ks * reflection;
+		*color += ks * reflection;
 	}
 }
 
@@ -188,15 +188,15 @@ inline void Scene::diffuseGooch(Color *color, Object *obj, Point *hit, Light *li
 	*color += kCool * (1 - NL)/2 + kWarm * (1 + NL)/2;
 }
 
-inline void Scene::specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V)
+inline void Scene::specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V, double ks)
 {
 	// Specular lighting
 	Vector R = -1*(*L) + 2*L->dot(*N)*(*N); // R = -L + 2(L.N)N
 	double VR = V->dot(R);
 	// Skip negative dot products, see above.
 	// We also don't want negative exponents
-	if (VR >= 0 && obj->material->n > 0) {
-		*color += obj->material->ks * light->color * pow(VR, obj->material->n);
+	if (VR >= 0 && obj->material->n > 0 && ks > 0) {
+		*color += ks * light->color * pow(VR, obj->material->n);
 	}
 }
 
@@ -213,6 +213,7 @@ inline Vector Scene::lightVector(Point *hit, Light *light)
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
 {
 	Color color(0.0, 0.0, 0.0);
+	double ks = obj->getKs(*hit);
 	
 	ambient(&color, obj, hit);
 	
@@ -228,12 +229,12 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		}
 		
 		diffusePhong(&color, obj, hit, lights[i], &L, N);
-		specular(&color, obj, lights[i], &L, N, V);
+		specular(&color, obj, lights[i], &L, N, V, ks);
 	}
 	
 	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
-		reflect(&color, obj, hit, N, V, recursionDepth);
+		reflect(&color, obj, hit, N, V, ks, recursionDepth);
 		refract(&color, obj, hit, N, V, recursionDepth);
 	}
 	

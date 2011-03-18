@@ -45,3 +45,15 @@ Color Object::getColor(const Point &p)
 	// u and v are in [0,1] so scale them to the texture dimensions
 	return texture->colorAt(u, v);
 }
+
+double Object::getKs(const Point &p)
+{
+	if (!specularTexture || specularTexture->size() == 0)
+		// No texture, use material
+		return material->ks;
+	
+	double u, v;
+	getTexCoords(p, u, v);
+	// Use the red channel of the texture image, ignore the green and blue channels
+	return specularTexture->colorAt(u, v).r;
+}
