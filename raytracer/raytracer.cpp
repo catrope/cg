@@ -74,7 +74,8 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["position"] >> pos;
 		double r;
 		node["radius"] >> r;
-		Sphere *sphere = new Sphere(pos,r);		
+		double angle = parseOptionalDouble(node.FindValue("angle"), 0.0);
+		Sphere *sphere = new Sphere(pos, r, angle);
 		returnObject = sphere;
 	} else if (objectType == "triangle") {
 		Point p1, p2, p3;

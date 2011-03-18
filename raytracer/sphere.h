@@ -24,13 +24,14 @@
 class Sphere : public Object
 {
 public:
-	Sphere(Point position,double r) : Object(), position(position), r(r) { }
+	Sphere(Point position, double r, double angle=0) : Object(), position(position), r(r), angle(angle) { }
 
 	virtual Hit intersect(const Ray &ray);
 	virtual void getTexCoords(const Point &p, double &x, double &y);
 
 	const Point position;
 	const double r;
+	const double angle;
 };
 
 #endif /* end of include guard: SPHERE_H_115209AE */
