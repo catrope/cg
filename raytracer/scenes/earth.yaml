@@ -1,0 +1,42 @@
+---
+#  This is an example scene description for the raytracer framework created 
+#  for the Computer Science course "Introduction to Computer Graphics"
+#  taught at the University of Groningen by Tobias Isenberg.
+#
+#  The scene description format we use is based on YAML, which is a human friendly 
+#  data serialization standard. This gives us a flexible format which should be
+#  fairly easy to make both backward and forward compatible (i.e., by ignoring
+#  unknown directives). In addition parsers are available for many languages.
+#  See http://www.yaml.org/ for more information on YAML.
+#
+#  The example scene description should largely speak for itself. By now
+#  it should be clear that the #-character can be used to insert comments.
+
+Camera: # Possible position of moon (although I haven't checked whether it's on the right orbit)
+    eye: [192201.5,0,149264987] #[384403,0,149597890] rotated 60 degrees into the sun
+    center: [0,0,149597890]
+    up: [0,40,0]
+    viewSize: [400,400]
+
+Shadows: true
+SuperSampling:
+  factor: 4
+
+Lights:
+- position: [0,0,0]
+  color: [1.5,1.0,1.5]
+
+Objects:
+- type: sphere
+  position: [0,0,149597890]
+  #radius: [6378.1,[0,0.91740769935748826377361893702175,-0.39794863130761038954479576746719]]
+  radius: 6378.1
+  axis: [0, 0.91740769935748826377361893702175,-0.39794863130761038954479576746719]
+  angle: -90
+  texture: earth.png
+  material:
+    ka: 0.2
+    kd: 0.7
+    ks: 0.0
+    n: 1
+    color: [1,1,1]

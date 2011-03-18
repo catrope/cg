@@ -39,10 +39,9 @@ public:
 	Point O;
 	Vector D;
 
-	// TODO: Normalize dir on this side, to be sure it's normalized
 	Ray(const Point &from, const Vector &dir)
-		: O(from), D(dir)
-	{ }
+		: O(from)
+	{ D = dir.normalized(); }
 
 	Point at(double t) const
 	{ return O + t*D; }
@@ -58,9 +57,10 @@ public:
 	Hit(const double t, const Vector &normal)
 		: t(t), N(normal)
 	{ }
+	
+	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector()); }
 
-	// TODO: Unminify, move to light.cpp
-	static const Hit NO_HIT() { static Hit no_hit(std::numeric_limits<double>::quiet_NaN(),Vector(std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::quiet_NaN())); return no_hit; }
+	static const Hit NO_HIT();
 };
 
 #endif /* end of include guard: LIGHT_H_PG2BAJRA */

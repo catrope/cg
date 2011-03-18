@@ -159,12 +159,18 @@ public:
 
 	Triple normalized() const
 	{
-		return (*this) / length();
+		double l = length();
+		if ( l == 0.0 )
+			return *this;
+		else
+			return (*this) / length();
 	}
 
 	void normalize()
 	{
 		double l = length();
+		if ( l == 0.0 )
+			return;
 		double invl = 1/l;
 		x *= invl;
 		y *= invl;

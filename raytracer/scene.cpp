@@ -19,23 +19,15 @@
 #include "scene.h"
 #include "material.h"
 #include <cstdio>
+#include <cstdlib>
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 {
-	// Find hit object and distance
-	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
-	
-	Object *obj = NULL;
-	for (unsigned int i = 0; i < objects.size(); ++i) {
-		Hit hit(objects[i]->intersect(ray));
-		if (hit.t<min_hit.t) {
-			min_hit = hit;
-			obj = objects[i];
-		}
-	}
-
-	// No hit? Return background color.
-	if (!obj) return Color(0.0, 0.0, 0.0);
+	Hit min_hit;
+	Object *obj;
+	if (!intersectRay(ray, &min_hit, &obj, true, std::numeric_limits<double>::infinity()))
+		// No hit? Return background color
+		return Color(0.0, 0.0, 0.0);
 
 	Point hit = ray.at(min_hit.t); //the hit point
 	Vector N = min_hit.N; //the normal at hit point
@@ -47,10 +39,51 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 			return Color(min_hit.t/1000, min_hit.t/1000, min_hit.t/1000);
 		case normal:
 			return N/2+0.5;
+		case texcoords:
+			double u, v;
+			obj->getTexCoords(hit, u, v);
+			return Color(u, v, 0);
 		case phong:
 		default:
 			return calcPhong(obj, &hit, &N, &V, recursionDepth);
 	}
+}
+
+/**
+ * Intersect a ray with all objects in the scene.
+ * @param ray Ray to intersect with all objects
+ * @param h If not NULL, will be filled with a Hit object if an intersection was found
+ * @param o If not NULL, will be filled with a pointer to the intersected Object if found
+ * @param closest If true, make sure to return the closest intersection. If false, stop at the first intersection
+ * @param maxT Ignore intersections with a t value greater than or equal to this
+ * @return Whether an intersection was found.
+ */
+bool Scene::intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT)
+{
+	// Find hit object and distance
+	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
+	Object *obj = NULL;
+	
+	for (unsigned int i = 0; i < objects.size(); ++i) {
+		Hit hit = objects[i]->intersect(ray);
+		if (hit.t < min_hit.t && hit.t < maxT) {
+			min_hit = hit;
+			obj = objects[i];
+			if (!closest)
+				break;
+		}
+	}
+	
+	if (obj) {
+		// We have an intersection
+		if (h)
+			*h = min_hit;
+		if (o)
+			*o = obj;
+		return true;
+	}
+	// No intersection found
+	return false;
 }
 
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
@@ -69,16 +102,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// whether it intersects any other objects before this one
 		Ray lightRay(lights[i]->position, -1*L);
 		Hit ourHit = obj->intersect(lightRay);
-		bool shadowed = false;
-		for (unsigned int j = 0; j < objects.size(); j++) {
-			if (objects[j] != obj) {
-				Hit hit = objects[j]->intersect(lightRay);
-				if (hit.t < ourHit.t) {
-					shadowed = true;
-					break;
-				}
-			}
-		}
+		bool shadowed = intersectRay(lightRay, NULL, NULL, false, ourHit.t);
 		
 		// This light's contribution to ambient lighting
 		ambient += lights[i]->color;
@@ -96,7 +120,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		// If the dot product is negative, the light is not
 		// visible to the viewer
 		if (NL >= 0) {
-			color += obj->material->kd * obj->material->color * lights[i]->color * NL;
+			color += obj->material->kd * obj->getColor(*hit) * lights[i]->color * NL;
 		}
 		
 		// Specular lighting
@@ -111,7 +135,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	
 	// Ambient lighting
 	ambient.clamp();
-	color += obj->material->ka * obj->material->color * ambient;
+	color += obj->material->ka * obj->getColor(*hit) * ambient;
 	
 	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
@@ -332,7 +356,7 @@ void Scene::setEye(Triple e)
 {
 	camera.eye = e;
 	camera.center = Point(e.x, e.y, 0);
-	camera.up = Vector(0,0,1);
+	camera.up = Vector(0,1,0);
 	camera.viewWidth = 400;
 	camera.viewHeight = 400;
 }

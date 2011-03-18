@@ -52,7 +52,8 @@ Triple parseTriple(const YAML::Node& node)
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
 	Material *m = new Material();
-	node["color"] >> m->color;
+	if(node.FindValue("color"))
+		node["color"] >> m->color;
 	node["ka"] >> m->ka;
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
@@ -67,20 +68,26 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 	Object *returnObject = NULL;
 	std::string objectType;
 	node["type"] >> objectType;
+	
+	// Parse angle and axis
+	double angle = parseOptionalDouble(node.FindValue("angle"), 0.0);
+	Vector axis(0, 0, 1);
+	if(node.FindValue("axis"))
+		node["axis"] >> axis;
 
 	if (objectType == "sphere") {
 		Point pos;
 		node["position"] >> pos;
 		double r;
 		node["radius"] >> r;
-		Sphere *sphere = new Sphere(pos,r);		
+		Sphere *sphere = new Sphere(pos, r, axis, angle);
 		returnObject = sphere;
 	} else if (objectType == "triangle") {
 		Point p1, p2, p3;
 		node["p1"] >> p1;
 		node["p2"] >> p2;
 		node["p3"] >> p3;
-		Triangle *triangle = new Triangle(p1, p2, p3);
+		Triangle *triangle = new Triangle(p1, p2, p3, axis, angle);
 		returnObject = triangle;
 	} else if (objectType == "quad") {
 		Point p1, p2, p3, p4;
@@ -88,13 +95,22 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["p2"] >> p2;
 		node["p3"] >> p3;
 		node["p4"] >> p4;
-		Quad *quad = new Quad(p1, p2, p3, p4);
+		Quad *quad = new Quad(p1, p2, p3, p4, axis, angle);
 		returnObject = quad;
 	}
 	
 	if (returnObject) {
 		// read the material and attach to object
 		returnObject->material = parseMaterial(node["material"]);
+		
+		// Read the texture, if present
+		const YAML::Node *textureNode = node.FindValue("texture");
+		if(textureNode)
+		{
+			std::string texture;
+			*textureNode >> texture;
+			returnObject->texture = new Image((const char *)(texture.c_str()));
+		}
 	}
 
 	return returnObject;
@@ -116,6 +132,7 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	*node >> mode;
 	if(mode == "zbuffer") return Scene::zbuffer;
 	else if(mode == "normal") return Scene::normal;
+	else if(mode == "texcoords") return Scene::texcoords;
 	else return Scene::phong;
 }
 
@@ -147,6 +164,7 @@ Triple Raytracer::parseOptionalTriple(const YAML::Node* node, Triple defaultVal)
 	return parseTriple(*node);
 }
 
+// TODO: Replace all this stuff with a template function
 bool Raytracer::parseBool(const YAML::Node* node, bool defaultVal)
 {
 	bool retval;
@@ -180,7 +198,6 @@ double Raytracer::parseOptionalDouble(const YAML::Node* node, double defaultVal)
 /*
 * Read a scene from file
 */
-
 bool Raytracer::readScene(const std::string& inputFilename)
 {
 	// Initialize a new scene

@@ -32,3 +32,11 @@ Hit Triangle::intersect(const Ray &ray)
 	Vector N = ((p2 - p1).cross(p3 - p1)).normalized();
 	return Hit(t, N);	
 }
+
+Point Triangle::getRotationCenter()
+{
+	// Use the centroid of the triangle, which is also the center of mass
+	// (assuming the triangle is of uniform density) and the average of
+	// the vertices
+	return (p1 + p2 + p3)/3;
+}

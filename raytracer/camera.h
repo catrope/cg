@@ -6,6 +6,18 @@
 class Camera
 {
 public:
+	Camera()
+	{
+		apertureRadius = 0.0;
+		apertureSamples = 1;
+		velocity = Vector(0, 0, 0);
+		acceleration = Vector(0, 0, 0);
+		exposureTime = 0.0;
+		exposureSamples = 1;
+		anaglyph = false;
+		eyesOffset = Vector(0, 0, 0);
+	}
+
 	Vector eye;
 	Vector center;
 	Vector up;

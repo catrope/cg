@@ -99,6 +99,8 @@ typedef struct _GLMmodel {
 	GLMgroup* groups;			/* linked list of groups */
 
 	GLfloat position[3];			/* position of the model */
+	
+	GLuint vbo, ibo;		/* buffer IDs */
 
 } GLMmodel;
 
@@ -160,7 +162,7 @@ glmFacetNormals(GLMmodel* model);
  * the facet normal. This tends to preserve hard edges. The angle to
  * use depends on the model, but 90 degrees is usually a good start.
  *
- * model - initialized GLMmodel structure
+ * model - GLMmodel structure that glmFacetNormals() has been called on
  * angle - maximum angle (in degrees) to smooth across
  */
 GLvoid
@@ -258,6 +260,17 @@ glmList(GLMmodel* model, GLuint mode);
  */
 GLuint
 glmWeld(GLMmodel* model, GLfloat epsilon);
+
+/* glmInitVBO: initialize VBOs
+ */
+void
+glmInitVBO(GLMmodel *model);
+
+void
+glmDestroyVBO(GLMmodel *model);
+
+void
+glmDrawVBO(GLMmodel *model);
 
 
 #ifdef __cplusplus
