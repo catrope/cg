@@ -465,7 +465,6 @@ void Scene::render(Image &img)
 			#pragma omp atomic
 				done++;
 			
-			#pragma omp master
 			if (omp_get_thread_num() == 0)
 			{
 				if ((int)((done*100)/(w*h)) > lastPercent)
