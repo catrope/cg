@@ -43,6 +43,8 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 			double u, v;
 			obj->getTexCoords(hit, u, v);
 			return Color(u, v, 0);
+		case gooch:
+			return calcGooch(obj, &hit, &N, &V, recursionDepth);
 		case phong:
 		default:
 			return calcPhong(obj, &hit, &N, &V, recursionDepth);
@@ -86,126 +88,202 @@ bool Scene::intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, doubl
 	return false;
 }
 
+inline Vector Scene::reflectVector(Vector *N, Vector *V)
+{
+	// Compute Vrefl, the reflected vector of V
+	return -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
+}
+
+inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+{	
+	// Trace a ray from this position along Vrefl, then treat
+	// the result as the color of an incoming light ray
+	// along Vrefl, and calculate its specular component.
+
+	// To prevent roundoff errors causing the reflected
+	// ray to start below the reflection surface and
+	// intersect it immediately, move the starting point
+	// away from the surface (i.e. along Vrefl) a tiny bit.
+	if (obj->material->ks > 0)
+	{
+		Vector Vrefl = reflectVector(N, V);
+		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
+		Color reflection = trace(reflected, recursionDepth + 1);
+		*color += obj->material->ks * reflection;
+	}
+}
+
+inline Vector Scene::refractVector(Object *obj, Point *hit, Vector *N, Vector *V, double nOut, double nIn)
+{
+	// Compute the transmission vector using Snell's law
+	// Formulas from https://secure.wikimedia.org/wikipedia/en/wiki/Snell%27s_law#Vector_form
+	// with L replaced with -V
+	
+	// If the ray is leaving the object rather than entering it,
+	// we need to flip n1 and n2. We can detect this by constructing
+	// a ray that runs along V and starts just past the hit point,
+	// and intersecting that with the object again. If an
+	// intersection is found, that means we're entering the object.
+	Ray Vcont(*hit - 0.01*(*V), -*V);
+	Hit vcHit = obj->intersect(Vcont);
+	double n1, n2;
+	
+	// Check for no hit with !(lcHit < infinity), which is what's
+	// used above for finding the closest intersecting object
+	if (vcHit.t < std::numeric_limits<double>::infinity()) {
+		// Intersection found. We're entering
+		n1 = nOut;
+		n2 = nIn;
+	} else {
+		// No intersection. We're exiting
+		n1 = nIn;
+		n2 = nOut;
+	}
+	
+	// cos phi_1 = N.V
+	double cosphi1 = (*N).dot(*V);
+	// cos phi_2 = sqrt( 1 - (n1/n2)^2 * (1 - cosphi1^2) )
+	double inRoot = 1 - ((n1/n2)*(n1/n2) * (1 - cosphi1*cosphi1));
+	if (inRoot < 0) {
+		// Total reflection
+		return reflectVector(N, V);
+	} else if (cosphi1 >= 0) {
+		// (n1/n2)(-V) + ( (n1/n2)cosphi1 - cosphi2 )N
+		return (n1/n2)*(-*V) + ((n1/n2)*cosphi1 - sqrt(inRoot))*(*N);
+	} else {
+		// (n1/n2)(-V) + ( (n1/n2)cosphi1 + cosphi2 )N
+		return (n1/n2)*(-*V) + ((n1/n2)*cosphi1 + sqrt(inRoot))*(*N);
+	}
+}
+
+inline void Scene::refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+{
+	if (obj->material->refract >= 0.01) {
+		Vector T = refractVector(obj, hit, N, V, 1.0, obj->material->eta);
+		
+		// Like with reflection, trace a ray along T and guard
+		// against roundoff errors
+		Ray refracted(*hit + 0.01*T, T);
+		Color refraction = trace(refracted, recursionDepth + 1);
+		
+		// Blend the refracted color in
+		*color = (1 - obj->material->refract)*(*color) + obj->material->refract*refraction;
+	}
+}
+
+inline bool Scene::shadowed(Object *obj, Light *light, Vector *L)
+{
+	// Construct an object for the incoming light ray and check
+	// whether it intersects any other objects before this one
+	Ray lightRay(light->position, -1*(*L));
+	Hit ourHit = obj->intersect(lightRay);
+	return intersectRay(lightRay, NULL, NULL, false, ourHit.t);
+}
+
+inline void Scene::diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N)
+{
+	// Diffuse lighting
+	double NL = N->dot(*L);
+	// If the dot product is negative, the light is not
+	// visible to the viewer
+	if (NL >= 0) {
+		*color += obj->material->kd * obj->getColor(*hit) * light->color * NL;
+	}
+}
+
+inline void Scene::diffuseGooch(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N, Vector *V)
+{
+	/* Gooch lighting */
+	double NL = N->dot(*L);
+	
+	Color diffuse = obj->material->kd * obj->getColor(*hit) * light->color;
+	
+	Color kCool = Color(0.0, 0.0, goochB) + goochAlpha*diffuse;
+	Color kWarm = Color(goochY, goochY, 0.0) + goochBeta*diffuse;
+	*color += kCool * (1 - NL)/2 + kWarm * (1 + NL)/2;
+}
+
+inline void Scene::specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V)
+{
+	// Specular lighting
+	Vector R = -1*(*L) + 2*L->dot(*N)*(*N); // R = -L + 2(L.N)N
+	double VR = V->dot(R);
+	// Skip negative dot products, see above.
+	// We also don't want negative exponents
+	if (VR >= 0 && obj->material->n > 0) {
+		*color += obj->material->ks * light->color * pow(VR, obj->material->n);
+	}
+}
+
+inline void Scene::ambient(Color *color, Object *obj, Point *hit)
+{
+	*color += obj->material->ka * obj->getColor(*hit) * globalAmbient;
+}
+
+inline Vector Scene::lightVector(Point *hit, Light *light)
+{
+	return (light->position - *hit).normalized();
+}
+
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
 {
-	// Apply Phong lighting model
-	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
 	Color color(0.0, 0.0, 0.0);
+	
+	ambient(&color, obj, hit);
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
 		// i.e. the reversed direction of the incoming light ray
-		Vector L = (lights[i]->position - *hit).normalized();
-		
-		// Construct an object for the incoming light ray and check
-		// whether it intersects any other objects before this one
-		Ray lightRay(lights[i]->position, -1*L);
-		Hit ourHit = obj->intersect(lightRay);
-		bool shadowed = intersectRay(lightRay, NULL, NULL, false, ourHit.t);
+		Vector L = lightVector(hit, lights[i]);
 		
 		// If this light ray is shadowed from this object by some other
 		// object, ignore it.
-		if (shadowed && shadows) {
+		if (shadowed(obj, lights[i], &L) && shadows) {
 			continue;
 		}
 		
-		// Diffuse lighting
-		double NL = N->dot(L);
-		// If the dot product is negative, the light is not
-		// visible to the viewer
-		if (NL >= 0) {
-			color += obj->material->kd * obj->getColor(*hit) * lights[i]->color * NL;
-		}
-		
-		// Specular lighting
-		Vector R = -1*L + 2*L.dot(*N)*(*N); // R = -L + 2(L.N)N
-		double VR = V->dot(R);
-		// Skip negative dot products, see above.
-		// We also don't want negative exponents
-		if (VR >= 0 && obj->material->n > 0) {
-			color += obj->material->ks * lights[i]->color * pow(VR, obj->material->n);
-		}
+		diffusePhong(&color, obj, hit, lights[i], &L, N);
+		specular(&color, obj, lights[i], &L, N, V);
 	}
-	
-	// Ambient lighting
-	color += obj->material->ka * obj->getColor(*hit) * globalAmbient;
 	
 	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
-		// Reflection		
-		// Compute Vrefl, the reflected vector of V
-		Vector Vrefl = -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
-		
-		// Trace a ray from this position along Vrefl, then treat
-		// the result as the color of an incoming light ray
-		// along Vrefl, and calculate its specular component.
-
-		// To prevent roundoff errors causing the reflected
-		// ray to start below the reflection surface and
-		// intersect it immediately, move the starting point
-		// away from the surface (i.e. along Vrefl) a tiny bit.
-		if (obj->material->ks > 0) {
-			Ray reflected(*hit + 0.01*Vrefl, Vrefl);
-			Color reflection = trace(reflected, recursionDepth + 1);
-			color += obj->material->ks * reflection;
-		}
-		
-		// Refraction
-		if (obj->material->refract >= 0.01) {
-			// Compute the transmission vector using Snell's law
-			// Formulas from https://secure.wikimedia.org/wikipedia/en/wiki/Snell%27s_law#Vector_form
-			// with L replaced with -V
-			
-			// If the ray is leaving the object rather than entering it,
-			// we need to flip n1 and n2. We can detect this by constructing
-			// a ray that runs along V and starts just past the hit point,
-			// and intersecting that with the object again. If an
-			// intersection is found, that means we're entering the object.
-			Ray Vcont(*hit - 0.01*(*V), -*V);
-			Hit vcHit = obj->intersect(Vcont);
-			double n1, n2;
-			Vector T;
-			// Check for no hit with !(lcHit < infinity), which is what's
-			// used above for finding the closest intersecting object
-			if (vcHit.t < std::numeric_limits<double>::infinity()) {
-				// Intersection found. We're entering
-				n1 = 1;
-				n2 = obj->material->eta;
-			} else {
-				// No intersection. We're exiting
-				n1 = obj->material->eta;
-				n2 = 1;
-			}
-			
-			// cos phi_1 = N.V
-			double cosphi1 = (*N).dot(*V);
-			// cos phi_2 = sqrt( 1 - (n1/n2)^2 * (1 - cosphi1^2) )
-			double inRoot = 1 - ((n1/n2)*(n1/n2) * (1 - cosphi1*cosphi1));
-			if (inRoot < 0) {
-				// Total reflection
-				T = Vrefl;
-			} else if (cosphi1 >= 0) {
-				// T = (n1/n2)(-V) + ( (n1/n2)cosphi1 - cosphi2 )N
-				T = (n1/n2)*(-*V) + ((n1/n2)*cosphi1 - sqrt(inRoot))*(*N);
-			} else {
-				// T = (n1/n2)(-V) + ( (n1/n2)cosphi1 + cosphi2 )N
-				T = (n1/n2)*(-*V) + ((n1/n2)*cosphi1 + sqrt(inRoot))*(*N);
-			}
-			
-			// Like with reflection, trace a ray along T and guard
-			// against roundoff errors
-			Ray refracted(*hit + 0.01*T, T);
-			Color refraction = trace(refracted, recursionDepth + 1);
-			
-			// Blend the refracted color in
-			color = (1 - obj->material->refract)*color + obj->material->refract*refraction;
-		}
+		reflect(&color, obj, hit, N, V, recursionDepth);
+		refract(&color, obj, hit, N, V, recursionDepth);
 	}
 	
 	return color;
 }
 
-Color Scene::anaglyphRay(Point pixel, Point eye)
+Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+{
+	Color color(0.0, 0.0, 0.0);
+	
+	for (unsigned int i = 0; i < lights.size(); i++) {
+		// Normalized vector from the surface to the light source,
+		// i.e. the reversed direction of the incoming light ray
+		Vector L = lightVector(hit, lights[i]);
+		
+		// If this light ray is shadowed from this object by some other
+		// object, ignore it.
+		if (shadowed(obj, lights[i], &L) && shadows) {
+			continue;
+		}
+		
+		diffuseGooch(&color, obj, hit, lights[i], &L, N, V);
+		specular(&color, obj, lights[i], &L, N, V);
+	}
+	
+	// Reflection and refraction
+	if (recursionDepth < maxRecursionDepth) {
+		reflect(&color, obj, hit, N, V, recursionDepth);
+		refract(&color, obj, hit, N, V, recursionDepth);
+	}
+	
+	return color;
+}
+
+inline Color Scene::anaglyphRay(Point pixel, Point eye)
 {
 	if (camera.anaglyph)
 	{
@@ -232,7 +310,7 @@ Color Scene::anaglyphRay(Point pixel, Point eye)
 	}
 }
 
-Color Scene::exposureRay(Point pixel, Point eye)
+inline Color Scene::exposureRay(Point pixel, Point eye)
 {
 	Color col(0,0,0);
 	
@@ -246,7 +324,7 @@ Color Scene::exposureRay(Point pixel, Point eye)
 	return col;
 }
 
-Color Scene::apertureRay(Point pixel, unsigned int subpixel)
+inline Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 {
 	Color col(0,0,0);
 	
@@ -268,7 +346,7 @@ Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 	return col;
 }
 
-Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
+inline Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
 {
 	Color col(0,0,0);
 	

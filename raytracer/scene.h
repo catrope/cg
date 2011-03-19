@@ -37,16 +37,31 @@ private:
 	unsigned int superSamplingFactor;
 	bool superSamplingJitter;
 	Color globalAmbient;
+	double goochB, goochY, goochAlpha, goochBeta;
+	
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
-	Color anaglyphRay(Point pixel, Point eye);
-	Color exposureRay(Point pixel, Point eye);
-	Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
-	Color apertureRay(Vector pixel, unsigned int subpixel);
+	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	
+	inline Vector reflectVector(Vector *N, Vector *V);
+	inline void reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	inline Vector refractVector(Object *obj, Point *hit, Vector *N, Vector *V, double nOut, double nIn);
+	inline void refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	inline bool shadowed(Object *obj, Light *light, Vector *L);
+	inline void diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N);
+	inline void diffuseGooch(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N, Vector *V);
+	inline void specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V);
+	inline void ambient(Color *color, Object *obj, Point *hit);
+	inline Vector lightVector(Point *hit, Light *light);
+	
+	inline Color anaglyphRay(Point pixel, Point eye);
+	inline Color exposureRay(Point pixel, Point eye);
+	inline Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
+	inline Color apertureRay(Vector pixel, unsigned int subpixel);
 	bool intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT);
 	void computeGlobalAmbient();
 public:	
 	enum RenderMode {
-		phong, zbuffer, normal, texcoords
+		phong, zbuffer, normal, texcoords, gooch
 	} mode;
 	
 	Color trace(const Ray &ray, unsigned int recursionDepth);
@@ -55,7 +70,7 @@ public:
 	void addLight(Light *l);
 	void setEye(Triple e);
 	void setCamera(Camera c) { camera = c; }
-	Camera getCamera() { return camera; }
+	Camera getCamera() { return camera; }	
 	void setSuperSamplingFactor(unsigned int f) { superSamplingFactor = f; }
 	void setSuperSamplingJitter(bool j) { superSamplingJitter = j; }
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
@@ -63,6 +78,8 @@ public:
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
+	void setGoochParameters(double b, double y, double alpha, double beta)
+	{ goochB = b; goochY = y; goochAlpha = alpha; goochBeta = beta; }
 };
 
 #endif /* end of include guard: SCENE_H_KNBLQLP6 */

@@ -133,6 +133,7 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	if(mode == "zbuffer") return Scene::zbuffer;
 	else if(mode == "normal") return Scene::normal;
 	else if(mode == "texcoords") return Scene::texcoords;
+	else if(mode == "gooch") return Scene::gooch;
 	else return Scene::phong;
 }
 
@@ -232,6 +233,20 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			{
 				scene->setSuperSamplingFactor(1);
 				scene->setSuperSamplingJitter(true);
+			}
+			
+			if (doc.FindValue("GoochParameters") != NULL)
+			{
+				scene->setGoochParameters(
+					parseOptionalDouble(doc["GoochParameters"].FindValue("b"), 0.55),
+					parseOptionalDouble(doc["GoochParameters"].FindValue("y"), 0.3),
+					parseOptionalDouble(doc["GoochParameters"].FindValue("alpha"), 0.25),
+					parseOptionalDouble(doc["GoochParameters"].FindValue("beta"), 0.5)
+				);
+			}
+			else
+			{
+				scene->setGoochParameters(0.55, 0.3, 0.25, 0.5);
 			}
 
 			// Read and parse the scene objects
