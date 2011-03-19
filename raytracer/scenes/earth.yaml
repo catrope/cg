@@ -20,7 +20,9 @@ Camera: # Possible position of moon (although I haven't checked whether it's on 
 
 Shadows: true
 SuperSampling:
-  factor: 4
+  factor: 16
+  minFactor: 4
+  jitter: true
 
 Lights:
 - position: [0,0,0]
@@ -32,7 +34,7 @@ Objects:
   #radius: [6378.1,[0,0.91740769935748826377361893702175,-0.39794863130761038954479576746719]]
   radius: 6378.1
   axis: [0, 0.91740769935748826377361893702175,-0.39794863130761038954479576746719]
-  angle: 180
+  #angle: 180
   texture: earth.png
   speculartexture: earthspec.png
   bumpmap: earthbump.png
