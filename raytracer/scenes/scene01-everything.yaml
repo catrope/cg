@@ -22,6 +22,7 @@ Camera:
 
 Shadows: true
 MaxRecursionDepth: 10
+MaxRecursionDepth: 3
 MinRecursionWeight: 0.05
 SuperSampling:
   factor: 16
@@ -55,18 +56,18 @@ Objects:
     n: 8
 - type: sphere
   position: [290,170,150]
-  radius: 50
+  radius: 100
   texture: earth.png
   speculartexture: earthspec.png
   bumpmap: earthbump.png
-  bumpfactor: 1
+  bumpfactor: 5
   axis: [1.5, -1.5, -2.5]
-  angle: -120
+  angle: 90
   material: # earth
     color: [1.0,0.0,0.0]
     ka: 0.2
     kd: 0.7
-    ks: 0.8
+    ks: 0.2
     n: 32
 - type: sphere
   position: [140,220,400]
