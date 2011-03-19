@@ -29,9 +29,9 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 		return Color(0.0, 0.0, 0.0);
 
 	Point hit = ray.at(min_hit.t); //the hit point
+	Object *obj = min_hit.obj;
 	Vector N = obj->getBumpedNormal(min_hit.N, hit); //the normal at hit point
 	Vector V = -ray.D; //the view vector
-	Object *obj = min_hit.obj;
 	
 	switch (mode)
 	{
