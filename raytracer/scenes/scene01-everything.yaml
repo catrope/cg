@@ -22,7 +22,6 @@ Camera:
 
 Shadows: true
 MaxRecursionDepth: 10
-MaxRecursionDepth: 3
 MinRecursionWeight: 0.05
 SuperSampling:
   factor: 16
