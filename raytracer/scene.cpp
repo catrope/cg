@@ -20,6 +20,7 @@
 #include "material.h"
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <omp.h>
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
@@ -347,57 +348,81 @@ inline Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 	return col;
 }
 
-Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor, unsigned int * subpixel)
+
+void Scene::superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, unsigned int * subpixel, Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
 {
-	Color col(0,0,0);
+	if (*nPoints >= superSamplingFactor*superSamplingFactor) return;
 	
-	xvec /= 2.0;
-	yvec /= 2.0;
+	unsigned int i=0;
+	unsigned int num = factor*factor;
+	Color colGrid[num];
+	Vector xoffset, yoffset, xstart, ystart, xvec2, yvec2;
 	
-	Point pixel[4];
-	Vector xvec2 = xvec / 2.0;
-	Vector yvec2 = yvec / 2.0;
-	Vector xoffset, yoffset;
+	xvec2 = xvec / ((double)factor-1.0);
+	yvec2 = yvec / ((double)factor-1.0);
 	
-	pixel[0] = origPixel - xvec2 - yvec2;
-	pixel[1] = origPixel + xvec2 - yvec2;
-	pixel[2] = origPixel - xvec2 + yvec2;
-	pixel[3] = origPixel + xvec2 + yvec2;
+	xstart = -xvec2*(double)factor/2.0;
+	ystart = -yvec2*(double)factor/2.0;
 	
-	Color colGrid[4];
-	
-	for (int i = 0; i < 4; i++)
+	for (int y = 0; y < (int)factor; y++)
 	{
-		if (superSamplingJitter)
+		for (int x = 0; x < (int)factor; x++)
 		{
-			xoffset = xvec*((double)rand()/(double)RAND_MAX - 0.5);
-			yoffset = yvec*((double)rand()/(double)RAND_MAX - 0.5);
+			Vector xoffset = xvec2*(double)x + xstart;
+			Vector yoffset = yvec2*(double)y + ystart;
+
+			if (superSamplingJitter)
+			{
+				xoffset += xvec2*((double)rand()/(double)RAND_MAX - 0.5);
+				yoffset += yvec2*((double)rand()/(double)RAND_MAX - 0.5);
+			}
+
+			Point pixel = origPixel + xoffset + yoffset;
+			colGrid[i] = apertureRay(pixel, *subpixel++);
+			*totalCol += colGrid[i++];
 		}
-		
-		colGrid[i] = apertureRay(pixel[i] + xoffset + yoffset , *subpixel++);
-		col += colGrid[i];
 	}
-	col /= 4.0;
+	
+	*nPoints += num;
+	
+	Color avgCol = *totalCol / *nPoints;
 	
 	double variance = 0.0;
-	for (int i = 0; i < 4; i++)
+	for (unsigned int i = 0; i < num; i++)
 	{
-		variance += (colGrid[i] - col).length_2();
+		variance += (colGrid[i] - avgCol).length_2();
 	}
-	variance /= 4.0;
+	variance /= *nPoints;
 	
-	if (variance > 10 && factor >= 4)
+	if (variance >= superSamplingThreshold*superSamplingThreshold)
 	{
-		Color recursionCol(0, 0, 0);
-		for (int i = 0; i < 4; i++)
+		superSampleRayRecursion(totalCol, nPoints, subpixel, origPixel, xvec, yvec, factor*2);
+	}
+}
+
+inline Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec)
+{
+	if (superSamplingFactor > 1)
+	{
+		Color totalCol(0,0,0);
+		unsigned int nPoints = 0;
+		unsigned int subpixel = 0;
+		superSampleRayRecursion(&totalCol, &nPoints, &subpixel, origPixel, xvec, yvec, 
+			min(superSamplingFactor, superSamplingMinFactor));
+		
+		if (mode == ssdepth)
 		{
-			recursionCol += superSampleRay(pixel[i], xvec, yvec, factor/2, subpixel);
+			double grey = (double)nPoints / (double)(superSamplingFactor*superSamplingFactor*2);
+			totalCol = Color(grey, grey, grey);
 		}
-		col = col/2.0 + recursionCol/8.0;
+		else
+			totalCol /= nPoints;
+		
+		totalCol.clamp();
+		return totalCol;
 	}
-	
-	col.clamp();
-	return col;
+	else
+		return apertureRay(origPixel, 0);
 }
 
 void Scene::computeGlobalAmbient()
@@ -440,13 +465,8 @@ void Scene::render(Image &img)
 				+ yvec*(double)y - yvec*(double)h/2.0
 				+ xvec*(double)x - xvec*(double)w/2.0;
 				
-			if (superSamplingFactor > 1)
-			{
-				unsigned int subpixel = 0;
-				img(x,y) = superSampleRay(pixel, xvec, yvec, superSamplingFactor, &subpixel);
-			}
-			else
-				img(x,y) = apertureRay(pixel, 0);
+			
+			img(x,y) = superSampleRay(pixel, xvec, yvec);
 			
 			#pragma omp atomic
 				done++;

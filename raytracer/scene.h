@@ -34,7 +34,8 @@ private:
 	Camera camera;
 	bool shadows;
 	unsigned int maxRecursionDepth;
-	unsigned int superSamplingFactor;
+	unsigned int superSamplingFactor, superSamplingMinFactor;
+	double superSamplingThreshold;
 	bool superSamplingJitter;
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
@@ -55,13 +56,14 @@ private:
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
 	inline Color exposureRay(Point pixel, Point eye);
-	Color superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor, unsigned int * subpixel);
+	void superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, unsigned int * subpixel, Point origPixel, Vector xvec, Vector yvec, unsigned int factor);
+	inline Color superSampleRay(Point origPixel, Vector xvec, Vector yvec);
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
 	bool intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT);
 	void computeGlobalAmbient();
 public:	
 	enum RenderMode {
-		phong, zbuffer, normal, texcoords, gooch
+		phong, zbuffer, normal, texcoords, gooch, ssdepth
 	} mode;
 	
 	Color trace(const Ray &ray, unsigned int recursionDepth);
@@ -71,8 +73,8 @@ public:
 	void setEye(Triple e);
 	void setCamera(Camera c) { camera = c; }
 	Camera getCamera() { return camera; }	
-	void setSuperSamplingFactor(unsigned int f) { superSamplingFactor = f; }
-	void setSuperSamplingJitter(bool j) { superSamplingJitter = j; }
+	void setSuperSampling(unsigned int f, unsigned int fmin, double threshold, bool jitter)
+	{ superSamplingFactor = f; superSamplingMinFactor = fmin; superSamplingThreshold = threshold; superSamplingJitter = jitter; }
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
