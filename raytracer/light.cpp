@@ -19,14 +19,6 @@
 
 const Hit Hit::NO_HIT()
 {
-	// Hit(NaN, Vector(NaN, NaN, NaN)
-	static Hit no_hit(
-		std::numeric_limits<double>::quiet_NaN(),
-		Vector(
-			std::numeric_limits<double>::quiet_NaN(),
-			std::numeric_limits<double>::quiet_NaN(),
-			std::numeric_limits<double>::quiet_NaN()
-		)
-	);
+	static Hit no_hit(0, Vector(0, 0, 0), NULL);
 	return no_hit;
 }

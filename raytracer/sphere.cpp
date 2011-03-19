@@ -62,7 +62,7 @@ Hit Sphere::intersect(const Ray &ray)
 		N = -N;
 	}
 
-	return Hit(t,N);
+	return Hit(t,N, this);
 }
 
 void Sphere::getTexCoords(const Point &p, double &u, double &v)

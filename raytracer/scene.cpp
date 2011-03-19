@@ -23,15 +23,15 @@
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 {
-	Hit min_hit;
-	Object *obj;
-	if (!intersectRay(ray, &min_hit, &obj, true, std::numeric_limits<double>::infinity()))
+	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
+	if (!min_hit.hasHit())
 		// No hit? Return background color
 		return Color(0.0, 0.0, 0.0);
 
 	Point hit = ray.at(min_hit.t); //the hit point
 	Vector N = min_hit.N; //the normal at hit point
 	Vector V = -ray.D; //the view vector
+	Object *obj = min_hit.obj;
 	
 	switch (mode)
 	{
@@ -54,38 +54,25 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 /**
  * Intersect a ray with all objects in the scene.
  * @param ray Ray to intersect with all objects
- * @param h If not NULL, will be filled with a Hit object if an intersection was found
- * @param o If not NULL, will be filled with a pointer to the intersected Object if found
  * @param closest If true, make sure to return the closest intersection. If false, stop at the first intersection
  * @param maxT Ignore intersections with a t value greater than or equal to this
- * @return Whether an intersection was found.
+ * @return Hit object
  */
-bool Scene::intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT)
+Hit Scene::intersectRay(const Ray &ray, bool closest, double maxT)
 {
 	// Find hit object and distance
-	Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
-	Object *obj = NULL;
+	Hit min_hit = Hit::NO_HIT();
 	
 	for (unsigned int i = 0; i < objects.size(); ++i) {
 		Hit hit = objects[i]->intersect(ray);
-		if (hit.t < min_hit.t && hit.t < maxT) {
+		if (hit.hasHit() && (hit.t < min_hit.t || !min_hit.hasHit()) && hit.t < maxT) {
 			min_hit = hit;
-			obj = objects[i];
 			if (!closest)
 				break;
 		}
 	}
 	
-	if (obj) {
-		// We have an intersection
-		if (h)
-			*h = min_hit;
-		if (o)
-			*o = obj;
-		return true;
-	}
-	// No intersection found
-	return false;
+	return min_hit;
 }
 
 inline Vector Scene::reflectVector(Vector *N, Vector *V)
@@ -128,9 +115,7 @@ inline Vector Scene::refractVector(Object *obj, Point *hit, Vector *N, Vector *V
 	Hit vcHit = obj->intersect(Vcont);
 	double n1, n2;
 	
-	// Check for no hit with !(lcHit < infinity), which is what's
-	// used above for finding the closest intersecting object
-	if (vcHit.t < std::numeric_limits<double>::infinity()) {
+	if (vcHit.hasHit()) {
 		// Intersection found. We're entering
 		n1 = nOut;
 		n2 = nIn;
@@ -177,7 +162,7 @@ inline bool Scene::shadowed(Object *obj, Light *light, Vector *L)
 	// whether it intersects any other objects before this one
 	Ray lightRay(light->position, -1*(*L));
 	Hit ourHit = obj->intersect(lightRay);
-	return intersectRay(lightRay, NULL, NULL, false, ourHit.t);
+	return intersectRay(lightRay, false, ourHit.t).hasHit();
 }
 
 inline void Scene::diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N)

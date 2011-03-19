@@ -23,6 +23,8 @@
 #include <limits>
 #include "triple.h"
 
+class Object;
+
 class Light
 {
 public:
@@ -53,12 +55,15 @@ class Hit
 public:
 	double t;
 	Vector N;
+	Object *obj;
 
-	Hit(const double t, const Vector &normal)
-		: t(t), N(normal)
+	Hit(const double t, const Vector &normal, Object *object)
+		: t(t), N(normal), obj(object)
 	{ }
 	
-	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector()); }
+	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector(), NULL); }
+	
+	bool hasHit() { return obj != NULL; }
 
 	static const Hit NO_HIT();
 };

@@ -30,7 +30,7 @@ Hit Triangle::intersect(const Ray &ray)
 	if (beta < 0 || beta > (1 - gamma)) return Hit::NO_HIT();
 	
 	Vector N = ((p2 - p1).cross(p3 - p1)).normalized();
-	return Hit(t, N);	
+	return Hit(t, N, this);
 }
 
 Point Triangle::getRotationCenter()

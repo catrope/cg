@@ -57,7 +57,7 @@ private:
 	inline Color exposureRay(Point pixel, Point eye);
 	inline Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
-	bool intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT);
+	Hit intersectRay(const Ray &ray, bool closest, double maxT);
 	void computeGlobalAmbient();
 public:	
 	enum RenderMode {

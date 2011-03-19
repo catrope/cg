@@ -15,7 +15,8 @@ Hit Quad::intersect(const Ray &ray)
 	
 	if (!(h1.t < inf || h2.t < inf)) return Hit::NO_HIT();
 	
-	return ( (h1.t < inf) ? h1 : h2);
+	Hit h = ( (h1.t < inf) ? h1 : h2);
+	return Hit(h.t, h.N, this);
 }
 
 Point Quad::getRotationCenter()
