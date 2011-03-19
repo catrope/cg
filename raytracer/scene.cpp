@@ -244,6 +244,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
 {
 	Color color(0.0, 0.0, 0.0);
+	double ks = obj->getKs(*hit);
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
@@ -257,12 +258,12 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		}
 		
 		diffuseGooch(&color, obj, hit, lights[i], &L, N, V);
-		specular(&color, obj, lights[i], &L, N, V);
+		specular(&color, obj, lights[i], &L, N, V, ks);
 	}
 	
 	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
-		reflect(&color, obj, hit, N, V, recursionDepth);
+		reflect(&color, obj, hit, N, V, ks, recursionDepth);
 		refract(&color, obj, hit, N, V, recursionDepth);
 	}
 	

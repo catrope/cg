@@ -43,13 +43,13 @@ private:
 	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
 	
 	inline Vector reflectVector(Vector *N, Vector *V);
-	inline void reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	inline void reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks, unsigned int recursionDepth);
 	inline Vector refractVector(Object *obj, Point *hit, Vector *N, Vector *V, double nOut, double nIn);
 	inline void refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
 	inline bool shadowed(Object *obj, Light *light, Vector *L);
 	inline void diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N);
 	inline void diffuseGooch(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N, Vector *V);
-	inline void specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V);
+	inline void specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V, double ks);
 	inline void ambient(Color *color, Object *obj, Point *hit);
 	inline Vector lightVector(Point *hit, Light *light);
 	
