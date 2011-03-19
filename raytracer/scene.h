@@ -55,7 +55,7 @@ private:
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
 	inline Color exposureRay(Point pixel, Point eye);
-	inline Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
+	Color superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor, unsigned int * subpixel);
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
 	bool intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT);
 	void computeGlobalAmbient();
