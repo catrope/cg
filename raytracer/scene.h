@@ -36,12 +36,14 @@ private:
 	unsigned int maxRecursionDepth;
 	unsigned int superSamplingFactor;
 	bool superSamplingJitter;
+	Color globalAmbient;
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
 	Color anaglyphRay(Point pixel, Point eye);
 	Color exposureRay(Point pixel, Point eye);
 	Color superSampleRay(Vector origPixel, Vector xvec, Vector yvec, unsigned int factor);
 	Color apertureRay(Vector pixel, unsigned int subpixel);
 	bool intersectRay(const Ray &ray, Hit *h, Object **o, bool closest, double maxT);
+	void computeGlobalAmbient();
 public:	
 	enum RenderMode {
 		phong, zbuffer, normal, texcoords

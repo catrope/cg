@@ -91,7 +91,6 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	// Apply Phong lighting model
 	// Formulas are described in section 10.2.1 of "Fundamentals of CG", 3rd Ed.
 	Color color(0.0, 0.0, 0.0);
-	Color ambient(0.0, 0.0, 0.0); // accumulator for ambient light intensity
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
@@ -104,13 +103,8 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 		Hit ourHit = obj->intersect(lightRay);
 		bool shadowed = intersectRay(lightRay, NULL, NULL, false, ourHit.t);
 		
-		// This light's contribution to ambient lighting
-		ambient += lights[i]->color;
-		
 		// If this light ray is shadowed from this object by some other
-		// object, ignore it. We still need this light's contribution
-		// to ambient lighting, though, which is why this check has to
-		// be in this exact place.
+		// object, ignore it.
 		if (shadowed && shadows) {
 			continue;
 		}
@@ -134,8 +128,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	}
 	
 	// Ambient lighting
-	ambient.clamp();
-	color += obj->material->ka * obj->getColor(*hit) * ambient;
+	color += obj->material->ka * obj->getColor(*hit) * globalAmbient;
 	
 	// Reflection and refraction
 	if (recursionDepth < maxRecursionDepth) {
@@ -316,6 +309,18 @@ Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned 
 	return col;
 }
 
+void Scene::computeGlobalAmbient()
+{
+	globalAmbient = Color(0.0, 0.0, 0.0);
+	
+	for (unsigned int i = 0; i < lights.size(); i++) {
+		// This light's contribution to ambient lighting
+		globalAmbient += lights[i]->color;
+	}
+	
+	globalAmbient.clamp();
+}
+
 void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
@@ -327,6 +332,8 @@ void Scene::render(Image &img)
 	
 	// init random generator
 	srand(time(NULL));
+	
+	computeGlobalAmbient();
 	
 	#pragma omp parallel for
 	for (int y = 0; y < h; y++)
