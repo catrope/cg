@@ -218,6 +218,20 @@ inline void Scene::ambient(Color *color, Object *obj, Point *hit)
 	*color += obj->material->ka * obj->getColor(*hit) * globalAmbient;
 }
 
+inline bool Scene::edgeDetection(Color *color, Vector *N, Vector *V)
+{
+	if (edges > 0.0)
+	{
+		double angle = N->dot(*V);
+		if (angle > 0.0 && angle < edges)
+		{
+			*color = Color(0,0,0);
+			return true;
+		}
+	}
+	return false;
+}
+
 inline Vector Scene::lightVector(Point *hit, Light *light)
 {
 	return (light->position - *hit).normalized();
@@ -229,6 +243,8 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	double ks = obj->getKs(*hit);
 	
 	ambient(&color, obj, hit);
+	
+	if (edgeDetection(&color, N, V)) return color;
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,
@@ -256,6 +272,8 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
+	
+	if (edgeDetection(&color, N, V)) return color;
 	
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		// Normalized vector from the surface to the light source,

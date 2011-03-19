@@ -40,6 +40,7 @@ private:
 	bool superSamplingJitter;
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
+	double edges;
 	
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
@@ -53,6 +54,7 @@ private:
 	inline void diffuseGooch(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N, Vector *V);
 	inline void specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V, double ks);
 	inline void ambient(Color *color, Object *obj, Point *hit);
+	inline bool edgeDetection(Color *color, Vector *N, Vector *V);
 	inline Vector lightVector(Point *hit, Light *light);
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
@@ -78,6 +80,7 @@ public:
 	{ superSamplingFactor = f; superSamplingMinFactor = fmin; superSamplingThreshold = threshold; superSamplingJitter = jitter; }
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
+	void setEdges(double e) { edges = e; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	void setMinRecursionWeight(double w) { minRecursionWeight = w; }
 	unsigned int getNumObjects() { return objects.size(); }
