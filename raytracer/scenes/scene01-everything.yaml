@@ -17,6 +17,8 @@ Camera:
     center: [200,200,230]
     up: [0,0.4,0]
     viewSize: [800,500]
+    apertureRadius: 5
+    apertureSamples: 12
 
 Shadows: true
 MaxRecursionDepth: 10
