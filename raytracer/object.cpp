@@ -71,8 +71,8 @@ Vector Object::getBumpedNormal(const Vector &origNormal, const Point &p)
 	
 	// Get the vectors to (u,v) from the points corresponding to the texture pixels
 	// immediately right and down from it
-	Vector dxVec = p - getPointFromTexCoords(min(u+1/(bumpmap->width()-1), 1.0), v);
-	Vector dyVec = p - getPointFromTexCoords(u, min(v+1/(bumpmap->height()-1), 1.0));
+	Vector dxVec = p - getPointFromTexCoords(min(u+1.0/(bumpmap->width()-1), 1.0), v);
+	Vector dyVec = p - getPointFromTexCoords(u, min(v+1.0/(bumpmap->height()-1), 1.0));
 
 	return (origNormal + bumpfactor*(dx*dxVec + dy*dyVec)).normalized();
 }

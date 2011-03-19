@@ -84,9 +84,9 @@ Point Sphere::getPointFromTexCoords(double u, double v)
 	double theta = v*M_PI;
 	if (phi > M_PI)
 		phi -= 2*M_PI;
-	return Point(
+	return rotate(Point(
 		position.x + r*cos(phi)*sin(theta),
 		position.y + r*sin(phi)*sin(theta),
 		position.z + r*cos(theta)
-	);
+	));
 }
