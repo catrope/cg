@@ -20,6 +20,7 @@
 #include "material.h"
 #include <cstdio>
 #include <cstdlib>
+#include <omp.h>
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight)
 {
@@ -340,41 +341,53 @@ inline Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 	return col;
 }
 
-inline Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
+Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec, unsigned int factor, unsigned int * subpixel)
 {
 	Color col(0,0,0);
 	
-	// special case to prevent division by zero
-	if (factor == 1)
+	xvec /= 2.0;
+	yvec /= 2.0;
+	
+	Point pixel[4];
+	Vector xvec2 = xvec / 2.0;
+	Vector yvec2 = yvec / 2.0;
+	Vector xoffset, yoffset;
+	
+	pixel[0] = origPixel - xvec2 - yvec2;
+	pixel[1] = origPixel + xvec2 - yvec2;
+	pixel[2] = origPixel - xvec2 + yvec2;
+	pixel[3] = origPixel + xvec2 + yvec2;
+	
+	Color colGrid[4];
+	
+	for (int i = 0; i < 4; i++)
 	{
-		col = apertureRay(origPixel, 0);
-	}
-	else
-	{
-		xvec /= ((double)factor-1.0);
-		yvec /= ((double)factor-1.0);
-		unsigned int subpixel = 0;
-		
-		#pragma omp parallel for
-		for (int y = 0; y < (int)factor; y++)
+		if (superSamplingJitter)
 		{
-			#pragma omp parallel for
-			for (int x = 0; x < (int)factor; x++)
-			{
-				Vector xoffset = xvec*(double)x - xvec*(double)factor/2.0;
-				Vector yoffset = yvec*(double)y - yvec*(double)factor/2.0;
-					
-				if (superSamplingJitter)
-				{
-					xoffset += xvec*((double)rand()/(double)RAND_MAX - 0.5);
-					yoffset += yvec*((double)rand()/(double)RAND_MAX - 0.5);
-				}
-				
-				Point pixel = origPixel + xoffset + yoffset;
-				col += apertureRay(pixel, subpixel++);
-			}
+			xoffset = xvec*((double)rand()/(double)RAND_MAX - 0.5);
+			yoffset = yvec*((double)rand()/(double)RAND_MAX - 0.5);
 		}
-		col /= factor*factor;
+		
+		colGrid[i] = apertureRay(pixel[i] + xoffset + yoffset , *subpixel++);
+		col += colGrid[i];
+	}
+	col /= 4.0;
+	
+	double variance = 0.0;
+	for (int i = 0; i < 4; i++)
+	{
+		variance += (colGrid[i] - col).length_2();
+	}
+	variance /= 4.0;
+	
+	if (variance > 10 && factor >= 4)
+	{
+		Color recursionCol(0, 0, 0);
+		for (int i = 0; i < 4; i++)
+		{
+			recursionCol += superSampleRay(pixel[i], xvec, yvec, factor/2, subpixel);
+		}
+		col = col/2.0 + recursionCol/8.0;
 	}
 	
 	col.clamp();
@@ -397,6 +410,10 @@ void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
 	int h = camera.viewHeight;
+	int done = 0, lastPercent = 0;
+	time_t start, end;
+	
+	time(&start);
 	
 	// calculate the vectors for moving one pixel right or down
 	Vector xvec = (camera.center-camera.eye).normalized().cross(camera.up);
@@ -416,9 +433,34 @@ void Scene::render(Image &img)
 			Point pixel = camera.center
 				+ yvec*(double)y - yvec*(double)h/2.0
 				+ xvec*(double)x - xvec*(double)w/2.0;
-			img(x,y) = superSampleRay(pixel, xvec, yvec, superSamplingFactor);
+				
+			if (superSamplingFactor > 1)
+			{
+				unsigned int subpixel = 0;
+				img(x,y) = superSampleRay(pixel, xvec, yvec, superSamplingFactor, &subpixel);
+			}
+			else
+				img(x,y) = apertureRay(pixel, 0);
+			
+			#pragma omp atomic
+				done++;
+			
+			#pragma omp master
+			if (omp_get_thread_num() == 0)
+			{
+				if ((int)((done*100)/(w*h)) > lastPercent)
+				{
+					lastPercent = (done*100)/(w*h);
+					printf("%i%% ", lastPercent);
+					fflush(stdout);
+				}
+			}
 		}
 	}
+	
+	time(&end);
+	
+	printf("\nTotal time: %.0lf seconds.\n", difftime(end, start));
 }
 
 void Scene::addObject(Object *o)
