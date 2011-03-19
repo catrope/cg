@@ -20,6 +20,11 @@ GoochParameters:
   beta: 0.5
   
 Edges: 0.3;
+
+SuperSampling:
+  factor: 16
+  minFactor: 4
+  jitter: true
  
 Eye: [200,200,1000]  
  
