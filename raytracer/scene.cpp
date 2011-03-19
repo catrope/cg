@@ -265,6 +265,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	reflect(&color, obj, hit, N, V, ks, recursionDepth, recursionWeight);
 	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
 	
+	color.clamp();
 	return color;
 }
 
@@ -294,6 +295,7 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	reflect(&color, obj, hit, N, V, ks, recursionDepth, recursionWeight);
 	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
 	
+	color.clamp();
 	return color;
 }
 
