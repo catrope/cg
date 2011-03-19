@@ -55,7 +55,7 @@ double Object::getKs(const Point &p)
 	double u, v;
 	getTexCoords(p, u, v);
 	// Use the red channel of the texture image, ignore the green and blue channels
-	return specularTexture->colorAt(u, v).r;
+	return material->ks*specularTexture->colorAt(u, v).r;
 }
 
 Vector Object::getBumpedNormal(const Vector &origNormal, const Point &p)
