@@ -152,6 +152,7 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	else if(mode == "normal") return Scene::normal;
 	else if(mode == "texcoords") return Scene::texcoords;
 	else if(mode == "gooch") return Scene::gooch;
+	else if(mode == "ssdepth") return Scene::ssdepth;
 	else return Scene::phong;
 }
 
@@ -245,13 +246,16 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			
 			if (doc.FindValue("SuperSampling") != NULL)
 			{
-				scene->setSuperSamplingFactor(parseUnsignedInt(doc["SuperSampling"].FindValue("factor"), 1));
-				scene->setSuperSamplingJitter(parseBool(doc["SuperSampling"].FindValue("jitter"), true));
+				scene->setSuperSampling(
+					parseUnsignedInt(doc["SuperSampling"].FindValue("factor"), 1),
+					parseUnsignedInt(doc["SuperSampling"].FindValue("minFactor"), 4),
+					parseOptionalDouble(doc["SuperSampling"].FindValue("threshold"), 0.003),
+					parseBool(doc["SuperSampling"].FindValue("jitter"), true)
+				);
 			}
 			else
 			{
-				scene->setSuperSamplingFactor(1);
-				scene->setSuperSamplingJitter(true);
+				scene->setSuperSampling(1, 1, 0.003, true);
 			}
 			
 			if (doc.FindValue("GoochParameters") != NULL)
