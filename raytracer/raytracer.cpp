@@ -119,6 +119,16 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 			*specTextureNode >> specTexture;
 			returnObject->specularTexture = new Image(specTexture.c_str());
 		}
+		// Bump map
+		const YAML::Node *bumpmapNode = node.FindValue("bumpmap");
+		if (bumpmapNode)
+		{
+			std::string bumpmap;
+			*bumpmapNode >> bumpmap;
+			returnObject->bumpmap = new Image(bumpmap.c_str());
+		}
+		if (node.FindValue("bumpfactor"))
+			node["bumpfactor"] >> returnObject->bumpfactor;
 	}
 
 	return returnObject;

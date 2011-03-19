@@ -32,11 +32,14 @@ Objects:
   #radius: [6378.1,[0,0.91740769935748826377361893702175,-0.39794863130761038954479576746719]]
   radius: 6378.1
   axis: [0, 0.91740769935748826377361893702175,-0.39794863130761038954479576746719]
-  angle: -90
+  angle: 180
   texture: earth.png
+  speculartexture: earthspec.png
+  bumpmap: earthbump.png
+  bumpfactor: 0.2212 #8.848 * (1000/40000)
   material:
     ka: 0.2
     kd: 0.7
     ks: 0.0
-    n: 1
+    n: 8
     color: [1,1,1]

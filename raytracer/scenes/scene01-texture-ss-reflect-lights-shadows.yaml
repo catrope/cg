@@ -29,6 +29,12 @@ Objects:
 - type: sphere
   position: [90,320,100]
   radius: 50
+  texture: earth.png
+  speculartexture: earthspec.png
+  bumpmap: earthbump.png
+  bumpfactor: 0.2212 #8.848 * (1000/40000)
+  axis: [0, 1, 0]
+  angle: 180
   material: # blue
     color: [0.0,0.0,1.0]
     ka: 0.2
@@ -38,6 +44,10 @@ Objects:
 - type: sphere
   position: [210,270,300]
   radius: 50
+  texture: earth.png
+  speculartexture: earthspec.png
+  bumpmap: earthbump.png
+  bumpfactor: 0.2212 #8.848 * (1000/40000)
   material: # green
     color: [0.0,1.0,0.0]
     ka: 0.2
@@ -47,6 +57,12 @@ Objects:
 - type: sphere
   position: [290,170,150]
   radius: 50
+  texture: earth.png
+  speculartexture: earthspec.png
+  bumpmap: earthbump.png
+  bumpfactor: 0.2212 #8.848 * (1000/40000)
+  angle: 180
+  axis: [0, 0, 1]
   material: # red
     color: [1.0,0.0,0.0]
     ka: 0.2
@@ -59,15 +75,21 @@ Objects:
   axis: [1.5, -1.5, -2.5]
   angle: -120
   texture: earth.png
-  speculartexture: earthspec.png
+  #speculartexture: earthspec.png
+  bumpmap: earthbump.png
+  bumpfactor: 0.2212 #8.848 * (1000/40000)
   material:
     ka: 0.2
     kd: 0.8
     ks: 0
-    n: 8
+    n: 16
 - type: sphere
   position: [110,130,200]
   radius: 50
+  texture: earth.png
+  speculartexture: earthspec.png
+  #bumpmap: earthbump.png
+  #bumpfactor: 0.2212 #8.848 * (1000/40000)
   material: # orange
     color: [1.0,0.5,0.0]
     ka: 0.2

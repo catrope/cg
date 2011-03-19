@@ -29,7 +29,8 @@
 class Object {
 public:
 	Material *material;
-	Image *texture, *specularTexture;
+	Image *texture, *specularTexture, *bumpmap;
+	double bumpfactor;
 	
 	Object(const Vector &rotationVector, double rotationAngle) :
 		r(Matrix::rotationDeg(rotationVector, rotationAngle)),
@@ -38,6 +39,8 @@ public:
 		material = NULL;
 		texture = NULL;
 		specularTexture = NULL;
+		bumpmap = NULL;
+		bumpfactor = 1.0;
 	}
 
 	virtual ~Object()
@@ -46,18 +49,23 @@ public:
 			delete texture;
 		if (specularTexture)
 			delete specularTexture;
+		if (bumpmap)
+			delete bumpmap;
 		if (material)
 			delete material;
 	}
 
 	virtual Hit intersect(const Ray &ray) = 0;
 	virtual Point getRotationCenter() = 0;
+	// TODO: Implement these two in Triangle and Quad and make them pure virtual
 	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }
+	virtual Point getPointFromTexCoords(double u, double v) { return Point(0, 0, 0); }
 	
 	Point rotate(const Point &p);
 	Point unRotate(const Point &p);
 	Color getColor(const Point &p);
 	double getKs(const Point &p);
+	Vector getBumpedNormal(const Vector &origNormal, const Point &p);
 
 private:
 	Matrix r, rInv; // rotation matrices

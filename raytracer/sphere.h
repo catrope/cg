@@ -30,6 +30,7 @@ public:
 	virtual Hit intersect(const Ray &ray);
 	virtual Point getRotationCenter() { return position; }
 	virtual void getTexCoords(const Point &p, double &x, double &y);
+	virtual Point getPointFromTexCoords(double u, double v);
 
 	const Point position;
 	const double r;

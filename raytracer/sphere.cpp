@@ -77,3 +77,16 @@ void Sphere::getTexCoords(const Point &p, double &u, double &v)
 	// The book says v = (M_PI - theta)/M_PI but that results in mirrored v coords
 	v = theta/M_PI;
 }
+
+Point Sphere::getPointFromTexCoords(double u, double v)
+{
+	double phi = u*2*M_PI;
+	double theta = v*M_PI;
+	if (phi > M_PI)
+		phi -= 2*M_PI;
+	return Point(
+		position.x + r*cos(phi)*sin(theta),
+		position.y + r*sin(phi)*sin(theta),
+		position.z + r*cos(theta)
+	);
+}

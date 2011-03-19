@@ -57,3 +57,22 @@ double Object::getKs(const Point &p)
 	// Use the red channel of the texture image, ignore the green and blue channels
 	return specularTexture->colorAt(u, v).r;
 }
+
+Vector Object::getBumpedNormal(const Vector &origNormal, const Point &p)
+{
+	if (!bumpmap || bumpmap->size() == 0)
+		// No bump map, don't mess with normal
+		return origNormal;
+	
+	double u, v;
+	float dx, dy;
+	getTexCoords(p, u, v);
+	bumpmap->derivativeAt(u, v, &dx, &dy);
+	
+	// Get the vectors to (u,v) from the points corresponding to the texture pixels
+	// immediately right and down from it
+	Vector dxVec = p - getPointFromTexCoords(min(u+1/(bumpmap->width()-1), 1.0), v);
+	Vector dyVec = p - getPointFromTexCoords(u, min(v+1/(bumpmap->height()-1), 1.0));
+
+	return (origNormal + bumpfactor*(dx*dxVec + dy*dyVec)).normalized();
+}
