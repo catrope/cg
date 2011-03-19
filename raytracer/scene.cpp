@@ -21,8 +21,11 @@
 #include <cstdio>
 #include <cstdlib>
 
-Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
+Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight)
 {
+	if (recursionDepth > maxRecursionDepth || recursionWeight < minRecursionWeight)
+		return Color(0.0, 0.0, 0.0);
+		
 	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
 	if (!min_hit.hasHit())
 		// No hit? Return background color
@@ -44,10 +47,10 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth)
 			obj->getTexCoords(hit, u, v);
 			return Color(u, v, 0);
 		case gooch:
-			return calcGooch(obj, &hit, &N, &V, recursionDepth);
+			return calcGooch(obj, &hit, &N, &V, recursionDepth, recursionWeight);
 		case phong:
 		default:
-			return calcPhong(obj, &hit, &N, &V, recursionDepth);
+			return calcPhong(obj, &hit, &N, &V, recursionDepth, recursionWeight);
 	}
 }
 
@@ -81,7 +84,8 @@ inline Vector Scene::reflectVector(Vector *N, Vector *V)
 	return -1*(*V) + 2*(*V).dot(*N)*(*N); // -V + 2(V.N)N
 }
 
-inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks, unsigned int recursionDepth)
+inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks,
+		unsigned int recursionDepth, double recursionWeight)
 {	
 	// Trace a ray from this position along Vrefl, then treat
 	// the result as the color of an incoming light ray
@@ -95,7 +99,7 @@ inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vec
 	{
 		Vector Vrefl = reflectVector(N, V);
 		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
-		Color reflection = trace(reflected, recursionDepth + 1);
+		Color reflection = trace(reflected, recursionDepth + 1, recursionWeight*ks);
 		*color += ks * reflection;
 	}
 }
@@ -141,15 +145,22 @@ inline Vector Scene::refractVector(Object *obj, Point *hit, Vector *N, Vector *V
 	}
 }
 
-inline void Scene::refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+inline void Scene::refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V,
+		unsigned int recursionDepth, double recursionWeight)
 {
+	// Check the recursion guards here too
+	// We don't want trace() to return zero because the maximum recursion depth was hit,
+	// then blend in that zero with a high alpha value
+	if (recursionDepth + 1 > maxRecursionDepth || recursionWeight * obj->material->refract < minRecursionWeight)
+		return;
+	
 	if (obj->material->refract >= 0.01) {
 		Vector T = refractVector(obj, hit, N, V, 1.0, obj->material->eta);
 		
 		// Like with reflection, trace a ray along T and guard
 		// against roundoff errors
 		Ray refracted(*hit + 0.01*T, T);
-		Color refraction = trace(refracted, recursionDepth + 1);
+		Color refraction = trace(refracted, recursionDepth + 1, recursionWeight*obj->material->refract);
 		
 		// Blend the refracted color in
 		*color = (1 - obj->material->refract)*(*color) + obj->material->refract*refraction;
@@ -210,7 +221,7 @@ inline Vector Scene::lightVector(Point *hit, Light *light)
 	return (light->position - *hit).normalized();
 }
 
-Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight)
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
@@ -233,15 +244,13 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	}
 	
 	// Reflection and refraction
-	if (recursionDepth < maxRecursionDepth) {
-		reflect(&color, obj, hit, N, V, ks, recursionDepth);
-		refract(&color, obj, hit, N, V, recursionDepth);
-	}
+	reflect(&color, obj, hit, N, V, ks, recursionDepth, recursionWeight);
+	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
 	
 	return color;
 }
 
-Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth)
+Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight)
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
@@ -262,10 +271,8 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	}
 	
 	// Reflection and refraction
-	if (recursionDepth < maxRecursionDepth) {
-		reflect(&color, obj, hit, N, V, ks, recursionDepth);
-		refract(&color, obj, hit, N, V, recursionDepth);
-	}
+	reflect(&color, obj, hit, N, V, ks, recursionDepth, recursionWeight);
+	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
 	
 	return color;
 }
@@ -278,8 +285,8 @@ inline Color Scene::anaglyphRay(Point pixel, Point eye)
 		Point rightEye = eye + camera.eyesOffset;
 		Ray leftRay(leftEye, (pixel-leftEye).normalized());
 		Ray rightRay(rightEye, (pixel-rightEye).normalized());
-		Color leftCol = trace(leftRay, 0);
-		Color rightCol = trace(rightRay, 0);
+		Color leftCol = trace(leftRay, 0, 1);
+		Color rightCol = trace(rightRay, 0, 1);
 		if (camera.grey)
 		{
 			leftCol.set(leftCol.r + leftCol.g + leftCol.b, 3);
@@ -292,7 +299,7 @@ inline Color Scene::anaglyphRay(Point pixel, Point eye)
 	else
 	{
 		Ray ray(eye, (pixel-eye).normalized());
-		Color finalCol = trace(ray, 0);
+		Color finalCol = trace(ray, 0, 1);
 		return finalCol;
 	}
 }

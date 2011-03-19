@@ -241,6 +241,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setRenderMode(parseRenderMode(doc.FindValue("RenderMode")));
 			scene->setShadows(parseBool(doc.FindValue("Shadows"), false));
 			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
+			scene->setMinRecursionWeight(parseOptionalDouble(doc.FindValue("MinRecursionWeight"), 0.0));
 			
 			if (doc.FindValue("SuperSampling") != NULL)
 			{

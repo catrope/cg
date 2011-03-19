@@ -34,18 +34,19 @@ private:
 	Camera camera;
 	bool shadows;
 	unsigned int maxRecursionDepth;
+	double minRecursionWeight;
 	unsigned int superSamplingFactor;
 	bool superSamplingJitter;
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
 	
-	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
-	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
+	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	
 	inline Vector reflectVector(Vector *N, Vector *V);
-	inline void reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks, unsigned int recursionDepth);
+	inline void reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks, unsigned int recursionDepth, double recursionWeight);
 	inline Vector refractVector(Object *obj, Point *hit, Vector *N, Vector *V, double nOut, double nIn);
-	inline void refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth);
+	inline void refract(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	inline bool shadowed(Object *obj, Light *light, Vector *L);
 	inline void diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N);
 	inline void diffuseGooch(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N, Vector *V);
@@ -64,7 +65,7 @@ public:
 		phong, zbuffer, normal, texcoords, gooch
 	} mode;
 	
-	Color trace(const Ray &ray, unsigned int recursionDepth);
+	Color trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight);
 	void render(Image &img);
 	void addObject(Object *o);
 	void addLight(Light *l);
@@ -76,6 +77,7 @@ public:
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
+	void setMinRecursionWeight(double w) { minRecursionWeight = w; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 	void setGoochParameters(double b, double y, double alpha, double beta)

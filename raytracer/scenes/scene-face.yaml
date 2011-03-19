@@ -16,8 +16,12 @@ RenderMode: "phong"
 
 Shadows: true
 MaxRecursionDepth: 10
+MinRecursionWeight: 0.05
 
-Eye: [200,200,1000]  
+SuperSampling:
+  jitter: false
+
+Eye: [200,200,1000]
 
 Lights:
 - position: [-200,600,1500]
