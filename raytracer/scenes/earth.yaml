@@ -40,6 +40,6 @@ Objects:
   material:
     ka: 0.2
     kd: 0.7
-    ks: 0.0
+    ks: 0.2
     n: 8
     color: [1,1,1]
