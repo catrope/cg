@@ -466,7 +466,7 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	Vector V = -ray.D; //the view vector
 	double ks = obj->getKs(hit);
 	
-	if (obj->photonmap)// && recursionDepth > 0)
+	if (obj->photonmap && recursionDepth > 0)
 	{
 		#pragma omp critical
 		{
@@ -496,8 +496,8 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 {
 	Point pos = obj->getRotationCenter();
-	Vector xvec = (light->position - pos).cross(camera.up).normalized() * (obj->getRadius()*2.0/(double)photonFactor);
-	Vector yvec = -camera.up.normalized() * (obj->getRadius()*2.0/(double)photonFactor);
+	Vector xvec = (light->position - pos).cross(camera.up).normalized() * (obj->getRadius()*2.1/(double)photonFactor);
+	Vector yvec = -camera.up.normalized() * (obj->getRadius()*2.1/(double)photonFactor);
 	
 	pos = pos - xvec*(double)photonFactor/2.0 - yvec*(double)photonFactor/2.0;
 	
@@ -517,7 +517,7 @@ void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 void Scene::renderPhotonsForLight(Light *light)
 {
 	#pragma omp parallel for
-	for (unsigned int i = 0; i < objects.size(); ++i)
+	for (int i = 0; i < (int)objects.size(); ++i)
 	{
 		Object *obj = objects[i];
 		if (obj->material->ks >= 0.01 || obj->material->refract >= 0.01)
@@ -528,7 +528,7 @@ void Scene::renderPhotonsForLight(Light *light)
 void Scene::renderPhotons()
 {
 	#pragma omp parallel for
-	for (unsigned int i = 0; i < lights.size(); i++)
+	for (int i = 0; i < (int)lights.size(); i++)
 	{
 		renderPhotonsForLight(lights[i]);
 	}
@@ -552,7 +552,11 @@ void Scene::render(Image &img)
 	
 	computeGlobalAmbient();
 	
-	renderPhotons();
+	if (photonFactor > 0)
+	{
+		printf("Tracing photons...\n");
+		renderPhotons();
+	}
 	
 	Point pos = camera.center - yvec*(double)h/2.0 - xvec*(double)w/2.0;
 	

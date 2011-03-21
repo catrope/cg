@@ -18,8 +18,8 @@ Lights:
 - position: [100,200,400]
   color: [1.0,1.0,1.0]
   
-PhotonFactor: 1000
-PhotonIntensity: 10
+PhotonFactor: 2000
+PhotonIntensity: 20
 
 Objects:
 - type: sphere
@@ -39,11 +39,11 @@ Objects:
   radius: 20
   material: # yellow glass
     color: [1.0,0.8,0.0]
-    ka: 0.2
-    kd: 0.8
-    ks: 0
+    ka: 0.3
+    kd: 0.7
+    ks: 0.5
     n: 1
-    refract: 0.8
+    refract: 0.6
     eta: 1.5
 - type: sphere
   position: [230,250,280]
