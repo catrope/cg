@@ -535,6 +535,14 @@ void Scene::renderPhotons()
 	}
 }
 
+void Scene::blurPhotonMaps()
+{
+	for (int i = 0; i < (int)objects.size(); ++i)
+	{
+		if (objects[i]->photonmap) objects[i]->blurPhotonMap(photonBlur);
+	}
+}
+
 void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
@@ -557,6 +565,8 @@ void Scene::render(Image &img)
 	{
 		printf("Tracing photons...\n");
 		renderPhotons();
+		printf("Blurring photon maps...\n");
+		blurPhotonMaps();
 	}
 	
 	Point pos = camera.center - yvec*(double)h/2.0 - xvec*(double)w/2.0;

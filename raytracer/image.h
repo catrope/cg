@@ -74,6 +74,8 @@ public:
 	// File stuff
 	void write_png(const char* filename) const;
 	void read_png(const char* filename);
+	
+	void blur(Image * newImg, int radius);
 
 protected:
 

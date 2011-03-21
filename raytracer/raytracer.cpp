@@ -253,6 +253,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
 			scene->setMinRecursionWeight(parseOptionalDouble(doc.FindValue("MinRecursionWeight"), 0.0));
 			scene->setPhotonFactor(parseUnsignedInt(doc.FindValue("PhotonFactor"), 0));
+			scene->setPhotonBlur(parseUnsignedInt(doc.FindValue("PhotonBlur"), 2));
 			scene->setPhotonIntensity(parseOptionalDouble(doc.FindValue("PhotonIntensity"), 0.0));
 			
 			if (doc.FindValue("SuperSampling") != NULL)

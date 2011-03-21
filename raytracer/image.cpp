@@ -89,3 +89,20 @@ void Image::read_png(const char* filename)
 		currentPixel++;
 	}	
 }
+
+void Image::blur(Image * newImg, int radius)
+{
+	for (int y = 0; y < _height; y++)
+	{
+		for (int x = 0; x < _width; x++)
+		{
+			Color total(0,0,0);
+			for (int delta = -radius; delta <= radius; delta++)
+			{
+				total += (*this)((x + delta + _width) % _width, y);
+				total += (*this)(x, (y + delta + _height) % _height);
+			}
+			(*newImg)(x, y) = total / (radius * 4 + 2);
+		}
+	}
+}

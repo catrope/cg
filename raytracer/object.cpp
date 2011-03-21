@@ -47,8 +47,8 @@ Color Object::getColor(const Point &p)
 		// u and v are in [0,1] so scale them to the texture dimensions
 		color = texture->colorAt(u, v);
 		
-	if (photonmap)
-		color += photonmap->colorAt(u, v);
+	if (photonblurmap)
+		color += photonblurmap->colorAt(u, v);
 	
 	return color;
 }
@@ -92,4 +92,10 @@ void Object::addPhoton(const Point &p, Color &color)
 		getTexCoords(p, u, v);
 		photonmap->setColorAt(u, v, color + photonmap->colorAt(u, v));
 	}
+}
+
+void Object::blurPhotonMap(int radius)
+{
+	photonblurmap = new Image(photonmap->width(), photonmap->height());
+	photonmap->blur(photonblurmap, radius);
 }

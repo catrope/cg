@@ -41,7 +41,7 @@ private:
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
 	double edges;
-	int photonFactor;
+	int photonFactor, photonBlur;
 	double photonIntensity;
 	
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
@@ -71,6 +71,7 @@ private:
 	void renderPhotonsForLightAndObject(Light *light, Object *obj);
 	void renderPhotonsForLight(Light *light);
 	void renderPhotons();
+	void blurPhotonMaps();
 	
 public:	
 	enum RenderMode {
@@ -92,6 +93,7 @@ public:
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	void setMinRecursionWeight(double w) { minRecursionWeight = w; }
 	void setPhotonFactor(unsigned int f) { photonFactor = (int)f; }
+	void setPhotonBlur(unsigned int b) { photonBlur = (int)b; }
 	void setPhotonIntensity(double i) { photonIntensity = i; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }

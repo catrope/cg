@@ -29,7 +29,7 @@
 class Object {
 public:
 	Material *material;
-	Image *texture, *specularTexture, *bumpmap, *photonmap;
+	Image *texture, *specularTexture, *bumpmap, *photonmap, *photonblurmap;
 	double bumpfactor;
 	
 	Object(const Vector &rotationVector, double rotationAngle) :
@@ -41,6 +41,7 @@ public:
 		specularTexture = NULL;
 		bumpmap = NULL;
 		photonmap = NULL;
+		photonblurmap = NULL;
 		bumpfactor = 1.0;
 	}
 
@@ -56,6 +57,8 @@ public:
 			delete material;
 		if (photonmap)
 			delete photonmap;
+		if (photonblurmap)
+			delete photonblurmap;
 	}
 
 	virtual Hit intersect(const Ray &ray) = 0;
@@ -71,6 +74,7 @@ public:
 	double getKs(const Point &p);
 	Vector getBumpedNormal(const Vector &origNormal, const Point &p);
 	void addPhoton(const Point &p, Color &color);
+	void blurPhotonMap(int radius);
 
 private:
 	Matrix r, rInv; // rotation matrices
