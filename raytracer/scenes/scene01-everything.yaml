@@ -29,13 +29,13 @@ SuperSampling:
   jitter: true
   
 Photon:
-  factor: 0
+  factor: 2000
   intensity: 20000
   blur: 3
 
 Ambient:
   factor: 4
-  random: 0.2
+  random: 0.01 
 
 Lights:
 - position: [-200,600,1500]
