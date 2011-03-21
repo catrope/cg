@@ -40,12 +40,12 @@ Color Object::getColor(const Point &p)
 	double u, v;
 	getTexCoords(p, u, v);
 	
-	//if (!texture || texture->size() == 0)
+	if (!texture || texture->size() == 0)
 		// No texture, use material
-	//	color = material->color;
-	//else
+		color = material->color;
+	else
 		// u and v are in [0,1] so scale them to the texture dimensions
-	//	color = texture->colorAt(u, v);
+		color = texture->colorAt(u, v);
 		
 	if (photonmap)
 		color += photonmap->colorAt(u, v);

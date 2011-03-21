@@ -242,8 +242,6 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
 	
-	color = obj->getColor(*hit);
-	/*
 	ambient(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;
@@ -268,7 +266,6 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
 	
 	color.clamp();
-	*/
 	return color;
 }
 

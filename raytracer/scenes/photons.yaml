@@ -6,7 +6,7 @@ MinRecursionWeight: 0.05
 
 SuperSampling:
   jitter: true
-  factor: 4
+  factor: 1
 
 Camera:
     eye: [200,200,1000]
