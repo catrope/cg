@@ -451,9 +451,9 @@ void Scene::computeGlobalAmbient()
 	globalAmbient.clamp();
 }
 
-void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, Object *onlyObject)
+void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, double recursionWeight, Object *onlyObject)
 {
-	if (recursionDepth > maxRecursionDepth)
+	if (recursionDepth > maxRecursionDepth || recursionWeight < minRecursionWeight)
 		return;
 		
 	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
@@ -479,7 +479,7 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	{
 		Vector Vrefl = reflectVector(&N, &V);
 		Ray reflected(hit + 0.01*Vrefl, Vrefl);
-		tracePhoton(ks*color, reflected, recursionDepth + 1, NULL);
+		tracePhoton(ks*color, reflected, recursionDepth + 1, ks*recursionWeight, NULL);
 	}
 	
 	if (obj->material->refract >= 0.01) {
@@ -489,7 +489,8 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 		// against roundoff errors
 		Ray refracted(hit + 0.01*T, T);
 		
-		tracePhoton(obj->material->refract*obj->material->color*color, refracted, recursionDepth + 1, NULL);
+		tracePhoton(obj->material->refract*obj->material->color*color, refracted, 
+			recursionDepth + 1, obj->material->refract*recursionWeight, NULL);
 	}
 }
 
@@ -509,7 +510,7 @@ void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 		{
 			Point pixel = pos + yvec*(double)y + xvec*(double)x;
 			Ray r(light->position, (pixel - light->position).normalized());
-			tracePhoton(photonIntensity/photonFactor*light->color, r, 0, obj);
+			tracePhoton(photonIntensity/photonFactor*light->color, r, 0, 1.0, obj);
 		}
 	}
 }
