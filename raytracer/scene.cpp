@@ -485,7 +485,8 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 		// Like with reflection, trace a ray along T and guard
 		// against roundoff errors
 		Ray refracted(hit + 0.01*T, T);
-		tracePhoton(obj->material->refract*color, refracted, recursionDepth + 1, NULL);
+		
+		tracePhoton(obj->material->refract*obj->material->color*color, refracted, recursionDepth + 1, NULL);
 	}
 }
 
