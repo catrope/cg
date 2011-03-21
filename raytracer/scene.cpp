@@ -242,6 +242,8 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
 	
+	color = obj->getColor(*hit);
+	/*
 	ambient(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;
@@ -266,6 +268,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
 	
 	color.clamp();
+	*/
 	return color;
 }
 
@@ -451,6 +454,70 @@ void Scene::computeGlobalAmbient()
 	globalAmbient.clamp();
 }
 
+void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth)
+{
+	if (recursionDepth > maxRecursionDepth)
+		return;
+		
+	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
+	if (!min_hit.hasHit())
+		return;
+
+	Point hit = ray.at(min_hit.t); //the hit point
+	Object *obj = min_hit.obj;
+	Vector N = obj->getBumpedNormal(min_hit.N, hit); //the normal at hit point
+	Vector V = -ray.D; //the view vector
+	double ks = obj->getKs(hit);
+	
+	if (obj->photonmap)
+	{
+		obj->addPhoton(hit, color);
+		return;
+	}
+	
+	if (ks > 0)
+	{
+		Vector Vrefl = reflectVector(&N, &V);
+		Ray reflected(hit + 0.01*Vrefl, Vrefl);
+		tracePhoton(ks*color, reflected, recursionDepth + 1);
+	}
+	
+	if (obj->material->refract >= 0.01) {
+		Vector T = refractVector(obj, &hit, &N, &V, 1.0, obj->material->eta);
+		
+		// Like with reflection, trace a ray along T and guard
+		// against roundoff errors
+		Ray refracted(hit + 0.01*T, T);
+		tracePhoton(obj->material->refract*color, refracted, recursionDepth + 1);
+	}
+}
+
+void Scene::renderPhotonsForLight(Light *light)
+{
+	Vector xvec = (light->position-camera.eye).normalized().cross(camera.up);
+	Vector yvec = -camera.up;
+	
+	for (int y = 0; y < 200; y++)
+	{
+		for (int x = 0; x < 200; x++)
+		{
+			Point pixel = camera.center
+				+ yvec*(double)y - yvec*(double)200/2.0
+				+ xvec*(double)x - xvec*(double)200/2.0;
+			
+			Ray r(light->position, (pixel-light->position).normalized());
+			tracePhoton(0.1*light->color, r, 0);
+		}
+	}
+}
+
+void Scene::renderPhotons()
+{
+	for (unsigned int i = 0; i < lights.size(); i++) {
+		renderPhotonsForLight(lights[i]);
+	}
+}
+
 void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
@@ -468,6 +535,8 @@ void Scene::render(Image &img)
 	srand(time(NULL));
 	
 	computeGlobalAmbient();
+	
+	renderPhotons();
 	
 	#pragma omp parallel for
 	for (int y = 0; y < h; y++)

@@ -36,14 +36,21 @@ Point Object::unRotate(const Point &p)
 
 Color Object::getColor(const Point &p)
 {
-	if (!texture || texture->size() == 0)
-		// No texture, use material
-		return material->color;
-	
+	Color color(0,0,0);
 	double u, v;
 	getTexCoords(p, u, v);
-	// u and v are in [0,1] so scale them to the texture dimensions
-	return texture->colorAt(u, v);
+	
+	//if (!texture || texture->size() == 0)
+		// No texture, use material
+	//	color = material->color;
+	//else
+		// u and v are in [0,1] so scale them to the texture dimensions
+	//	color = texture->colorAt(u, v);
+		
+	if (photonmap)
+		color += photonmap->colorAt(u, v);
+	
+	return color;
 }
 
 double Object::getKs(const Point &p)
@@ -75,4 +82,14 @@ Vector Object::getBumpedNormal(const Vector &origNormal, const Point &p)
 	Vector dyVec = p - getPointFromTexCoords(u, min(v+1.0/(bumpmap->height()-1), 1.0));
 
 	return (origNormal + bumpfactor*(dx*dxVec + dy*dyVec)).normalized();
+}
+
+void Object::addPhoton(const Point &p, Color &color)
+{
+	if (photonmap)
+	{
+		double u, v;
+		getTexCoords(p, u, v);
+		photonmap->setColorAt(u, v, color + photonmap->colorAt(u, v));
+	}
 }

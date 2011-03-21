@@ -64,6 +64,11 @@ private:
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
 	Hit intersectRay(const Ray &ray, bool closest, double maxT);
 	void computeGlobalAmbient();
+	
+	void tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth);
+	void renderPhotonsForLight(Light *light);
+	void renderPhotons();
+	
 public:	
 	enum RenderMode {
 		phong, zbuffer, normal, texcoords, gooch, ssdepth

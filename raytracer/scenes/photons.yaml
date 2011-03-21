@@ -1,0 +1,33 @@
+RenderMode: "phong"
+
+Shadows: false
+MaxRecursionDepth: 1
+MinRecursionWeight: 0.05
+
+SuperSampling:
+  jitter: true
+  factor: 4
+
+Camera:
+    eye: [200,200,1000]
+    center: [200,200,230]
+    up: [0,0.4,0]
+    viewSize: [800,500]
+
+Lights:
+- position: [100,200,400]
+  color: [1.0,1.0,1.0]
+
+Objects:
+- type: sphere
+  position: [200,200,230]
+  radius: 50
+  photonmapSize: 200
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+    #refract: 0.5
+    #eta: 1.33

@@ -129,6 +129,14 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		}
 		if (node.FindValue("bumpfactor"))
 			node["bumpfactor"] >> returnObject->bumpfactor;
+			
+		const YAML::Node *photonmapNode = node.FindValue("photonmapSize");
+		if (photonmapNode)
+		{
+			int photonmapSize;
+			*photonmapNode >> photonmapSize;
+			returnObject->photonmap = new Image(photonmapSize, photonmapSize);
+		}
 	}
 
 	return returnObject;
