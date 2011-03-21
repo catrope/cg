@@ -451,13 +451,13 @@ void Scene::computeGlobalAmbient()
 	globalAmbient.clamp();
 }
 
-void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth)
+void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, Object *onlyObject)
 {
 	if (recursionDepth > maxRecursionDepth)
 		return;
 		
 	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
-	if (!min_hit.hasHit())
+	if (!min_hit.hasHit() || (onlyObject && min_hit.obj != onlyObject))
 		return;
 
 	Point hit = ray.at(min_hit.t); //the hit point
@@ -476,16 +476,16 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	{
 		Vector Vrefl = reflectVector(&N, &V);
 		Ray reflected(hit + 0.01*Vrefl, Vrefl);
-		tracePhoton(ks*color, reflected, recursionDepth + 1);
+		tracePhoton(ks*color, reflected, recursionDepth + 1, NULL);
 	}
 	
 	if (obj->material->refract >= 0.01) {
-		Vector T = refractVector(obj, &hit, &N, &V, 1.0, obj->material->eta);
+		Vector T = refractVector(obj, &hit, &N, &V, obj->material->eta, 1.0);
 		
 		// Like with reflection, trace a ray along T and guard
 		// against roundoff errors
 		Ray refracted(hit + 0.01*T, T);
-		tracePhoton(obj->material->refract*color, refracted, recursionDepth + 1);
+		tracePhoton(obj->material->refract*color, refracted, recursionDepth + 1, NULL);
 	}
 }
 
@@ -495,13 +495,13 @@ void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 	Vector xvec = (light->position - pos).cross(camera.up).normalized() * obj->getRadius();
 	Vector yvec = -camera.up.normalized() * obj->getRadius();
 	
-	for (double y = -1.0; y < 1.0; y+=0.02)
+	for (double y = -1.0; y < 1.0; y+=0.005)
 	{
-		for (double x = -1.0; x < 1.0; x+=0.02)
+		for (double x = -1.0; x < 1.0; x+=0.005)
 		{
 			Point pixel = pos + yvec*y + xvec*x;
 			Ray r(light->position, (pixel - light->position).normalized());
-			tracePhoton(0.06*light->color, r, 0);
+			tracePhoton(0.1*light->color, r, 0, obj);
 		}
 	}
 }

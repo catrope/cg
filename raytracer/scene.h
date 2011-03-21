@@ -65,7 +65,7 @@ private:
 	Hit intersectRay(const Ray &ray, bool closest, double maxT);
 	void computeGlobalAmbient();
 	
-	void tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth);
+	void tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, Object *onlyObject);
 	void renderPhotonsForLightAndObject(Light *light, Object *obj);
 	void renderPhotonsForLight(Light *light);
 	void renderPhotons();

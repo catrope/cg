@@ -32,8 +32,8 @@ Objects:
     #refract: 0.5
     #eta: 1.33
 - type: sphere
-  position: [150,200,290]
-  radius: 20
+  position: [160,200,280]
+  radius: 15
   material: # yellow glass
     color: [1.0,0.8,0.0]
     ka: 0.2
