@@ -35,22 +35,29 @@ Point Object::unRotate(const Point &p)
 }
 
 Color Object::getColor(const Point &p)
-{
-	Color color(0,0,0);
+{	
+	if (!texture || texture->size() == 0)
+		// No texture, use material
+		return material->color;
+	
 	double u, v;
 	getTexCoords(p, u, v);
 	
-	if (!texture || texture->size() == 0)
-		// No texture, use material
-		color = material->color;
-	else
-		// u and v are in [0,1] so scale them to the texture dimensions
-		color = texture->colorAt(u, v);
-		
-	if (photonblurmap)
-		color += photonblurmap->colorAt(u, v);
+	// u and v are in [0,1] so scale them to the texture dimensions
+	return texture->colorAt(u, v);
+}
+
+Color Object::getPhotons(const Point &p)
+{
+	if (!photonmap && !photonblurmap) return Color(0,0,0);
 	
-	return color;
+	double u, v;
+	getTexCoords(p, u, v);
+	
+	if (photonblurmap)
+		return photonblurmap->colorAt(u, v);
+	else
+		return photonmap->colorAt(u, v);
 }
 
 double Object::getKs(const Point &p)

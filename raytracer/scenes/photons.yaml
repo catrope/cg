@@ -19,7 +19,7 @@ Lights:
   color: [1.0,1.0,1.0]
   
 PhotonFactor: 3000
-PhotonIntensity: 15
+PhotonIntensity: 20000
 PhotonBlur: 3
 
 SuperSampling:

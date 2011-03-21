@@ -237,12 +237,18 @@ inline Vector Scene::lightVector(Point *hit, Light *light)
 	return (light->position - *hit).normalized();
 }
 
+inline void Scene::photons(Color *color, Object *obj, Point *hit)
+{
+	*color += obj->getPhotons(*hit);
+}
+
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight)
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
 	
 	ambient(&color, obj, hit);
+	photons(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;
 	
@@ -273,6 +279,8 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
+	
+	photons(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;
 	
@@ -511,7 +519,9 @@ void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 		{
 			Point pixel = pos + yvec*(double)y + xvec*(double)x;
 			Ray r(light->position, (pixel - light->position).normalized());
-			tracePhoton(photonIntensity/photonFactor*light->color, r, 0, 1.0, obj);
+			
+			// intensity is already corrected for number of samples
+			tracePhoton(photonIntensity*light->color, r, 0, 1.0, obj);
 		}
 	}
 }
@@ -529,6 +539,9 @@ void Scene::renderPhotonsForLight(Light *light)
 
 void Scene::renderPhotons()
 {
+	// correct intensity for number of samples
+	photonIntensity /= (double)(photonFactor*photonFactor);
+	
 	#pragma omp parallel for
 	for (int i = 0; i < (int)lights.size(); i++)
 	{

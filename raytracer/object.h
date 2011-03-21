@@ -71,6 +71,7 @@ public:
 	Point rotate(const Point &p);
 	Point unRotate(const Point &p);
 	Color getColor(const Point &p);
+	Color getPhotons(const Point &p);
 	double getKs(const Point &p);
 	Vector getBumpedNormal(const Vector &origNormal, const Point &p);
 	void addPhoton(const Point &p, Color &color);

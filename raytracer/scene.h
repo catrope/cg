@@ -58,6 +58,7 @@ private:
 	inline void ambient(Color *color, Object *obj, Point *hit);
 	inline bool edgeDetection(Color *color, Vector *N, Vector *V);
 	inline Vector lightVector(Point *hit, Light *light);
+	inline void photons(Color *color, Object *obj, Point *hit);
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
 	inline Color exposureRay(Point pixel, Point eye);
