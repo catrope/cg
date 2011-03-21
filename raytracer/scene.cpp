@@ -480,8 +480,6 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 		{
 			obj->addPhoton(hit, color);
 		}
-		color *= obj->material->kd;
-		recursionWeight *= obj->material->kd;
 	}
 	
 	if (ks > 0)
