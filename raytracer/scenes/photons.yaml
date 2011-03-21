@@ -18,9 +18,14 @@ Lights:
 - position: [100,200,400]
   color: [1.0,1.0,1.0]
   
-PhotonFactor: 1000
-PhotonIntensity: 25
+PhotonFactor: 3000
+PhotonIntensity: 15
 PhotonBlur: 3
+
+SuperSampling:
+  factor: 16
+  minFactor: 4
+  jitter: true
 
 Objects:
 - type: sphere
@@ -49,6 +54,7 @@ Objects:
 - type: sphere
   position: [230,250,280]
   radius: 20
+  photonmapSize: 80
   material: # red
     color: [1.0,0.0,0.0]
     ka: 0.2

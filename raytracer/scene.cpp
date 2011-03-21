@@ -472,7 +472,8 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 		{
 			obj->addPhoton(hit, color);
 		}
-		return;
+		color *= obj->material->kd;
+		recursionWeight *= obj->material->kd;
 	}
 	
 	if (ks > 0)
@@ -489,7 +490,7 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 		// against roundoff errors
 		Ray refracted(hit + 0.01*T, T);
 		
-		tracePhoton(obj->material->refract*obj->material->color*color, refracted, 
+		tracePhoton(obj->material->refract*obj->getColor(hit)*color, refracted, 
 			recursionDepth + 1, obj->material->refract*recursionWeight, NULL);
 	}
 }
