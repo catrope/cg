@@ -1,7 +1,7 @@
 RenderMode: "phong"
 
 Shadows: false
-MaxRecursionDepth: 1
+MaxRecursionDepth: 10
 MinRecursionWeight: 0.05
 
 SuperSampling:
@@ -32,8 +32,8 @@ Objects:
     #refract: 0.5
     #eta: 1.33
 - type: sphere
-  position: [160,200,280]
-  radius: 15
+  position: [150,200,280]
+  radius: 20
   material: # yellow glass
     color: [1.0,0.8,0.0]
     ka: 0.2

@@ -501,7 +501,7 @@ void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 		{
 			Point pixel = pos + yvec*y + xvec*x;
 			Ray r(light->position, (pixel - light->position).normalized());
-			tracePhoton(0.1*light->color, r, 0, obj);
+			tracePhoton(0.05*light->color, r, 0, obj);
 		}
 	}
 }
