@@ -466,7 +466,7 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	Vector V = -ray.D; //the view vector
 	double ks = obj->getKs(hit);
 	
-	if (obj->photonmap)
+	if (obj->photonmap)// && recursionDepth > 0)
 	{
 		obj->addPhoton(hit, color);
 		return;
@@ -489,28 +489,37 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	}
 }
 
+void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
+{
+	Point pos = obj->getRotationCenter();
+	Vector xvec = (light->position - pos).cross(camera.up).normalized() * obj->getRadius();
+	Vector yvec = -camera.up.normalized() * obj->getRadius();
+	
+	for (double y = -1.0; y < 1.0; y+=0.02)
+	{
+		for (double x = -1.0; x < 1.0; x+=0.02)
+		{
+			Point pixel = pos + yvec*y + xvec*x;
+			Ray r(light->position, (pixel - light->position).normalized());
+			tracePhoton(0.06*light->color, r, 0);
+		}
+	}
+}
+
 void Scene::renderPhotonsForLight(Light *light)
 {
-	Vector xvec = (light->position-camera.eye).normalized().cross(camera.up);
-	Vector yvec = -camera.up;
-	
-	for (int y = 0; y < 200; y++)
+	for (unsigned int i = 0; i < objects.size(); ++i)
 	{
-		for (int x = 0; x < 200; x++)
-		{
-			Point pixel = camera.center
-				+ yvec*(double)y - yvec*(double)200/2.0
-				+ xvec*(double)x - xvec*(double)200/2.0;
-			
-			Ray r(light->position, (pixel-light->position).normalized());
-			tracePhoton(0.1*light->color, r, 0);
-		}
+		Object *obj = objects[i];
+		if (obj->material->ks >= 0.01 || obj->material->refract >= 0.01)
+			renderPhotonsForLightAndObject(light, obj);
 	}
 }
 
 void Scene::renderPhotons()
 {
-	for (unsigned int i = 0; i < lights.size(); i++) {
+	for (unsigned int i = 0; i < lights.size(); i++)
+	{
 		renderPhotonsForLight(lights[i]);
 	}
 }

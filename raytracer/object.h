@@ -60,9 +60,10 @@ public:
 
 	virtual Hit intersect(const Ray &ray) = 0;
 	virtual Point getRotationCenter() = 0;
-	// TODO: Implement these two in Triangle and Quad and make them pure virtual
+	// TODO: Implement these three in Triangle and Quad and make them pure virtual
 	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }
 	virtual Point getPointFromTexCoords(double u, double v) { return Point(0, 0, 0); }
+	virtual double getRadius() { return 0.0; }
 	
 	Point rotate(const Point &p);
 	Point unRotate(const Point &p);

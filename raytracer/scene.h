@@ -66,6 +66,7 @@ private:
 	void computeGlobalAmbient();
 	
 	void tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth);
+	void renderPhotonsForLightAndObject(Light *light, Object *obj);
 	void renderPhotonsForLight(Light *light);
 	void renderPhotons();
 	

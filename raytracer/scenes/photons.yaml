@@ -27,7 +27,18 @@ Objects:
     color: [1.0,0.5,0.0]
     ka: 0.2
     kd: 0.8
-    ks: 0.5
+    ks: 0
     n: 32
     #refract: 0.5
     #eta: 1.33
+- type: sphere
+  position: [150,200,290]
+  radius: 20
+  material: # yellow glass
+    color: [1.0,0.8,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0
+    n: 1
+    refract: 0.8
+    eta: 1.5
