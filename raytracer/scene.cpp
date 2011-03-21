@@ -496,8 +496,8 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 {
 	Point pos = obj->getRotationCenter();
-	Vector xvec = (light->position - pos).cross(camera.up).normalized() * (obj->getRadius()/(double)photonFactor);
-	Vector yvec = -camera.up.normalized() * (obj->getRadius()/(double)photonFactor);
+	Vector xvec = (light->position - pos).cross(camera.up).normalized() * (obj->getRadius()*2.0/(double)photonFactor);
+	Vector yvec = -camera.up.normalized() * (obj->getRadius()*2.0/(double)photonFactor);
 	
 	pos = pos - xvec*(double)photonFactor/2.0 - yvec*(double)photonFactor/2.0;
 	

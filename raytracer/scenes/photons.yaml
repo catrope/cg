@@ -30,7 +30,7 @@ Objects:
     color: [1.0,0.5,0.0]
     ka: 0.2
     kd: 0.8
-    ks: 0
+    ks: 0.4
     n: 32
     #refract: 0.5
     #eta: 1.33
