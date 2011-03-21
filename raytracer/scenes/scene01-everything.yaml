@@ -17,16 +17,20 @@ Camera:
     center: [200,200,230]
     up: [0,0.4,0]
     viewSize: [800,500]
-    apertureRadius: 5
-    apertureSamples: 12
+    #apertureRadius: 5
+    #apertureSamples: 12
 
 Shadows: true
 MaxRecursionDepth: 10
 MinRecursionWeight: 0.05
 SuperSampling:
-  factor: 16
+  factor: 4
   minFactor: 4
   jitter: true
+  
+PhotonFactor: 2000
+PhotonIntensity: 20000
+PhotonBlur: 3
 
 Lights:
 - position: [-200,600,1500]
@@ -38,6 +42,7 @@ Objects:
 - type: sphere
   position: [90,320,100]
   radius: 50
+  photonmapSize: 200
   material: # blue
     color: [0.0,0.0,1.0]
     ka: 0.2
@@ -47,6 +52,7 @@ Objects:
 - type: sphere
   position: [210,270,300]
   radius: 50
+  photonmapSize: 250
   material: # green
     color: [0.0,1.0,0.0]
     ka: 0.2
@@ -62,6 +68,7 @@ Objects:
   bumpfactor: 5
   axis: [1.5, -1.5, -2.5]
   angle: 90
+  photonmapSize: 330
   material: # earth
     color: [1.0,0.0,0.0]
     ka: 0.2
@@ -82,6 +89,7 @@ Objects:
 - type: sphere
   position: [110,130,200]
   radius: 50
+  photonmapSize: 200
   material: # orange
     color: [1.0,0.5,0.0]
     ka: 0.2
@@ -91,6 +99,7 @@ Objects:
 - type: sphere
   position: [200,200,-1000]
   radius: 1000
+  photonmapSize: 1800
   material: # grey
     color: [0.4,0.4,0.4]
     ka: 0.2
