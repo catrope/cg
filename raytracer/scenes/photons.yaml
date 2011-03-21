@@ -17,10 +17,11 @@ Camera:
 Lights:
 - position: [100,200,400]
   color: [1.0,1.0,1.0]
-  
-PhotonFactor: 3000
-PhotonIntensity: 20000
-PhotonBlur: 3
+
+Photon:
+  factor: 3000
+  intensity: 20000
+  blur: 3
 
 SuperSampling:
   factor: 16

@@ -213,9 +213,39 @@ inline void Scene::specular(Color *color, Object *obj, Light *light, Vector *L, 
 	}
 }
 
-inline void Scene::ambient(Color *color, Object *obj, Point *hit)
+inline void Scene::ambient(Color *color, Object *obj, Point *hit, Vector *N)
 {
-	*color += obj->material->ka * obj->getColor(*hit) * globalAmbient;
+	double localAmbient = 1.0;
+	
+	if (ambientFactor > 0)
+	{
+		localAmbient = 0.0;
+		Vector xvec(2,0,0), yvec(0,2,0), zvec(0,0,2), start(-1,-1,-1);
+		xvec /= (double)ambientFactor; yvec /= (double)ambientFactor; zvec /= (double)ambientFactor;
+		
+		Point p = *hit + (*N)*0.01;
+		
+		for (unsigned int x = 0; x < ambientFactor; x++)
+		{
+			for (unsigned int y = 0; y < ambientFactor; y++)
+			{
+				for (unsigned int z = 0; z < ambientFactor; z++)
+				{
+					Vector v = start 
+						+ ((double)x + 0.2*((double)rand()/(double)RAND_MAX - 0.5))*xvec
+						+ ((double)y + 0.2*((double)rand()/(double)RAND_MAX - 0.5))*yvec
+						+ ((double)z + 0.2*((double)rand()/(double)RAND_MAX - 0.5))*zvec;
+					Ray r(p, v);
+					Hit hit = intersectRay(r, false, std::numeric_limits<double>::infinity());
+					if (!hit.hasHit()) localAmbient += 1.0;
+				}
+			}
+		}
+		
+		localAmbient /= (double)(ambientFactor*ambientFactor*ambientFactor);
+	}	
+	
+	*color += obj->material->ka * obj->getColor(*hit) * globalAmbient * localAmbient;
 }
 
 inline bool Scene::edgeDetection(Color *color, Vector *N, Vector *V)
@@ -247,7 +277,7 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
 	
-	ambient(&color, obj, hit);
+	ambient(&color, obj, hit, N);
 	photons(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;

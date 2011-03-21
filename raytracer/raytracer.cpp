@@ -252,9 +252,31 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setEdges(parseOptionalDouble(doc.FindValue("Edges"), 0.0));
 			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
 			scene->setMinRecursionWeight(parseOptionalDouble(doc.FindValue("MinRecursionWeight"), 0.0));
-			scene->setPhotonFactor(parseUnsignedInt(doc.FindValue("PhotonFactor"), 0));
-			scene->setPhotonBlur(parseUnsignedInt(doc.FindValue("PhotonBlur"), 2));
-			scene->setPhotonIntensity(parseOptionalDouble(doc.FindValue("PhotonIntensity"), 0.0));
+			
+			if (doc.FindValue("Photon") != NULL)
+			{
+				scene->setPhotonFactor(parseUnsignedInt(doc["Photon"].FindValue("factor"), 0));
+				scene->setPhotonBlur(parseUnsignedInt(doc["Photon"].FindValue("blur"), 2));
+				scene->setPhotonIntensity(parseOptionalDouble(doc["Photon"].FindValue("intensity"), 0.0));
+			}
+			else
+			{
+				scene->setPhotonFactor(0);
+				scene->setPhotonBlur(0);
+				scene->setPhotonIntensity(0.0);
+			}
+			
+			if (doc.FindValue("Ambient") != NULL)
+			{
+				scene->setAmbient(
+					parseUnsignedInt(doc["Ambient"].FindValue("factor"), 0),
+					parseOptionalDouble(doc["Ambient"].FindValue("random"), 0.0)
+				);
+			}
+			else
+			{
+				scene->setAmbient(0, 0.0);
+			}
 			
 			if (doc.FindValue("SuperSampling") != NULL)
 			{

@@ -43,6 +43,8 @@ private:
 	double edges;
 	int photonFactor, photonBlur;
 	double photonIntensity;
+	unsigned int ambientFactor;
+	double ambientRandom;
 	
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
@@ -55,7 +57,7 @@ private:
 	inline void diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N);
 	inline void diffuseGooch(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N, Vector *V);
 	inline void specular(Color *color, Object *obj, Light *light, Vector *L, Vector *N, Vector *V, double ks);
-	inline void ambient(Color *color, Object *obj, Point *hit);
+	inline void ambient(Color *color, Object *obj, Point *hit, Vector *N);
 	inline bool edgeDetection(Color *color, Vector *N, Vector *V);
 	inline Vector lightVector(Point *hit, Light *light);
 	inline void photons(Color *color, Object *obj, Point *hit);
@@ -96,6 +98,7 @@ public:
 	void setPhotonFactor(unsigned int f) { photonFactor = (int)f; }
 	void setPhotonBlur(unsigned int b) { photonBlur = (int)b; }
 	void setPhotonIntensity(double i) { photonIntensity = i; }
+	void setAmbient(unsigned int f, double r) { ambientFactor = f; ambientRandom = r; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 	void setGoochParameters(double b, double y, double alpha, double beta)

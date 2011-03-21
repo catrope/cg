@@ -24,13 +24,18 @@ Shadows: true
 MaxRecursionDepth: 10
 MinRecursionWeight: 0.05
 SuperSampling:
-  factor: 4
+  factor: 1
   minFactor: 4
   jitter: true
   
-PhotonFactor: 2000
-PhotonIntensity: 20000
-PhotonBlur: 3
+Photon:
+  factor: 0
+  intensity: 20000
+  blur: 3
+
+Ambient:
+  factor: 4
+  random: 0.2
 
 Lights:
 - position: [-200,600,1500]
