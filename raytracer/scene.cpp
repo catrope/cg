@@ -468,7 +468,10 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	
 	if (obj->photonmap)// && recursionDepth > 0)
 	{
-		obj->addPhoton(hit, color);
+		#pragma omp critical
+		{
+			obj->addPhoton(hit, color);
+		}
 		return;
 	}
 	
@@ -493,22 +496,27 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 {
 	Point pos = obj->getRotationCenter();
-	Vector xvec = (light->position - pos).cross(camera.up).normalized() * obj->getRadius();
-	Vector yvec = -camera.up.normalized() * obj->getRadius();
+	Vector xvec = (light->position - pos).cross(camera.up).normalized() * (obj->getRadius()/(double)photonFactor);
+	Vector yvec = -camera.up.normalized() * (obj->getRadius()/(double)photonFactor);
 	
-	for (double y = -1.0; y < 1.0; y+=0.005)
+	pos = pos - xvec*(double)photonFactor/2.0 - yvec*(double)photonFactor/2.0;
+	
+	#pragma omp parallel for
+	for (int y = 0; y < photonFactor; y++)
 	{
-		for (double x = -1.0; x < 1.0; x+=0.005)
+		#pragma omp parallel for
+		for (int x = 0; x < photonFactor; x++)
 		{
-			Point pixel = pos + yvec*y + xvec*x;
+			Point pixel = pos + yvec*(double)y + xvec*(double)x;
 			Ray r(light->position, (pixel - light->position).normalized());
-			tracePhoton(0.05*light->color, r, 0, obj);
+			tracePhoton(photonIntensity/photonFactor*light->color, r, 0, obj);
 		}
 	}
 }
 
 void Scene::renderPhotonsForLight(Light *light)
 {
+	#pragma omp parallel for
 	for (unsigned int i = 0; i < objects.size(); ++i)
 	{
 		Object *obj = objects[i];
@@ -519,6 +527,7 @@ void Scene::renderPhotonsForLight(Light *light)
 
 void Scene::renderPhotons()
 {
+	#pragma omp parallel for
 	for (unsigned int i = 0; i < lights.size(); i++)
 	{
 		renderPhotonsForLight(lights[i]);
@@ -545,16 +554,15 @@ void Scene::render(Image &img)
 	
 	renderPhotons();
 	
+	Point pos = camera.center - yvec*(double)h/2.0 - xvec*(double)w/2.0;
+	
 	#pragma omp parallel for
 	for (int y = 0; y < h; y++)
 	{
 		#pragma omp parallel for
 		for (int x = 0; x < w; x++)
 		{
-			Point pixel = camera.center
-				+ yvec*(double)y - yvec*(double)h/2.0
-				+ xvec*(double)x - xvec*(double)w/2.0;
-				
+			Point pixel = pos + yvec*(double)y + xvec*(double)x ;
 			
 			img(x,y) = superSampleRay(pixel, xvec, yvec);
 			

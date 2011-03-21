@@ -17,6 +17,9 @@ Camera:
 Lights:
 - position: [100,200,400]
   color: [1.0,1.0,1.0]
+  
+PhotonFactor: 1000
+PhotonIntensity: 10
 
 Objects:
 - type: sphere

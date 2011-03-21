@@ -41,6 +41,8 @@ private:
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
 	double edges;
+	unsigned int photonFactor;
+	double photonIntensity;
 	
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
@@ -89,6 +91,8 @@ public:
 	void setEdges(double e) { edges = e; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	void setMinRecursionWeight(double w) { minRecursionWeight = w; }
+	void setPhotonFactor(unsigned int f) { photonFactor = f; }
+	void setPhotonIntensity(double i) { photonIntensity = i; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 	void setGoochParameters(double b, double y, double alpha, double beta)
