@@ -41,6 +41,8 @@ private:
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
 	double edges;
+	int photonFactor, photonBlur;
+	double photonIntensity;
 	
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
@@ -56,6 +58,7 @@ private:
 	inline void ambient(Color *color, Object *obj, Point *hit);
 	inline bool edgeDetection(Color *color, Vector *N, Vector *V);
 	inline Vector lightVector(Point *hit, Light *light);
+	inline void photons(Color *color, Object *obj, Point *hit);
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
 	inline Color exposureRay(Point pixel, Point eye);
@@ -64,6 +67,13 @@ private:
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
 	Hit intersectRay(const Ray &ray, bool closest, double maxT);
 	void computeGlobalAmbient();
+	
+	void tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, double recursionWeight, Object *onlyObject);
+	void renderPhotonsForLightAndObject(Light *light, Object *obj);
+	void renderPhotonsForLight(Light *light);
+	void renderPhotons();
+	void blurPhotonMaps();
+	
 public:	
 	enum RenderMode {
 		phong, zbuffer, normal, texcoords, gooch, ssdepth
@@ -83,6 +93,9 @@ public:
 	void setEdges(double e) { edges = e; }
 	void setMaxRecursionDepth(unsigned int d) { maxRecursionDepth = d; }
 	void setMinRecursionWeight(double w) { minRecursionWeight = w; }
+	void setPhotonFactor(unsigned int f) { photonFactor = (int)f; }
+	void setPhotonBlur(unsigned int b) { photonBlur = (int)b; }
+	void setPhotonIntensity(double i) { photonIntensity = i; }
 	unsigned int getNumObjects() { return objects.size(); }
 	unsigned int getNumLights() { return lights.size(); }
 	void setGoochParameters(double b, double y, double alpha, double beta)

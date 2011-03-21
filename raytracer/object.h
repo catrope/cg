@@ -29,7 +29,7 @@
 class Object {
 public:
 	Material *material;
-	Image *texture, *specularTexture, *bumpmap;
+	Image *texture, *specularTexture, *bumpmap, *photonmap, *photonblurmap;
 	double bumpfactor;
 	
 	Object(const Vector &rotationVector, double rotationAngle) :
@@ -40,6 +40,8 @@ public:
 		texture = NULL;
 		specularTexture = NULL;
 		bumpmap = NULL;
+		photonmap = NULL;
+		photonblurmap = NULL;
 		bumpfactor = 1.0;
 	}
 
@@ -53,19 +55,27 @@ public:
 			delete bumpmap;
 		if (material)
 			delete material;
+		if (photonmap)
+			delete photonmap;
+		if (photonblurmap)
+			delete photonblurmap;
 	}
 
 	virtual Hit intersect(const Ray &ray) = 0;
 	virtual Point getRotationCenter() = 0;
-	// TODO: Implement these two in Triangle and Quad and make them pure virtual
+	// TODO: Implement these three in Triangle and Quad and make them pure virtual
 	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }
 	virtual Point getPointFromTexCoords(double u, double v) { return Point(0, 0, 0); }
+	virtual double getRadius() { return 0.0; }
 	
 	Point rotate(const Point &p);
 	Point unRotate(const Point &p);
 	Color getColor(const Point &p);
+	Color getPhotons(const Point &p);
 	double getKs(const Point &p);
 	Vector getBumpedNormal(const Vector &origNormal, const Point &p);
+	void addPhoton(const Point &p, Color &color);
+	void blurPhotonMap(int radius);
 
 private:
 	Matrix r, rInv; // rotation matrices

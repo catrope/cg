@@ -237,12 +237,18 @@ inline Vector Scene::lightVector(Point *hit, Light *light)
 	return (light->position - *hit).normalized();
 }
 
+inline void Scene::photons(Color *color, Object *obj, Point *hit)
+{
+	*color += obj->getPhotons(*hit);
+}
+
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight)
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
 	
 	ambient(&color, obj, hit);
+	photons(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;
 	
@@ -273,6 +279,8 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 {
 	Color color(0.0, 0.0, 0.0);
 	double ks = obj->getKs(*hit);
+	
+	photons(&color, obj, hit);
 	
 	if (edgeDetection(&color, N, V)) return color;
 	
@@ -451,6 +459,104 @@ void Scene::computeGlobalAmbient()
 	globalAmbient.clamp();
 }
 
+void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, double recursionWeight, Object *onlyObject)
+{
+	if (recursionDepth > maxRecursionDepth || recursionWeight < minRecursionWeight)
+		return;
+		
+	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
+	if (!min_hit.hasHit() || (onlyObject && min_hit.obj != onlyObject))
+		return;
+
+	Point hit = ray.at(min_hit.t); //the hit point
+	Object *obj = min_hit.obj;
+	Vector N = obj->getBumpedNormal(min_hit.N, hit); //the normal at hit point
+	Vector V = -ray.D; //the view vector
+	double ks = obj->getKs(hit);
+	
+	if (obj->photonmap && recursionDepth > 0)
+	{
+		#pragma omp critical
+		{
+			obj->addPhoton(hit, color);
+		}
+		color *= obj->material->kd;
+		recursionWeight *= obj->material->kd;
+	}
+	
+	if (ks > 0)
+	{
+		Vector Vrefl = reflectVector(&N, &V);
+		Ray reflected(hit + 0.01*Vrefl, Vrefl);
+		tracePhoton(ks*color, reflected, recursionDepth + 1, ks*recursionWeight, NULL);
+	}
+	
+	if (obj->material->refract >= 0.01) {
+		Vector T = refractVector(obj, &hit, &N, &V, obj->material->eta, 1.0);
+		
+		// Like with reflection, trace a ray along T and guard
+		// against roundoff errors
+		Ray refracted(hit + 0.01*T, T);
+		
+		tracePhoton(obj->material->refract*obj->getColor(hit)*color, refracted, 
+			recursionDepth + 1, obj->material->refract*recursionWeight, NULL);
+	}
+}
+
+void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
+{
+	Point pos = obj->getRotationCenter();
+	Vector xvec = (light->position - pos).cross(camera.up).normalized() * (obj->getRadius()*2.1/(double)photonFactor);
+	Vector yvec = -camera.up.normalized() * (obj->getRadius()*2.1/(double)photonFactor);
+	
+	pos = pos - xvec*(double)photonFactor/2.0 - yvec*(double)photonFactor/2.0;
+	
+	#pragma omp parallel for
+	for (int y = 0; y < photonFactor; y++)
+	{
+		#pragma omp parallel for
+		for (int x = 0; x < photonFactor; x++)
+		{
+			Point pixel = pos + yvec*(double)y + xvec*(double)x;
+			Ray r(light->position, (pixel - light->position).normalized());
+			
+			// intensity is already corrected for number of samples
+			tracePhoton(photonIntensity*light->color, r, 0, 1.0, obj);
+		}
+	}
+}
+
+void Scene::renderPhotonsForLight(Light *light)
+{
+	#pragma omp parallel for
+	for (int i = 0; i < (int)objects.size(); ++i)
+	{
+		Object *obj = objects[i];
+		if (obj->material->ks >= 0.01 || obj->material->refract >= 0.01)
+			renderPhotonsForLightAndObject(light, obj);
+	}
+}
+
+void Scene::renderPhotons()
+{
+	// correct intensity for number of samples
+	photonIntensity /= (double)(photonFactor*photonFactor);
+	
+	#pragma omp parallel for
+	for (int i = 0; i < (int)lights.size(); i++)
+	{
+		renderPhotonsForLight(lights[i]);
+	}
+}
+
+void Scene::blurPhotonMaps()
+{
+	for (int i = 0; i < (int)objects.size(); ++i)
+	{
+		if (objects[i]->photonmap) objects[i]->blurPhotonMap(photonBlur);
+	}
+}
+
 void Scene::render(Image &img)
 {
 	int w = camera.viewWidth;
@@ -469,16 +575,23 @@ void Scene::render(Image &img)
 	
 	computeGlobalAmbient();
 	
+	if (photonFactor > 0)
+	{
+		printf("Tracing photons...\n");
+		renderPhotons();
+		printf("Blurring photon maps...\n");
+		blurPhotonMaps();
+	}
+	
+	Point pos = camera.center - yvec*(double)h/2.0 - xvec*(double)w/2.0;
+	
 	#pragma omp parallel for
 	for (int y = 0; y < h; y++)
 	{
 		#pragma omp parallel for
 		for (int x = 0; x < w; x++)
 		{
-			Point pixel = camera.center
-				+ yvec*(double)y - yvec*(double)h/2.0
-				+ xvec*(double)x - xvec*(double)w/2.0;
-				
+			Point pixel = pos + yvec*(double)y + xvec*(double)x ;
 			
 			img(x,y) = superSampleRay(pixel, xvec, yvec);
 			

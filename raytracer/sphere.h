@@ -34,6 +34,8 @@ public:
 
 	const Point position;
 	const double r;
+	
+	double getRadius() { return r; };
 };
 
 #endif /* end of include guard: SPHERE_H_115209AE */

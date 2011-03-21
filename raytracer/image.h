@@ -61,6 +61,7 @@ public:
 
 	// Normalized accessors, interval is (0...1, 0...1)
 	inline const Color& colorAt(float x, float y) const;
+	inline void setColorAt(float x, float y, Color c) const;
 
 	// Normalized accessors for bumpmapping. Uses green component.
 	inline void derivativeAt(float x, float y, float *dx, float *dy) const;
@@ -73,6 +74,8 @@ public:
 	// File stuff
 	void write_png(const char* filename) const;
 	void read_png(const char* filename);
+	
+	void blur(Image * newImg, int radius);
 
 protected:
 
@@ -116,6 +119,11 @@ inline Color& Image::operator()(int x, int y)
 inline const Color& Image::colorAt(float x, float y) const
 {
 	return _pixel[findex(x, y)];
+}
+
+inline void Image::setColorAt(float x, float y, Color c) const
+{
+	_pixel[findex(x, y)] = c;
 }
 
 inline void Image::derivativeAt(float x, float y, float *dx, float *dy) const

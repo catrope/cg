@@ -129,6 +129,14 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		}
 		if (node.FindValue("bumpfactor"))
 			node["bumpfactor"] >> returnObject->bumpfactor;
+			
+		const YAML::Node *photonmapNode = node.FindValue("photonmapSize");
+		if (photonmapNode)
+		{
+			int photonmapSize;
+			*photonmapNode >> photonmapSize;
+			returnObject->photonmap = new Image(photonmapSize, photonmapSize);
+		}
 	}
 
 	return returnObject;
@@ -244,6 +252,9 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setEdges(parseOptionalDouble(doc.FindValue("Edges"), 0.0));
 			scene->setMaxRecursionDepth(parseUnsignedInt(doc.FindValue("MaxRecursionDepth"), 0));
 			scene->setMinRecursionWeight(parseOptionalDouble(doc.FindValue("MinRecursionWeight"), 0.0));
+			scene->setPhotonFactor(parseUnsignedInt(doc.FindValue("PhotonFactor"), 0));
+			scene->setPhotonBlur(parseUnsignedInt(doc.FindValue("PhotonBlur"), 2));
+			scene->setPhotonIntensity(parseOptionalDouble(doc.FindValue("PhotonIntensity"), 0.0));
 			
 			if (doc.FindValue("SuperSampling") != NULL)
 			{

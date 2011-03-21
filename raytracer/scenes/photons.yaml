@@ -1,0 +1,63 @@
+RenderMode: "phong"
+
+Shadows: false
+MaxRecursionDepth: 10
+MinRecursionWeight: 0.05
+
+SuperSampling:
+  jitter: true
+  factor: 1
+
+Camera:
+    eye: [200,200,1000]
+    center: [200,200,230]
+    up: [0,0.4,0]
+    viewSize: [800,500]
+
+Lights:
+- position: [100,200,400]
+  color: [1.0,1.0,1.0]
+  
+PhotonFactor: 3000
+PhotonIntensity: 20000
+PhotonBlur: 3
+
+SuperSampling:
+  factor: 16
+  minFactor: 4
+  jitter: true
+
+Objects:
+- type: sphere
+  position: [200,200,230]
+  radius: 50
+  photonmapSize: 200
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.4
+    n: 32
+    #refract: 0.5
+    #eta: 1.33
+- type: sphere
+  position: [150,200,280]
+  radius: 20
+  material: # yellow glass
+    color: [1.0,0.8,0.0]
+    ka: 0.3
+    kd: 0.7
+    ks: 0.5
+    n: 1
+    refract: 0.6
+    eta: 1.5
+- type: sphere
+  position: [230,250,280]
+  radius: 20
+  photonmapSize: 80
+  material: # red
+    color: [1.0,0.0,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.4
+    n: 8
