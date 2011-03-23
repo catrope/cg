@@ -231,10 +231,10 @@ inline void Scene::ambient(Color *color, Object *obj, Point *hit, Vector *N)
 			{
 				for (unsigned int z = 0; z < ambientFactor; z++)
 				{
-					Vector v = start 
-						+ ((double)x + 0.2*((double)rand()/(double)RAND_MAX - 0.5))*xvec
-						+ ((double)y + 0.2*((double)rand()/(double)RAND_MAX - 0.5))*yvec
-						+ ((double)z + 0.2*((double)rand()/(double)RAND_MAX - 0.5))*zvec;
+					Vector v = start
+						+ ((double)x + ambientRandom*((double)rand()/(double)RAND_MAX - 0.5))*xvec
+						+ ((double)y + ambientRandom*((double)rand()/(double)RAND_MAX - 0.5))*yvec
+						+ ((double)z + ambientRandom*((double)rand()/(double)RAND_MAX - 0.5))*zvec;
 					Ray r(p, v);
 					Hit hit = intersectRay(r, false, std::numeric_limits<double>::infinity());
 					if (!hit.hasHit()) localAmbient += 1.0;
@@ -403,10 +403,17 @@ inline Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 
 void Scene::superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, unsigned int * subpixel, Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
 {
-	if (*nPoints >= superSamplingFactor*superSamplingFactor) return;
+	if (*nPoints >= superSamplingTotal) return;
 	
 	unsigned int i=0;
 	unsigned int num = factor*factor;
+	
+	if (mode == ssdepth && *nPoints + num >= superSamplingTotal)
+	{
+		*nPoints += num;
+		return;
+	}
+	
 	Color colGrid[num];
 	Vector xoffset, yoffset, xstart, ystart, xvec2, yvec2;
 	
@@ -464,7 +471,7 @@ inline Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec)
 		
 		if (mode == ssdepth)
 		{
-			double grey = (double)nPoints / (double)(superSamplingFactor*superSamplingFactor*2);
+			double grey = (double)nPoints / (double)(superSamplingTotal*2);
 			totalCol = Color(grey, grey, grey);
 		}
 		else
@@ -579,6 +586,7 @@ void Scene::renderPhotons()
 
 void Scene::blurPhotonMaps()
 {
+	#pragma omp parallel for
 	for (int i = 0; i < (int)objects.size(); ++i)
 	{
 		if (objects[i]->photonmap) objects[i]->blurPhotonMap(photonBlur);

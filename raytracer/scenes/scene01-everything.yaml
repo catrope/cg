@@ -12,6 +12,8 @@
 #  The example scene description should largely speak for itself. By now
 #  it should be clear that the #-character can be used to insert comments.
 
+#RenderMode: ssdepth
+
 Camera:
     eye: [200,200,1000]
     center: [200,200,230]
@@ -24,18 +26,18 @@ Shadows: true
 MaxRecursionDepth: 10
 MinRecursionWeight: 0.05
 SuperSampling:
-  factor: 1
+  factor: 16
   minFactor: 4
   jitter: true
   
 Photon:
-  factor: 2000
+  factor: 5000 
   intensity: 20000
   blur: 3
 
 Ambient:
-  factor: 4
-  random: 0.01 
+  factor: 5
+  random: 0.08
 
 Lights:
 - position: [-200,600,1500]

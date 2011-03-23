@@ -35,7 +35,7 @@ private:
 	bool shadows;
 	unsigned int maxRecursionDepth;
 	double minRecursionWeight;
-	unsigned int superSamplingFactor, superSamplingMinFactor;
+	unsigned int superSamplingFactor, superSamplingTotal, superSamplingMinFactor;
 	double superSamplingThreshold;
 	bool superSamplingJitter;
 	Color globalAmbient;
@@ -89,7 +89,8 @@ public:
 	void setCamera(Camera c) { camera = c; }
 	Camera getCamera() { return camera; }	
 	void setSuperSampling(unsigned int f, unsigned int fmin, double threshold, bool jitter)
-	{ superSamplingFactor = f; superSamplingMinFactor = fmin; superSamplingThreshold = threshold; superSamplingJitter = jitter; }
+	{ superSamplingFactor = f; superSamplingMinFactor = fmin; superSamplingThreshold = threshold; 
+	superSamplingJitter = jitter; superSamplingTotal = f*f; }
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setEdges(double e) { edges = e; }
