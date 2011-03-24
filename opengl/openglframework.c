@@ -31,6 +31,7 @@
 #endif
 
 #include "glslshaders.h"
+#include "lodepng.h"
 
 #include <stdlib.h>
 #include <stdio.h>

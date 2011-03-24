@@ -1,3 +1,3 @@
-openglframework.o: openglframework.c glslshaders.h glm.h
+openglframework.o: openglframework.c glslshaders.h lodepng.h
 glslshaders.o: glslshaders.c glslshaders.h
 glm.o: glm.c glm.h
