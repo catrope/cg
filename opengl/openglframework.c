@@ -44,6 +44,7 @@ int mouseX, mouseY, width, height;
 GLfloat angleX = 0, angleY = 0, zoom = 1.0;
 int apertureSamples = 8;
 GLdouble apertureC = 3.0;
+GLUquadric *quadric;
 
 void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfloat ks, GLfloat n)
 {
@@ -114,31 +115,31 @@ void display(void)
 		setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
 		glPushMatrix();
 		glTranslated(90,320,100);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
+		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		glPopMatrix();
 
 		setGlMaterial(0.0f,1.0f,0.0f,0.2,0.3,0.5,8);
 		glPushMatrix();
 		glTranslated(210,270,300);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
+		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		glPopMatrix();
 
 		setGlMaterial(1.0f,0.0f,0.0f,0.2,0.7,0.8,32);
 		glPushMatrix();
 		glTranslated(290,170,150);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
+		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		glPopMatrix();
 
 		setGlMaterial(1.0f,0.8f,0.0f,0.2,0.8,0.0,1);
 		glPushMatrix();
 		glTranslated(140,220,400);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
+		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		glPopMatrix();
 
 		setGlMaterial(1.0f,0.5f,0.0f,0.2,0.8,0.5,32);
 		glPushMatrix();
 		glTranslated(110,130,200);
-		glutSolidSphere(50,SPHERE_N,SPHERE_N);
+		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		glPopMatrix();
 
 		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
@@ -241,6 +242,13 @@ int main(int argc, char** argv)
 	glClearColor(0.0,0.0,0.0,0.0);
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
+	
+	/* Quadric for drawing spheres */
+	quadric = gluNewQuadric();
+	gluQuadricDrawStyle(quadric, GLU_FILL);
+	gluQuadricOrientation(quadric, GLU_OUTSIDE);
+	gluQuadricNormals(quadric, GLU_SMOOTH);
+	gluQuadricTexture(quadric, GL_TRUE);
 
 	/* Register GLUT callback functions */
 	glutDisplayFunc(display);
