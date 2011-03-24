@@ -47,6 +47,34 @@ int apertureSamples = 8;
 GLdouble apertureC = 3.0;
 GLUquadric *quadric;
 
+GLuint initTexture(char* filename) {
+	unsigned char* buffer;
+	unsigned char* image;
+	size_t buffersize, imagesize;
+	GLuint texName;
+	LodePNG_Decoder decoder;
+
+	LodePNG_loadFile(&buffer, &buffersize, filename);
+	LodePNG_Decoder_init(&decoder);
+	decoder.infoRaw.color.colorType = 6; /* Load image as RGBA */
+	LodePNG_decode(&decoder, &image, &imagesize, buffer, buffersize);
+	if(decoder.error) {
+		printf("Error reading in png image: %d\n", decoder.error);
+		exit(1);
+	} else {
+		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+		glGenTextures(1,&texName);
+		glBindTexture(GL_TEXTURE_2D,texName);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,decoder.infoPng.width,
+			decoder.infoPng.height,0, GL_RGBA,GL_UNSIGNED_BYTE,image);
+	} 
+	return texName;
+} 
+
 void setGlMaterial(GLfloat r, GLfloat g, GLfloat b, GLfloat ka, GLfloat kd, GLfloat ks, GLfloat n)
 {
 	GLfloat ambient[] = {ka*r,ka*g,ka*b,1.0};
