@@ -82,7 +82,7 @@ void initVBO(void)
 
 void destroyVBO(void)
 {
-	glmDestoryVBO(model);
+	glmDestroyVBO(model);
 	glmDelete(model);
 }
 

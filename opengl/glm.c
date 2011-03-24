@@ -1802,7 +1802,7 @@ glmInitVBO(GLMmodel *model)
 }
 
 void
-glmDestoryVBO(GLMmodel *model)
+glmDestroyVBO(GLMmodel *model)
 {
 	glDeleteBuffersARB(1, &model->vbo);
 	glDeleteBuffersARB(1, &model->ibo);
