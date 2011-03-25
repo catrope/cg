@@ -43,9 +43,10 @@
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
 GLfloat angleX = 0, angleY = 0, zoom = 1.0;
-int apertureSamples = 8;
+int apertureSamples = 1;
 GLdouble apertureC = 3.0;
 GLUquadric *quadric;
+GLuint myTexture;
 
 GLuint initTexture(char* filename) {
 	unsigned char* buffer;
@@ -131,22 +132,33 @@ void display(void)
 		gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
 		
 		
-		glTranslatef(200.0, 200.0, 200.00);
+		glTranslatef(200.0, 200.0, 400.00);
 		glRotatef(angleX, 1.0, 0.0, 0.0);
 		glRotatef(angleY, 0.0, 1.0, 0.0);
-		glTranslatef(-200.0, -200.0, -200.0);
+		glTranslatef(-200.0, -200.0, -400.0);
 
 		setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_DEPTH_TEST);
 
-		setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);
+		/*setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);*/
 		glPushMatrix();
-		glTranslated(90,320,100);
+		glTranslated(200, 200, 400);
+		
+		/* Enable texture */
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+		glBindTexture(GL_TEXTURE_2D,myTexture);
+		
 		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
+		
+		/* Disable texture */
+		glDisable(GL_TEXTURE_2D);
+		
 		glPopMatrix();
 
+		/*
 		setGlMaterial(0.0f,1.0f,0.0f,0.2,0.3,0.5,8);
 		glPushMatrix();
 		glTranslated(210,270,300);
@@ -170,6 +182,7 @@ void display(void)
 		glTranslated(110,130,200);
 		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		glPopMatrix();
+		*/
 
 		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
 		glFlush();
@@ -254,7 +267,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
-	initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");
+	/*initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");*/
 	
 #if defined(NEED_GLEW)
 	/* Init GLEW if needed */
@@ -270,6 +283,7 @@ int main(int argc, char** argv)
 	/* Select clearing (background) color */
 	glClearColor(0.0,0.0,0.0,0.0);
 	glShadeModel(GL_SMOOTH);
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
 	glEnable(GL_DEPTH_TEST);
 	
 	/* Quadric for drawing spheres */
@@ -278,6 +292,8 @@ int main(int argc, char** argv)
 	gluQuadricOrientation(quadric, GLU_OUTSIDE);
 	gluQuadricNormals(quadric, GLU_SMOOTH);
 	gluQuadricTexture(quadric, GL_TRUE);
+	
+	myTexture = initTexture("earth.png");
 
 	/* Register GLUT callback functions */
 	glutDisplayFunc(display);
