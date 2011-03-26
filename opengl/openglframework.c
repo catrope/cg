@@ -112,9 +112,6 @@ void drawSphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLuint tex) {
 
 void display(void)
 {
-	int i;
-	GLdouble r, theta;
-	GLdouble top, bottom, left, right, aspect;
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
