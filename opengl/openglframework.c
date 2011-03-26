@@ -146,14 +146,14 @@ void display(void)
 	setGlMaterial(0.8, 0.8, 0.4, 1, 0, 0, 8);
 	gluSphere(quadric, 20, SPHERE_N, SPHERE_N);
 	
-	/* Mercury */
-	drawSphere(-58.0*cos(t/1000.0), -58.0*sin(t/1000.0), 0.0, 2.440, mercTexture);
+	/* Mercury: 88 days */
+	drawSphere(-58.0*cos(t/880.0), -58.0*sin(t/880.0), 0.0, 2.440, mercTexture);
 	
-	/* Venus */
-	drawSphere(108.0*cos(-t/1000.0), 108.0*sin(-t/1000.0), 0.0, 6.052, venusTexture);
+	/* Venus: 225 days */
+	drawSphere(108.0*cos(-t/2250.0), 108.0*sin(-t/2250.0), 0.0, 6.052, venusTexture);
 	
-	/* Earth */
-	drawSphere(-150.0*cos(t/1000.0), -150.0*sin(t/1000.0), 0.0, 6.378, earthTexture);
+	/* Earth: 365 days */
+	drawSphere(-150.0*cos(t/3650.0), -150.0*sin(t/3650.0), 0.0, 6.378, earthTexture);
 
 	glutSwapBuffers();
 }
