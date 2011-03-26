@@ -129,12 +129,13 @@ void display(void)
 		
 		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
 		
-		gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);
+		/*gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);*/
+		gluLookAt(200.0, 0.0, 900.0, 200.0, 200.0, 200.0, 0.0, 1.0, -1.0);
 		
 		
 		glTranslatef(200.0, 200.0, 400.00);
 		glRotatef(angleX, 1.0, 0.0, 0.0);
-		glRotatef(angleY, 0.0, 1.0, 0.0);
+		glRotatef(angleY, 0.0, 0.0, 1.0);
 		glTranslatef(-200.0, -200.0, -400.0);
 
 		setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
