@@ -48,6 +48,8 @@ GLdouble apertureC = 3.0;
 GLUquadric *quadric;
 GLuint sunTexture, mercTexture, venusTexture, earthTexture;
 
+int t = 0;
+
 GLuint initTexture(char* filename) {
 	unsigned char* buffer;
 	unsigned char* image;
@@ -110,6 +112,12 @@ void drawSphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLuint tex) {
 	glPopMatrix();
 }
 
+void idle(void)
+{
+	t = glutGet(GLUT_ELAPSED_TIME);
+	glutPostRedisplay();
+}
+
 void display(void)
 {
 	
@@ -139,13 +147,13 @@ void display(void)
 	gluSphere(quadric, 20, SPHERE_N, SPHERE_N);
 	
 	/* Mercury */
-	drawSphere(-58.0, 0.0, 0.0, 2.440, mercTexture);
+	drawSphere(-58.0*cos(t/1000), -58.0*sin(t/1000), 0.0, 2.440, mercTexture);
 	
 	/* Venus */
-	drawSphere(108.0, 0.0, 0.0, 6.052, venusTexture);
+	drawSphere(108.0*cos(t/1000), 108.0*cos(t/1000), 0.0, 6.052, venusTexture);
 	
 	/* Earth */
-	drawSphere(-150.0, 0.0, 0.0, 6.378, earthTexture);
+	drawSphere(-150.0*sin(t/1000), -150.0*cos(t/1000), 0.0, 6.378, earthTexture);
 
 	glutSwapBuffers();
 }
@@ -264,6 +272,7 @@ int main(int argc, char** argv)
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutMotionFunc(motion);
+	glutIdleFunc(idle); /* TODO: trigger based on visibility */
 
 	glutMainLoop();
 
