@@ -100,13 +100,16 @@ void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 }
 
-void drawSphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLuint tex) {
+void drawSphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLuint tex,
+		double rotAngle, double tilt) {
 	glPushMatrix();
 	glTranslated(x, y, z);
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glScaled(1, 1, -1);
+	glRotatef(tilt, 0.0, 1.0, 0.0);
+	glRotatef(rotAngle, 0.0, 0.0, 1.0);
 	gluSphere(quadric, r, SPHERE_N, SPHERE_N);
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
@@ -146,14 +149,14 @@ void display(void)
 	setGlMaterial(0.8, 0.8, 0.4, 1, 0, 0, 8);
 	gluSphere(quadric, 20, SPHERE_N, SPHERE_N);
 	
-	/* Mercury: 88 days */
-	drawSphere(-58.0*cos(t/880.0), -58.0*sin(t/880.0), 0.0, 2.440, mercTexture);
+	/* Mercury: around the sun in 88 days, around its axis in 58.6 days */
+	drawSphere(-58.0*cos(t/880.0), -58.0*sin(t/880.0), 0.0, 2.440, mercTexture, fmod(t/10.0, 360.0), 0.0);
 	
-	/* Venus: 225 days */
-	drawSphere(108.0*cos(-t/2250.0), 108.0*sin(-t/2250.0), 0.0, 6.052, venusTexture);
+	/* Venus: around the sun in 225 days, around its axis in 243 days (clockwise) */
+	drawSphere(108.0*cos(t/2250.0), 108.0*sin(t/2250.0), 0.0, 6.052, venusTexture, -fmod(t/10.0, 360.0), 2.7);
 	
-	/* Earth: 365 days */
-	drawSphere(-150.0*cos(t/3650.0), -150.0*sin(t/3650.0), 0.0, 6.378, earthTexture);
+	/* Earth: around the sun in 365 days, around its axis in 1 day */
+	drawSphere(-150.0*cos(t/3650.0), -150.0*sin(t/3650.0), 0.0, 6.378, earthTexture, fmod(t/10.0, 360.0), 23.5);
 
 	glutSwapBuffers();
 }
