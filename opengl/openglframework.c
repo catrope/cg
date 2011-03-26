@@ -151,6 +151,7 @@ void display(void)
 		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		glBindTexture(GL_TEXTURE_2D,myTexture);
 		
+		glScaled(1, 1, -1); /* Fix mirroring of texture */
 		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
 		
 		/* Disable texture */
