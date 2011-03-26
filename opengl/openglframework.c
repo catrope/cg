@@ -147,13 +147,13 @@ void display(void)
 	gluSphere(quadric, 20, SPHERE_N, SPHERE_N);
 	
 	/* Mercury */
-	drawSphere(-58.0*cos(t/1000), -58.0*sin(t/1000), 0.0, 2.440, mercTexture);
+	drawSphere(-58.0*cos(t/1000.0), -58.0*sin(t/1000.0), 0.0, 2.440, mercTexture);
 	
 	/* Venus */
-	drawSphere(108.0*cos(t/1000), 108.0*cos(t/1000), 0.0, 6.052, venusTexture);
+	drawSphere(108.0*cos(t/1000.0), 108.0*cos(t/1000.0), 0.0, 6.052, venusTexture);
 	
 	/* Earth */
-	drawSphere(-150.0*sin(t/1000), -150.0*cos(t/1000), 0.0, 6.378, earthTexture);
+	drawSphere(-150.0*sin(t/1000.0), -150.0*cos(t/1000.0), 0.0, 6.378, earthTexture);
 
 	glutSwapBuffers();
 }
