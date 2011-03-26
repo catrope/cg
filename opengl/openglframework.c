@@ -119,28 +119,13 @@ void display(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-
-	/*aspect = (GLdouble)width/(GLdouble)height;
-	top = (GLdouble)tan(zoom*atan2(height/2.0, z)) * (GLdouble)(z/2);
-	bottom = -top;
-	left = aspect * bottom;
-	right = aspect * top;*/
-	//glFrustum(left, right, bottom, top, z/2, z);
 	gluPerspective(zoom*2.0*atan2(height/2.0,1000)*180.0/M_PI,(GLdouble)width/(GLdouble)height,1,5000);
 	
 	glMatrixMode(GL_MODELVIEW);
 	
-	/*glClear(GL_ACCUM_BUFFER_BIT);*/
-	
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
-	/*r = apertureC * sqrt((GLdouble)i);
-	theta = (GLdouble)i * 2.399963;*/
-	
-	//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
-	
-	/*gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);*/
 	gluLookAt(0.0, 0.0, 1000, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	
 	/*glTranslatef(200.0, 200.0, 400.00);*/
@@ -164,37 +149,6 @@ void display(void)
 	
 	/* Earth */
 	drawSphere(-150.0, 0.0, 0.0, 6.378, earthTexture);
-
-	/*
-	setGlMaterial(0.0f,1.0f,0.0f,0.2,0.3,0.5,8);
-	glPushMatrix();
-	glTranslated(210,270,300);
-	gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
-	glPopMatrix();
-
-	setGlMaterial(1.0f,0.0f,0.0f,0.2,0.7,0.8,32);
-	glPushMatrix();
-	glTranslated(290,170,150);
-	gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
-	glPopMatrix();
-
-	setGlMaterial(1.0f,0.8f,0.0f,0.2,0.8,0.0,1);
-	glPushMatrix();
-	glTranslated(140,220,400);
-	gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
-	glPopMatrix();
-
-	setGlMaterial(1.0f,0.5f,0.0f,0.2,0.8,0.5,32);
-	glPushMatrix();
-	glTranslated(110,130,200);
-	gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
-	glPopMatrix();
-	*/
-
-	/*glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
-	glFlush();*/
-	
-	/*glAccum(GL_RETURN, 1.0);*/
 
 	glutSwapBuffers();
 }
@@ -273,11 +227,10 @@ int main(int argc, char** argv)
 
 
 	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH /*| GLUT_ACCUM*/);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
-	/*initGLSLProgram("vertexshader.glsl", "fragmentshader.glsl");*/
 	
 #if defined(NEED_GLEW)
 	/* Init GLEW if needed */
