@@ -42,11 +42,11 @@
 
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
-GLfloat angleX = 0, angleY = 0, zoom = 0.5;
+GLfloat angleX = 0, angleY = 0, zoom = 1;
 int apertureSamples = 1;
 GLdouble apertureC = 3.0;
 GLUquadric *quadric;
-GLuint myTexture;
+GLuint sunTexture, mercTexture, venusTexture, earthTexture;
 
 GLuint initTexture(char* filename) {
 	unsigned char* buffer;
@@ -98,68 +98,73 @@ void setGlLight(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 }
 
+void drawSphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLuint tex) {
+	glPushMatrix();
+	glTranslated(x, y, z);
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glScaled(1, 1, -1);
+	gluSphere(quadric, r, SPHERE_N, SPHERE_N);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+}
+
 void display(void)
 {
 	int i;
 	GLdouble r, theta;
 	GLdouble top, bottom, left, right, aspect;
-	GLdouble z = 400.0;
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
 
-	aspect = (GLdouble)width/(GLdouble)height;
+	/*aspect = (GLdouble)width/(GLdouble)height;
 	top = (GLdouble)tan(zoom*atan2(height/2.0, z)) * (GLdouble)(z/2);
 	bottom = -top;
 	left = aspect * bottom;
-	right = aspect * top;
-	glFrustum(left, right, bottom, top, z/2, z);
-	//gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
+	right = aspect * top;*/
+	//glFrustum(left, right, bottom, top, z/2, z);
+	gluPerspective(zoom*2.0*atan2(height/2.0,1000)*180.0/M_PI,(GLdouble)width/(GLdouble)height,1,5000);
 	
 	glMatrixMode(GL_MODELVIEW);
 	
-	glClear(GL_ACCUM_BUFFER_BIT);
+	/*glClear(GL_ACCUM_BUFFER_BIT);*/
 	
-	for (i = 0; i < apertureSamples; i++) {
+	/*for (i = 0; i < apertureSamples; i++) {*/
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
 		
-		r = apertureC * sqrt((GLdouble)i);
-		theta = (GLdouble)i * 2.399963;
+		/*r = apertureC * sqrt((GLdouble)i);
+		theta = (GLdouble)i * 2.399963;*/
 		
 		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
 		
 		/*gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);*/
-		gluLookAt(200.0, -100.0, z, 200.0, 200.0, 400.0, 0.0, 0.0, 1.0);
+		gluLookAt(0.0, 0.0, 1000, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 		
-		
-		glTranslatef(200.0, 200.0, 400.00);
+		/*glTranslatef(200.0, 200.0, 400.00);*/
 		glRotatef(angleX, 1.0, 0.0, 0.0);
 		glRotatef(angleY, 0.0, 0.0, 1.0);
-		glTranslatef(-200.0, -200.0, -400.0);
-
-		setGlLight(-200.0, 600.0, 1500.0, 1.0, 1.0, 1.0);
+		/*glTranslatef(-200.0, -200.0, -400.0);*/
+		
+		/* Light source: sun */
+		setGlLight(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_DEPTH_TEST);
-
-		/*setGlMaterial(0.0f,0.0f,1.0f,0.2,0.7,0.5,64);*/
-		glPushMatrix();
-		glTranslated(200, 200, 400);
+		setGlMaterial(0.8, 0.8, 0.4, 1, 0, 0, 8);
+		gluSphere(quadric, 20, SPHERE_N, SPHERE_N);
 		
-		/* Enable texture */
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-		glBindTexture(GL_TEXTURE_2D,myTexture);
+		/* Mercury */
+		drawSphere(-58.0, 0.0, 0.0, 2.440, mercTexture);
 		
-		glScaled(1, 1, -1); /* Fix mirroring of texture */
-		gluSphere(quadric, 50, SPHERE_N, SPHERE_N);
+		/* Venus */
+		drawSphere(108.0, 0.0, 0.0, 6.052, venusTexture);
 		
-		/* Disable texture */
-		glDisable(GL_TEXTURE_2D);
-		
-		glPopMatrix();
+		/* Earth */
+		drawSphere(-150.0, 0.0, 0.0, 6.378, earthTexture);
 
 		/*
 		setGlMaterial(0.0f,1.0f,0.0f,0.2,0.3,0.5,8);
@@ -187,11 +192,11 @@ void display(void)
 		glPopMatrix();
 		*/
 
-		glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
-		glFlush();
-	}
+		/*glAccum(GL_ACCUM, 1.0/(float)apertureSamples);
+		glFlush();*/
+	/*}*/
 	
-	glAccum(GL_RETURN, 1.0);
+	/*glAccum(GL_RETURN, 1.0);*/
 
 	glutSwapBuffers();
 }
@@ -254,6 +259,10 @@ void mouse (int button, int state, int x, int y)
 void reshape(int w, int h)
 {
 	glViewport(0,0, (GLsizei) w, (GLsizei) h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(zoom*2.0*atan2(h/2.0,1000.0)*180.0/M_PI,(GLdouble)w/(GLdouble)h,500,1000);
+	glMatrixMode(GL_MODELVIEW);
 	width = w;
 	height = h;
 }
@@ -266,7 +275,7 @@ int main(int argc, char** argv)
 
 
 	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH /*| GLUT_ACCUM*/);
 	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(220,100);
 	glutCreateWindow("Computer Graphics - OpenGL framework");
@@ -296,7 +305,10 @@ int main(int argc, char** argv)
 	gluQuadricNormals(quadric, GLU_SMOOTH);
 	gluQuadricTexture(quadric, GL_TRUE);
 	
-	myTexture = initTexture("earth.png");
+	sunTexture = initTexture("sun.png");
+	mercTexture = initTexture("mercury.png");
+	venusTexture = initTexture("venus.png");
+	earthTexture = initTexture("earth.png");
 
 	/* Register GLUT callback functions */
 	glutDisplayFunc(display);
