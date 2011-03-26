@@ -42,7 +42,7 @@
 
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
-GLfloat angleX = 0, angleY = 0, zoom = 1.0;
+GLfloat angleX = 0, angleY = 0, zoom = 0.5;
 int apertureSamples = 1;
 GLdouble apertureC = 3.0;
 GLUquadric *quadric;
@@ -103,17 +103,18 @@ void display(void)
 	int i;
 	GLdouble r, theta;
 	GLdouble top, bottom, left, right, aspect;
+	GLdouble z = 400.0;
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
 
 	aspect = (GLdouble)width/(GLdouble)height;
-	top = (GLdouble)tan(zoom*atan2(height/2.0,1000.0)) * (GLdouble)500.0;
+	top = (GLdouble)tan(zoom*atan2(height/2.0, z)) * (GLdouble)(z/2);
 	bottom = -top;
 	left = aspect * bottom;
 	right = aspect * top;
-	glFrustum(left, right, bottom, top, 500.0, 1000.0);
+	glFrustum(left, right, bottom, top, z/2, z);
 	//gluPerspective(zoom*2.0*atan2(height/2.0,1000.0)*180.0/M_PI,(GLdouble)width/(GLdouble)height,500,1000);
 	
 	glMatrixMode(GL_MODELVIEW);
@@ -130,7 +131,7 @@ void display(void)
 		//printf("(%f, %f) ", r*cos(theta), r*sin(theta));
 		
 		/*gluLookAt(200.0 + r*cos(theta), 200.0 + r*sin(theta) ,1000.0,200.0,200.0,0.0,0.0,1.0,0.0);*/
-		gluLookAt(200.0, 0.0, 900.0, 200.0, 200.0, 200.0, 0.0, 1.0, -1.0);
+		gluLookAt(200.0, -100.0, z, 200.0, 200.0, 400.0, 0.0, 0.0, 1.0);
 		
 		
 		glTranslatef(200.0, 200.0, 400.00);
