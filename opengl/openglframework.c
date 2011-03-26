@@ -39,14 +39,18 @@
 
 #define SPHERE_N (20)
 
+#ifndef DAYSPERSEC /* Allow override with -DDAYSPERSEC=10 */
+#define DAYSPERSEC 1
+#endif
+
 
 int mouseButtons[5] = {GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP, GLUT_UP};
 int mouseX, mouseY, width, height;
-GLfloat angleX = 0, angleY = 0, zoom = 1;
+GLfloat angleX = 0, angleY = 0, zoom = 0.75;
 int apertureSamples = 1;
 GLdouble apertureC = 3.0;
 GLUquadric *quadric;
-GLuint sunTexture, mercTexture, venusTexture, earthTexture;
+GLuint sunTexture, mercTexture, venusTexture, earthTexture, moonTexture;
 
 int t = 0;
 
@@ -141,6 +145,18 @@ void display(void)
 	glRotatef(angleY, 0.0, 0.0, 1.0);
 	/*glTranslatef(-200.0, -200.0, -400.0);*/
 	
+	/* We scale down as follows:
+	 * Distances: 1 unit per 10^6 km
+	 * Radii: 1 unit per 10^3 km
+	 * Times: 1 second per day (see also DAYSPERSEC)
+	 * So radii are 1000x larger than they should be and time runs
+	 * 86400x faster.
+	 *
+	 * The only exception is the distance between the Earth and the moon:
+	 * because using the real value (384400 km) would put the moon inside
+	 * the Earth, we use 10 million km instead.
+	 */
+	
 	/* Light source: sun */
 	setGlLight(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 	glEnable(GL_LIGHTING);
@@ -150,13 +166,17 @@ void display(void)
 	gluSphere(quadric, 20, SPHERE_N, SPHERE_N);
 	
 	/* Mercury: around the sun in 88 days, around its axis in 58.6 days */
-	drawSphere(-58.0*cos(t/880.0), -58.0*sin(t/880.0), 0.0, 2.440, mercTexture, fmod(t/10.0, 360.0), 0.0);
+	drawSphere(-58.0*cos(t/88000.0*2*M_PI), -58.0*sin(t/88000.0*2*M_PI), 0.0, 2.440, mercTexture, fmod(t/58600.0*360.0*DAYSPERSEC, 360.0), 0.0);
 	
 	/* Venus: around the sun in 225 days, around its axis in 243 days (clockwise) */
-	drawSphere(108.0*cos(t/2250.0), 108.0*sin(t/2250.0), 0.0, 6.052, venusTexture, -fmod(t/10.0, 360.0), 2.7);
+	drawSphere(108.0*cos(t/225000.0*2*M_PI), 108.0*sin(t/225000.0*2*M_PI), 0.0, 6.052, venusTexture, -fmod(t/243000.0*360.0*DAYSPERSEC, 360.0), 2.7);
 	
 	/* Earth: around the sun in 365 days, around its axis in 1 day */
-	drawSphere(-150.0*cos(t/3650.0), -150.0*sin(t/3650.0), 0.0, 6.378, earthTexture, fmod(t/10.0, 360.0), 23.5);
+	drawSphere(-150.0*cos(t/365000.0*2*M_PI), -150.0*sin(t/365000.0*2*M_PI), 0.0, 6.378, earthTexture, fmod(t/1000.0*360.0*DAYSPERSEC, 360.0), 23.5);
+	
+	/* Moon: around the Earth and around its axis in 29.53 days */
+	drawSphere(-150.0*cos(t/365000.0*2*M_PI) + 10*cos(t/29530.0*2*M_PI), -150.0*sin(t/365000.0*2*M_PI) + 10*sin(t/29530.0*2*M_PI),
+		0.0, 1.737, moonTexture, fmod(t/29530.0*360.0*DAYSPERSEC, 360.0), 6.7);
 
 	glutSwapBuffers();
 }
@@ -268,6 +288,7 @@ int main(int argc, char** argv)
 	mercTexture = initTexture("mercury.png");
 	venusTexture = initTexture("venus.png");
 	earthTexture = initTexture("earth.png");
+	moonTexture = initTexture("moon.png");
 
 	/* Register GLUT callback functions */
 	glutDisplayFunc(display);
