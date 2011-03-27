@@ -19,7 +19,6 @@
 #include <assert.h>
 #include "glm.h"
 
-
 #define T(x) (model->triangles[(x)])
 
 
@@ -1801,42 +1800,41 @@ glmInitVBO(GLMmodel *model)
 
 /* 
  * Convert model to double array, which is formatted like this:
- * dblArray[0] : x coord for point 1 of vertex 1
- * dblArray[1] : y coord for point 1 of vertex 1
- * dblArray[2] : z coord for point 1 of vertex 1
- * dblArray[3] : x coord for point 2 of vertex 1
+ * dblArray[0] : x coord for vertex 1 of triangle 1
+ * dblArray[1] : y coord for vertex 1 of triangle 1
+ * dblArray[2] : z coord for vertex 1 of triangle 1
+ * dblArray[3] : x coord for vertex 2 of triangle 1
  * ...
- * dblArray[8] : z coord for point 3 of vertex 1
- * dblArray[9] : x coord for normal  of vertex 1
- * dblArray[10]: y coord for normal  of vertex 1
- * dblArray[11]: z coord for normal  of vertex 1
- * dblArray[12]: x coord for point 1 of vertex 2
+ * dblArray[8] : z coord for vertex 3 of triangle 1
+ * dblArray[9] : x coord for normal   of triangle 1
+ * dblArray[10]: y coord for normal   of triangle 1
+ * dblArray[11]: z coord for normal   of triangle 1
+ * dblArray[12]: x coord for vertex 1 of triangle 2
  *
  * cnt will be set to the number of vertices
  */
 void glmModelDoubleArray(GLMmodel *model, double *dblArray, unsigned long *cnt)
 {
+	int i, j, k;
+	
 	*cnt = model->numtriangles;
+	dblArray = (double *)malloc(model->numtriangles * 4 * 3 * sizeof(double));
 	
-	GLfloat *unpackedNormals;
-		
-	/* Preprocessing: unpack the normals array so the indices match up */
-	unpackedNormals = (GLfloat *)malloc(model->numtriangles*3*3*sizeof(GLfloat));
 	for(i = 0; i < model->numtriangles; i++)
-		for(j = 0; j < 3; j++)
-			for(k = 0; k < 3; k++)
-				unpackedNormals[3*model->triangles[i].vindices[j] + k] =
-					model->normals[3*model->triangles[i].nindices[j] + k];
-	
-	*dblArray = (double *)malloc(model->numtriangles * 4 * 3 * sizeof(double));
-	
-	/* Fill vertices and normals, interleaved */
-	for(i = 0; i < model->numvertices; i++)
+	{
 		for(j = 0; j < 3; j++)
 		{
-			dblArray[6*i+j] = model->vertices[3*i+j];
-			dblArray[6*i+j+3] = unpackedNormals[3*i+j];
+			for(k = 0; k < 3; k++)
+			{
+				dblArray[12*i + 3*j + k] = model->vertices[3*model->triangles[i].vindices[j] + k];
+			}
 		}
+		
+		for(k = 0; k < 3; k++)
+		{
+			dblArray[12*i + 9 + k] = model->normals[3*model->triangles[i].findex + k];
+		}
+	}
 }
 
 
@@ -1860,8 +1858,6 @@ glmDrawVBO(GLMmodel *model)
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
-
-
 
 #if 0
 	/* normals */
