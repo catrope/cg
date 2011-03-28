@@ -40,3 +40,13 @@ Point Triangle::getRotationCenter()
 	// the vertices
 	return (p1 + p2 + p3)/3;
 }
+
+void Triangle::getTexCoords(const Point &p, double &u, double &v)
+{
+	// Use the dot product with vectors p2-p1 and p3-p1
+	Vector d1 = p2-p1;
+	Vector d2 = p3-p1;
+	
+	u = d1.dot((p-p1))/d1.length_2();
+	v = d2.dot((p-p1))/d2.length_2();
+}
