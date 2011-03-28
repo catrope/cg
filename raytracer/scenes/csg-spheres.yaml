@@ -24,7 +24,7 @@ Shadows: true
 MaxRecursionDepth: 10
 MinRecursionWeight: 0.05
 SuperSampling:
-  factor: 1
+  factor: 16
   minFactor: 4
   jitter: true
 
