@@ -19,14 +19,14 @@ Lights:
   color: [1.0,1.0,1.0]
 
 Photon:
-  factor: 2000
-  intensity: 400000
-  blur: 8
+  factor: 3000
+  intensity: 300000
+  blur: 20
 
-#SuperSampling:
-#  factor: 16
-#  minFactor: 4
-#  jitter: true
+SuperSampling:
+  factor: 16
+  minFactor: 4
+  jitter: true
 
 Objects:
 - type: sphere
@@ -44,7 +44,7 @@ Objects:
   p1: [-100,-30,100]
   p2: [-100,-30,-200]
   p3: [100,-30,0]
-  photonmapSize: 3000
+  photonmapSize: 1500
   material: # orange
     color: [1.0,0.5,0.0]
     ka: 0.4

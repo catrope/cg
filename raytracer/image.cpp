@@ -93,6 +93,12 @@ void Image::read_png(const char* filename)
 
 void Image::blur(Image * newImg, int radius)
 {
+	if (radius <= 0) {
+		*newImg = *this;
+		return;
+	}
+	
+	// Gaussian blur
 	double sigma = ((double)radius) / 3.0;
 	double gauss[radius];
 	double constant = 1/sqrt(2*M_PI*sigma*sigma);
@@ -104,6 +110,7 @@ void Image::blur(Image * newImg, int radius)
 	
 	Image *tempImg = new Image(_width, _height);
 	
+	// First blur in x direction, then in y
 	for (int y = 0; y < _height; y++)
 		for (int x = 0; x < _width; x++)
 		{
@@ -122,7 +129,7 @@ void Image::blur(Image * newImg, int radius)
 			Color total(0,0,0);
 			for (int delta = -radius; delta <= radius; delta++)
 			{
-				total += gauss[abs(delta)] * (*this)(x, (y + delta + _height) % _height);
+				total += gauss[abs(delta)] * (*tempImg)(x, (y + delta + _height) % _height);
 				
 			}
 			(*newImg)(x, y) = total;
