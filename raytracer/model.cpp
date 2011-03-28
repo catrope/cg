@@ -44,6 +44,8 @@ void Model::init(const std::string& filename, const Vector &rot, double angle)
 		triangles.push_back(tri);
 	}
 	
+	free(arr);
+	
 	boundingSphere = new Sphere(position, size, rot, angle);
 }
 

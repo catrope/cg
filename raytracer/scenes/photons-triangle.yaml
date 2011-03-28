@@ -19,9 +19,9 @@ Lights:
   color: [1.0,1.0,1.0]
 
 Photon:
-  factor: 1000
-  intensity: 10000
-  blur: 3
+  factor: 2000
+  intensity: 400000
+  blur: 5
 
 #SuperSampling:
 #  factor: 16
@@ -44,7 +44,7 @@ Objects:
   p1: [-100,-30,100]
   p2: [-100,-30,-200]
   p3: [100,-30,0]
-  photonmapSize: 300
+  photonmapSize: 3000
   material: # orange
     color: [1.0,0.5,0.0]
     ka: 0.4

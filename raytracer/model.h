@@ -33,6 +33,11 @@ public:
 	
 	Model(Point pos, const std::string& filename, double size)
 		: Object(Vector(0, 0, 1), 0.0), position(pos), size(size) { init(filename, Vector(0, 0, 1), 0.0); }
+	
+	virtual ~Model()
+	{
+		delete boundingSphere;
+	}
 		
 	std::vector<Triangle*> triangles;
 	Sphere * boundingSphere;

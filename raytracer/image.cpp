@@ -18,6 +18,7 @@
 #include "image.h"
 #include "lodepng.h"
 #include <fstream>
+#include <math.h>
 
 /*
 * Create a picture. Answer false if failed.
@@ -92,17 +93,40 @@ void Image::read_png(const char* filename)
 
 void Image::blur(Image * newImg, int radius)
 {
-	for (int y = 0; y < _height; y++)
+	double sigma = ((double)radius) / 3.0;
+	double gauss[radius];
+	double constant = 1/sqrt(2*M_PI*sigma*sigma);
+	
+	for (int i = 0; i < radius; i++)
 	{
+		gauss[i] = constant*exp(-(double)(i*i)/(2.0*sigma*sigma));
+	}
+	
+	Image *tempImg = new Image(_width, _height);
+	
+	for (int y = 0; y < _height; y++)
 		for (int x = 0; x < _width; x++)
 		{
 			Color total(0,0,0);
 			for (int delta = -radius; delta <= radius; delta++)
 			{
-				total += (*this)((x + delta + _width) % _width, y);
-				total += (*this)(x, (y + delta + _height) % _height);
+				total += gauss[abs(delta)] * (*this)((x + delta + _width) % _width, y);
+				
 			}
-			(*newImg)(x, y) = total / (radius * 4 + 2);
+			(*tempImg)(x, y) = total;
 		}
-	}
+	
+	for (int y = 0; y < _height; y++)
+		for (int x = 0; x < _width; x++)
+		{
+			Color total(0,0,0);
+			for (int delta = -radius; delta <= radius; delta++)
+			{
+				total += gauss[abs(delta)] * (*this)(x, (y + delta + _height) % _height);
+				
+			}
+			(*newImg)(x, y) = total;
+		}
+	
+	delete tempImg;
 }
