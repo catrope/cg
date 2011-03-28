@@ -21,7 +21,7 @@ Lights:
 Photon:
   factor: 2000
   intensity: 400000
-  blur: 5
+  blur: 8
 
 #SuperSampling:
 #  factor: 16
