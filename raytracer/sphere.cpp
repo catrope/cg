@@ -22,7 +22,7 @@
 
 /************************** Sphere **********************************/
 
-Hit Sphere::intersect(const Ray &ray)
+Hit Sphere::intersect(const Ray &ray, bool closest, double maxT)
 {
 	/* t = (l . c) +/- sqrt( (l . c)^2 - c^2 + r^2 )
 	 * Formula and derivation found at https://secure.wikimedia.org/wikipedia/en/wiki/Line%E2%80%93sphere_intersection

@@ -60,8 +60,17 @@ public:
 		if (photonblurmap)
 			delete photonblurmap;
 	}
-
-	virtual Hit intersect(const Ray &ray) = 0;
+	
+	/**
+	 * Intersect a ray with sub-objects.
+	 * @param ray Ray to intersect with all objects
+	 * @param closest If true, make sure to return the closest intersection. If false, stop at the first intersection
+	 * @param maxT Ignore intersections with a t value greater than or equal to this
+	 * @return Hit object
+	 */
+	virtual Hit intersect(const Ray &ray, bool closest, double maxT) = 0;
+	
+	
 	virtual Point getRotationCenter() = 0;
 	// TODO: Implement these three in Triangle and Quad and make them pure virtual
 	virtual void getTexCoords(const Point &p, double &u, double &v) { u = 0; v = 0; }

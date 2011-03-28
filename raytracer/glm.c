@@ -1806,19 +1806,16 @@ glmInitVBO(GLMmodel *model)
  * dblArray[3] : x coord for vertex 2 of triangle 1
  * ...
  * dblArray[8] : z coord for vertex 3 of triangle 1
- * dblArray[9] : x coord for normal   of triangle 1
- * dblArray[10]: y coord for normal   of triangle 1
- * dblArray[11]: z coord for normal   of triangle 1
- * dblArray[12]: x coord for vertex 1 of triangle 2
+ * dblArray[9] : x coord for vertex 1 of triangle 2
  *
  * cnt will be set to the number of vertices
  */
-void glmModelDoubleArray(GLMmodel *model, double *dblArray, unsigned long *cnt)
+double * glmModelDoubleArray(GLMmodel *model, unsigned int *cnt)
 {
 	int i, j, k;
 	
-	*cnt = model->numtriangles;
-	dblArray = (double *)malloc(model->numtriangles * 4 * 3 * sizeof(double));
+	*cnt = (unsigned int)model->numtriangles;
+	double *dblArray = (double *)malloc(model->numtriangles * 9 * sizeof(double));
 	
 	for(i = 0; i < model->numtriangles; i++)
 	{
@@ -1826,15 +1823,11 @@ void glmModelDoubleArray(GLMmodel *model, double *dblArray, unsigned long *cnt)
 		{
 			for(k = 0; k < 3; k++)
 			{
-				dblArray[12*i + 3*j + k] = model->vertices[3*model->triangles[i].vindices[j] + k];
+				dblArray[9*i + 3*j + k] = model->vertices[3*model->triangles[i].vindices[j] + k];
 			}
 		}
-		
-		for(k = 0; k < 3; k++)
-		{
-			dblArray[12*i + 9 + k] = model->normals[3*model->triangles[i].findex + k];
-		}
 	}
+	return dblArray;
 }
 
 

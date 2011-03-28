@@ -64,6 +64,7 @@ public:
 	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector(), NULL); }
 	
 	bool hasHit() { return obj != NULL; }
+	void makeObj(Object *object) { if (hasHit()) obj = object; }
 
 	static const Hit NO_HIT();
 };

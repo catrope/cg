@@ -27,7 +27,7 @@ public:
 		p4 = newp4;
 	}
 	
-	virtual Hit intersect(const Ray &ray);
+	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter();
 
 	Point p1, p2, p3, p4;

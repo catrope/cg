@@ -31,7 +31,7 @@ endif
 EXECUTABLE = ray
 
 OBJS = main.o raytracer.o sphere.o light.o material.o \
-	image.o triple.o lodepng.o scene.o triangle.o quad.o object.o matrix.o glm.o
+	image.o triple.o lodepng.o scene.o triangle.o quad.o object.o matrix.o glm.o model.o
 
 YAMLOBJS = $(subst .cpp,.o,$(wildcard yaml/*.cpp))
 

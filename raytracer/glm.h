@@ -261,6 +261,8 @@ glmList(GLMmodel* model, GLuint mode);
 GLuint
 glmWeld(GLMmodel* model, GLfloat epsilon);
 
+double * glmModelDoubleArray(GLMmodel *model, unsigned int *cnt);
+
 /* glmInitVBO: initialize VBOs
  */
 void
