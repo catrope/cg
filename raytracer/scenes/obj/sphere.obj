@@ -1,6 +1,5 @@
 # Blender3D v245 OBJ File: <memory>
 # www.blender3d.org
-mtllib mysphere.mtl
 o Sphere
 v -0.004895 0.995185 -0.093516
 v 0.099080 0.634393 -0.760453

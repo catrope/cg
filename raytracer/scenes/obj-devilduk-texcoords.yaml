@@ -1,0 +1,33 @@
+RenderMode: texcoords
+
+Camera:
+    eye: [200,200,1000]
+    center: [200,200,230]
+    up: [0,0.4,0]
+    viewSize: [800,500]
+
+Shadows: true
+MaxRecursionDepth: 10
+MinRecursionWeight: 0.05
+SuperSampling:
+  factor: 1
+  minFactor: 4
+  jitter: true
+
+Lights:
+- position: [-200,600,1500]
+  color: [0.4,0.4,0.8]
+- position: [600,600,1500]
+  color: [0.8,0.8,0.4]
+
+Objects:
+- type: model
+  position: [200,200,230]
+  size: 250
+  filename: scenes/obj/devilduk.obj
+  material: # yellow
+    color: [1.0,0.8,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.6
+    n: 30
