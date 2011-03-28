@@ -27,7 +27,7 @@ public:
 	Sphere(Point position, double r, const Vector &rot, double angle) : Object(rot, angle), position(position), r(r) { }
 	Sphere(Point position, double r) : Object(Vector(0, 0, 1), 0.0), position(position), r(r) { }
 
-	virtual Hit intersect(const Ray &ray);
+	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter() { return position; }
 	virtual void getTexCoords(const Point &p, double &x, double &y);
 	virtual Point getPointFromTexCoords(double u, double v);

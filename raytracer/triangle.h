@@ -28,7 +28,7 @@ public:
 		Object(Vector(0, 0, 1), 0.0), p1(pp1), p2(pp2), p3(pp3)
 	{ }
 
-	virtual Hit intersect(const Ray &ray);
+	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter();
 
 	Point p1, p2, p3;

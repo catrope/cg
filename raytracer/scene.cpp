@@ -69,7 +69,7 @@ Hit Scene::intersectRay(const Ray &ray, bool closest, double maxT)
 	Hit min_hit = Hit::NO_HIT();
 	
 	for (unsigned int i = 0; i < objects.size(); ++i) {
-		Hit hit = objects[i]->intersect(ray);
+		Hit hit = objects[i]->intersect(ray, closest, maxT);
 		if (hit.hasHit() && (hit.t < min_hit.t || !min_hit.hasHit()) && hit.t < maxT) {
 			min_hit = hit;
 			if (!closest)
@@ -118,7 +118,7 @@ inline Vector Scene::refractVector(Object *obj, Point *hit, Vector *N, Vector *V
 	// and intersecting that with the object again. If an
 	// intersection is found, that means we're entering the object.
 	Ray Vcont(*hit - 0.01*(*V), -*V);
-	Hit vcHit = obj->intersect(Vcont);
+	Hit vcHit = obj->intersect(Vcont, true, std::numeric_limits<double>::infinity());
 	double n1, n2;
 	
 	if (vcHit.hasHit()) {
@@ -174,7 +174,7 @@ inline bool Scene::shadowed(Object *obj, Light *light, Vector *L)
 	// Construct an object for the incoming light ray and check
 	// whether it intersects any other objects before this one
 	Ray lightRay(light->position, -1*(*L));
-	Hit ourHit = obj->intersect(lightRay);
+	Hit ourHit = obj->intersect(lightRay, true, std::numeric_limits<double>::infinity());
 	return intersectRay(lightRay, false, ourHit.t).hasHit();
 }
 

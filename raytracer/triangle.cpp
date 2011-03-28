@@ -6,7 +6,7 @@
 #include <iostream>
 #include <math.h>
 
-Hit Triangle::intersect(const Ray &ray)
+Hit Triangle::intersect(const Ray &ray, bool closest, double maxT)
 {
 	// algorithm of pages 206-208
 	double a, b, c, d, e, f, g, h, i, j, k, l, M, beta, gamma, t;
