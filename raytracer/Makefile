@@ -12,8 +12,6 @@
 # GNU (faster)
 CPP = g++ -O5 -Wall -fomit-frame-pointer -ffast-math -fopenmp
 
-CC = gcc -g -O5 -Wall -fomit-frame-pointer -ffast-math -fopenmp
-
 UNAME=$(shell uname)
 
 ifeq ($(UNAME),Darwin)
@@ -58,13 +56,11 @@ make.dep:
 
 ### RULES
 
-.SUFFIXES: .c .cpp .o .yaml .png
+.SUFFIXES: .cpp .o .yaml .png
 
 .cpp.o:
 	$(CPP) -c -o $@ $<
-	
-.c.o:
-	$(CC) -c -o $@ $<
+
 
 ### DEPENDENCIES
 
