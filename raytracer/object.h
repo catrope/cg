@@ -20,11 +20,11 @@
 #define OBJECT_H_AXKLE0OF
 
 #include "triple.h"
-#include "light.h"
 #include "image.h"
 #include "matrix.h"
 #include "material.h"
-#include "light.h"
+#include "hit.h"
+#include "ray.h"
 
 class Object {
 public:

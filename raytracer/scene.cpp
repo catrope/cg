@@ -23,12 +23,12 @@
 #include <ctime>
 #include <omp.h>
 
-Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight)
+Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight, bool traceLights)
 {
 	if (recursionDepth > maxRecursionDepth || recursionWeight < minRecursionWeight)
 		return Color(0.0, 0.0, 0.0);
 		
-	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
+	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity(), traceLights);
 	if (!min_hit.hasHit())
 		// No hit? Return background color
 		return Color(0.0, 0.0, 0.0);
@@ -37,6 +37,9 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursion
 	Object *obj = min_hit.obj;
 	Vector N = obj->getBumpedNormal(min_hit.N, hit); //the normal at hit point
 	Vector V = -ray.D; //the view vector
+	
+	// treat lights differently
+	if (obj->material->light) return obj->material->color;
 	
 	switch (mode)
 	{
@@ -63,12 +66,13 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursion
  * @param maxT Ignore intersections with a t value greater than or equal to this
  * @return Hit object
  */
-Hit Scene::intersectRay(const Ray &ray, bool closest, double maxT)
+Hit Scene::intersectRay(const Ray &ray, bool closest, double maxT, bool traceLights)
 {
 	// Find hit object and distance
 	Hit min_hit = Hit::NO_HIT();
 	
 	for (unsigned int i = 0; i < objects.size(); ++i) {
+		if (objects[i]->material->light && !traceLights) break;
 		Hit hit = objects[i]->intersect(ray, closest, maxT);
 		if (hit.hasHit() && (hit.t < min_hit.t || !min_hit.hasHit()) && hit.t < maxT) {
 			min_hit = hit;
@@ -101,7 +105,7 @@ inline void Scene::reflect(Color *color, Object *obj, Point *hit, Vector *N, Vec
 	{
 		Vector Vrefl = reflectVector(N, V);
 		Ray reflected(*hit + 0.01*Vrefl, Vrefl);
-		Color reflection = trace(reflected, recursionDepth + 1, recursionWeight*ks);
+		Color reflection = trace(reflected, recursionDepth + 1, recursionWeight*ks, false);
 		*color += ks * reflection;
 	}
 }
@@ -162,7 +166,7 @@ inline void Scene::refract(Color *color, Object *obj, Point *hit, Vector *N, Vec
 		// Like with reflection, trace a ray along T and guard
 		// against roundoff errors
 		Ray refracted(*hit + 0.01*T, T);
-		Color refraction = trace(refracted, recursionDepth + 1, recursionWeight*obj->material->refract);
+		Color refraction = trace(refracted, recursionDepth + 1, recursionWeight*obj->material->refract, true);
 		
 		// Blend the refracted color in
 		*color = (1 - obj->material->refract)*(*color) + obj->material->refract*refraction;
@@ -175,7 +179,7 @@ inline bool Scene::shadowed(Object *obj, Light *light, Vector *L)
 	// whether it intersects any other objects before this one
 	Ray lightRay(light->position, -1*(*L));
 	Hit ourHit = obj->intersect(lightRay, true, std::numeric_limits<double>::infinity());
-	return intersectRay(lightRay, false, ourHit.t).hasHit();
+	return intersectRay(lightRay, false, ourHit.t, false).hasHit();
 }
 
 inline void Scene::diffusePhong(Color *color, Object *obj, Point *hit, Light *light, Vector *L, Vector *N)
@@ -236,7 +240,7 @@ inline void Scene::ambient(Color *color, Object *obj, Point *hit, Vector *N)
 						+ ((double)y + ambientRandom*((double)rand()/(double)RAND_MAX - 0.5))*yvec
 						+ ((double)z + ambientRandom*((double)rand()/(double)RAND_MAX - 0.5))*zvec;
 					Ray r(p, v);
-					Hit hit = intersectRay(r, false, std::numeric_limits<double>::infinity());
+					Hit hit = intersectRay(r, false, std::numeric_limits<double>::infinity(), false);
 					if (!hit.hasHit()) localAmbient += 1.0;
 				}
 			}
@@ -345,8 +349,8 @@ inline Color Scene::anaglyphRay(Point pixel, Point eye)
 		Point rightEye = eye + camera.eyesOffset;
 		Ray leftRay(leftEye, (pixel-leftEye).normalized());
 		Ray rightRay(rightEye, (pixel-rightEye).normalized());
-		Color leftCol = trace(leftRay, 0, 1);
-		Color rightCol = trace(rightRay, 0, 1);
+		Color leftCol = trace(leftRay, 0, 1, true);
+		Color rightCol = trace(rightRay, 0, 1, true);
 		if (camera.grey)
 		{
 			leftCol.set(leftCol.r + leftCol.g + leftCol.b, 3);
@@ -359,7 +363,7 @@ inline Color Scene::anaglyphRay(Point pixel, Point eye)
 	else
 	{
 		Ray ray(eye, (pixel-eye).normalized());
-		Color finalCol = trace(ray, 0, 1);
+		Color finalCol = trace(ray, 0, 1, true);
 		return finalCol;
 	}
 }
@@ -501,7 +505,7 @@ void Scene::tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth
 	if (recursionDepth > maxRecursionDepth || recursionWeight < minRecursionWeight)
 		return;
 		
-	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity());
+	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity(), true);
 	if (!min_hit.hasHit() || (onlyObject && min_hit.obj != onlyObject))
 		return;
 
@@ -553,10 +557,11 @@ void Scene::renderPhotonsForLightAndObject(Light *light, Object *obj)
 		for (int x = 0; x < photonFactor; x++)
 		{
 			Point pixel = pos + yvec*(double)y + xvec*(double)x;
-			Ray r(light->position, (pixel - light->position).normalized());
+			Vector dir = pixel - light->position;
+			Ray r(light->position, dir.normalized());
 			
 			// intensity is already corrected for number of samples
-			tracePhoton(photonIntensity*light->color, r, 0, 1.0, obj);
+			tracePhoton(photonIntensity*100000.0/dir.length_2()*light->color, r, 0, 1.0, obj);
 		}
 	}
 }
@@ -659,6 +664,7 @@ void Scene::addObject(Object *o)
 void Scene::addLight(Light *l)
 {
 	lights.push_back(l);
+	objects.push_back(l);
 }
 
 void Scene::setEye(Triple e)

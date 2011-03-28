@@ -1,6 +1,6 @@
 //
 //  Framework for a raytracer
-//  File: light.h
+//  File: hit.h
 //
 //  Created for the Computer Science course "Introduction Computer Graphics"
 //  taught at the University of Groningen by Tobias Isenberg.
@@ -16,31 +16,36 @@
 //  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html 
 //
 
-#ifndef LIGHT_H_PG2BAJRA
-#define LIGHT_H_PG2BAJRA
+#ifndef HIT_H
+#define HIT_H
 
 #include <iostream>
 #include <limits>
 #include "triple.h"
-#include "object.h"
-#include "ray.h"
-#include "sphere.h"
-#include "hit.h"
 
-class Light : public Object
+class Object;
+
+class Hit
 {
 public:
-	Light(Point pos, Color c, double r);
+	double t;
+	Vector N;
+	Object *obj;
 
-	Point position;
-	Color color;
+	Hit(const double t, const Vector &normal, Object *object)
+		: t(t), N(normal), obj(object)
+	{ }
 	
-	virtual ~Light() { delete boundingSphere; }
+	Hit() { Hit(std::numeric_limits<double>::infinity(),Vector(), NULL); }
 	
-	Sphere * boundingSphere;
+	bool hasHit() { return obj != NULL; }
+	void makeObj(Object *object) { if (hasHit()) obj = object; }
 
-	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
-	virtual Point getRotationCenter() { return position; }
+	static const Hit NO_HIT()
+	{
+		static Hit no_hit(std::numeric_limits<double>::infinity(), Vector(0, 0, 0), NULL);
+		return no_hit;
+	}
 };
 
-#endif /* end of include guard: LIGHT_H_PG2BAJRA */
+#endif /* end of include guard: HIT_H */

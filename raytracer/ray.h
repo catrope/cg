@@ -1,6 +1,6 @@
 //
 //  Framework for a raytracer
-//  File: light.cpp
+//  File: ray.h
 //
 //  Created for the Computer Science course "Introduction Computer Graphics"
 //  taught at the University of Groningen by Tobias Isenberg.
@@ -15,20 +15,25 @@
 //  Bert Freudenberg that can be found at
 //  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html 
 //
-#include "light.h"
 
-Light::Light(Point pos, Color c, double r) : Object(Vector(0, 0, 1), 0.0), position(pos), color(c)
-{
-	boundingSphere = new Sphere(pos, r);
-	material = new Material();
-	material->color = c;
-	material->light = true;
-}
+#ifndef RAY_H
+#define RAY_H
 
-Hit Light::intersect(const Ray &ray, bool closest, double maxT)
+#include "triple.h"
+
+class Ray
 {
-	return Hit::NO_HIT();
-	Hit hit = boundingSphere->intersect(ray, closest, maxT);
-	hit.makeObj(this);
-	return hit;
-}
+public:
+	Point O;
+	Vector D;
+
+	Ray(const Point &from, const Vector &dir)
+		: O(from)
+	{ D = dir.normalized(); }
+
+	Point at(double t) const
+	{ return O + t*D; }
+
+};
+
+#endif /* end of include guard: RAY_H */

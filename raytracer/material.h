@@ -31,8 +31,9 @@ public:
 	double n;		// exponent for specular highlight size
 	double refract;		// weighting factor for refraction (0..1)
 	double eta;		// refraction index
+	bool light; // is this a light
 
-	Material() { }
+	Material() { ka=0.0; kd=0.0; ks=0.0; n=0.0; refract=0.0; eta=0.0; light=false; }
 };
 
 #endif /* end of include guard: MATERIAL_H_TWMNT2EJ */

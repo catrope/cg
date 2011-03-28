@@ -1,6 +1,6 @@
 RenderMode: "phong"
 
-Shadows: false
+Shadows: true
 MaxRecursionDepth: 10
 MinRecursionWeight: 0.05
 
@@ -15,20 +15,23 @@ Camera:
     viewSize: [800,500]
 
 Lights:
-- position: [200,200,100]
+- position: [100,100,100]
   color: [1.0,0.3,0.3]
-- position: [-200,200,100]
+  radius: 20
+- position: [-100,100,100]
   color: [0.3,0.3,1.0]
-- position: [0,200,-250]
+  radius: 20
+- position: [40,240,-150]
   color: [0.3,1.0,0.3]
+  radius: 20
 
 Photon:
-  factor: 1000
-  intensity: 100000
+  factor: 3000
+  intensity: 70000
   blur: 20
 
 SuperSampling:
-  factor: 1
+  factor: 16
   minFactor: 4
   jitter: true
 

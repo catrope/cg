@@ -67,7 +67,7 @@ private:
 	void superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, unsigned int * subpixel, Point origPixel, Vector xvec, Vector yvec, unsigned int factor);
 	inline Color superSampleRay(Point origPixel, Vector xvec, Vector yvec);
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
-	Hit intersectRay(const Ray &ray, bool closest, double maxT);
+	Hit intersectRay(const Ray &ray, bool closest, double maxT, bool traceLights);
 	void computeGlobalAmbient();
 	
 	void tracePhoton(Color color, const Ray &ray, unsigned int recursionDepth, double recursionWeight, Object *onlyObject);
@@ -81,7 +81,7 @@ public:
 		phong, zbuffer, normal, texcoords, gooch, ssdepth
 	} mode;
 	
-	Color trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight);
+	Color trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight, bool traceLights);
 	void render(Image &img);
 	void addObject(Object *o);
 	void addLight(Light *l);
