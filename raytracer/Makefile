@@ -29,7 +29,7 @@ endif
 EXECUTABLE = ray
 
 OBJS = main.o raytracer.o sphere.o light.o material.o \
-	image.o triple.o lodepng.o scene.o triangle.o quad.o object.o matrix.o glm.o model.o
+	image.o triple.o lodepng.o scene.o triangle.o quad.o object.o matrix.o glm.o model.o csg.o
 
 YAMLOBJS = $(subst .cpp,.o,$(wildcard yaml/*.cpp))
 
