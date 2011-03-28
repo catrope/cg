@@ -16,15 +16,19 @@ Camera:
 
 Lights:
 - position: [200,200,100]
-  color: [1.0,1.0,1.0]
+  color: [1.0,0.3,0.3]
+- position: [-200,200,100]
+  color: [0.3,0.3,1.0]
+- position: [0,200,-250]
+  color: [0.3,1.0,0.3]
 
 Photon:
-  factor: 3000
-  intensity: 300000
+  factor: 1000
+  intensity: 100000
   blur: 20
 
 SuperSampling:
-  factor: 16
+  factor: 1
   minFactor: 4
   jitter: true
 
@@ -32,22 +36,22 @@ Objects:
 - type: sphere
   position: [-30,0,-10]
   radius: 20
-  material: # yellow glass
-    color: [1.0,0.8,0.0]
+  material: # glass
+    color: [1.0,1.0,1.0]
     ka: 0.3
-    kd: 0.7
+    kd: 0.8
     ks: 0.5
-    n: 1
-    refract: 0.6
+    n: 32
+    refract: 0.9
     eta: 1.5
 - type: triangle
   p1: [-100,-30,100]
-  p2: [-100,-30,-200]
-  p3: [100,-30,0]
+  p2: [-80,-30,-200]
+  p3: [100,-30,50]
   photonmapSize: 1500
   material: # orange
-    color: [1.0,0.5,0.0]
+    color: [1.0,1.0,1.0]
     ka: 0.4
     kd: 0.8
-    ks: 0.5
+    ks: 0.8
     n: 32
