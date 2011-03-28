@@ -445,7 +445,7 @@ glmFirstPass(GLMmodel* model, FILE* file)
 	char buf[128];
 
 	/* make a default group */
-	group = glmAddGroup(model, "default");
+	group = glmAddGroup(model, (char *)"default");
 
 	numvertices = numnormals = numtexcoords = numtriangles = 0;
 	while(fscanf(file, "%s", buf) != EOF) {
@@ -1759,7 +1759,7 @@ glmInitVBO(GLMmodel *model)
 	GLfloat *data;
 	GLuint *indices;
 	GLfloat *unpackedNormals;
-	int i, j, k;
+	unsigned int i, j, k;
 	
 	/* Preprocessing: unpack the normals array so the indices match up */
 	unpackedNormals = (GLfloat *)malloc(model->numtriangles*3*3*sizeof(GLfloat));
@@ -1772,7 +1772,7 @@ glmInitVBO(GLMmodel *model)
 	glGenBuffersARB(1, &model->vbo);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, model->vbo);
 	glBufferDataARB(GL_ARRAY_BUFFER_ARB, model->numvertices*3*2*sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-	data = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+	data = (GLfloat*)glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 	
 	/* Fill vertices and normals, interleaved */
 	for(i = 0; i < model->numvertices; i++)
@@ -1788,7 +1788,7 @@ glmInitVBO(GLMmodel *model)
 	glGenBuffersARB(1, &model->ibo);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, model->ibo);
 	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, model->numtriangles*3*sizeof(GLuint), NULL, GL_STATIC_DRAW);
-	indices = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+	indices = (GLuint*)glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 	
 	/* Fill indices */
 	for(i = 0; i < model->numtriangles; i++)
@@ -1812,7 +1812,7 @@ glmInitVBO(GLMmodel *model)
  */
 double * glmModelDoubleArray(GLMmodel *model, unsigned int *cnt)
 {
-	int i, j, k;
+	unsigned int i, j, k;
 	
 	*cnt = (unsigned int)model->numtriangles;
 	double *dblArray = (double *)malloc(model->numtriangles * 9 * sizeof(double));
