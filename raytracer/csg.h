@@ -28,15 +28,14 @@ public:
 		opUnion, opIntersect, opDifference
 	};
 	
-	Csg(Object *o1, Object *o2, Csg::Operation op) : Object(Vector(0, 0, 1), 0.0), 
-		o1(o1), o2(o2), op(op)  { }
+	Csg(Object *o1, Object *o2, Point pos, Csg::Operation op) : Object(Vector(0, 0, 1), 0.0), 
+		o1(o1), o2(o2), position(pos), op(op)  { }
 
 	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
-	virtual Point getRotationCenter() { return o1->getRotationCenter(); }
-	//virtual void getTexCoords(const Point &p, double &x, double &y);
-	//virtual Point getPointFromTexCoords(double u, double v);
+	virtual Point getRotationCenter() { return position; }
 	
 	Object *o1, *o2;
+	Point position;
 	Operation op;
 	
 private:

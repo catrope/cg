@@ -111,10 +111,12 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 	} else if (objectType == "csg") {
 		Object *first, *second;
 		Csg::Operation op;
+		Point pos;
+		node["position"] >> pos;
 		first = parseObject(node["first"]);
 		second = parseObject(node["second"]);
 		op = parseCsgOperation(node.FindValue("operation"));
-		Csg *csg = new Csg(first, second, op);
+		Csg *csg = new Csg(first, second, pos, op);
 		returnObject = csg;
 	}
 	

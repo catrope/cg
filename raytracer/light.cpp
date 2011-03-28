@@ -19,6 +19,6 @@
 
 const Hit Hit::NO_HIT()
 {
-	static Hit no_hit(0, Vector(0, 0, 0), NULL);
+	static Hit no_hit(std::numeric_limits<double>::infinity(), Vector(0, 0, 0), NULL);
 	return no_hit;
 }

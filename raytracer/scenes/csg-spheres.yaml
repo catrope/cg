@@ -28,7 +28,6 @@ SuperSampling:
   minFactor: 4
   jitter: true
 
-
 Lights:
 - position: [-200,600,1500]
   color: [0.4,0.4,0.8]
@@ -38,13 +37,48 @@ Lights:
 Objects:
 - type: csg
   operation: union
+  position: [130,200,180]
   first:
     type: sphere
-    position: [170,200,230]
+    position: [-30,-10,-20]
     radius: 50
   second:
     type: sphere
-    position: [230,200,230]
+    position: [20,30,20]
+    radius: 50
+  material: # blue
+    color: [0.0,0.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+- type: csg
+  operation: difference
+  position: [280,200,180]
+  first:
+    type: sphere
+    position: [-30,-10,-20]
+    radius: 50
+  second:
+    type: sphere
+    position: [20,30,20]
+    radius: 50
+  material: # blue
+    color: [0.0,0.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+- type: csg
+  operation: intersect
+  position: [330,200,180]
+  first:
+    type: sphere
+    position: [-30,-10,-20]
+    radius: 50
+  second:
+    type: sphere
+    position: [20,30,20]
     radius: 50
   material: # blue
     color: [0.0,0.0,1.0]
