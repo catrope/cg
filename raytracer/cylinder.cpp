@@ -83,7 +83,7 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 	Vector N = P - Vector(P.x, 0, 0);
 	
 	// Transform the normal back to the world system
-	N = invRotToX*N + A;
+	N = (invRotToX*N + A).normalized();
 	
 	return Hit(t,N, this);
 }
