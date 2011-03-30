@@ -72,6 +72,11 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 	 * intersection point with the x=0 plane (for A) or x=L plane (for B),
 	 * which will automatically be inside the circle because it's between
 	 * the entry and exit points.
+	 * 
+	 * TODO: Implement this in a simpler way by unconditionally computing
+	 * the intersections. This is not hard as long as it's done inside
+	 * this function, so we can intersect with x=0 and x=L instead of
+	 * some arbitrary plane.
 	 */
 	if (atT1.x < 0 && atT2.x >= 0) {
 		// Set t1 to where the ray intersects the x=0 plane
@@ -99,7 +104,6 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 		atT1 = O + t1*D;
 		t1Valid = t1 >= 0;
 	}
-	
 	
 	// If both t1 and t2 are invalid, there is no intersection
 	if (!t1Valid && !t2Valid)
