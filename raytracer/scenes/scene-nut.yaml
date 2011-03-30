@@ -1,0 +1,53 @@
+RenderMode: phong
+Shadows: true
+Camera:
+    eye: [0, 1000, 0]
+    center: [0, 0, 500]
+    up: [0, 1, 3]
+    viewSize: [400, 400]
+
+Lights:
+- position: [1000, 1000, 1000]
+  color: [1, 1, 1]
+
+Objects:
+- type: quad #surface
+  p1: [-500, 0, 0]
+  p2: [-500, 0, 1000]
+  p3: [500, 0, 1000]
+  p4: [500, 0, 0]
+  material: # grey
+    color: [0.4, 0.4, 0.4]
+    ka: 0.2
+    kd: 0.8
+    ks: 0
+    n: 1
+#- type: csg
+#  operation: difference
+#  position: [0, 0, 0]
+#  material: # shiny grey
+#      color: [1.0, 0.0, 0.0] #temp red
+#      ka: 0.2
+#      kd: 0.7
+#      ks: 0.8
+#      n: 16
+#  first:
+#    type: cylinder # main cylinder
+#    start: [0, 0, 500]
+#    end: [0, -200, 500]
+#    radius: 200
+#  second:
+#    type: cylinder # hole in the middle
+#    start: [0, 0, 500]
+#    end: [0, -200, 500]
+#    radius: 80
+- type: cylinder
+  start: [0, 0, 500]
+  end: [0, -400, 500]
+  radius: 200
+  material: #red
+    color: [1,0,0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.8
+    n: 16
