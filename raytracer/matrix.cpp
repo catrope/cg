@@ -49,3 +49,48 @@ const Matrix Matrix::rotation(const Vector &v, double angle)
 		Vector(u.z*u.x*(1-cosA) - u.y*sinA, u.z*u.y*(1-cosA) + u.x*sinA, cosA + u.z*u.z*(1-cosA))
 	);
 }
+
+const Matrix Matrix::rotationOntoXAxis(const Vector &v, Matrix *inverse)
+{
+	Vector xAxis(1, 0, 0), yAxis(0, 1, 0);
+	Vector u = v.normalized();
+	
+	// Project u onto the yz plane
+	Vector uProj(0, u.y, u.z);
+	uProj.normalize();
+	// Get the sin and cos of the angle between uProj and the y axis (A)
+	double cosA = uProj.dot(yAxis);
+	double sinA = uProj.cross(yAxis).length();
+	// Build a matrix that rotates around the x axis with angle A, thereby
+	// rotating u into the xy plane. We need clockwise rotation if u.y is
+	// positive, counterclockwise rotation otherwise.
+	if (u.y > 0) {
+		// Clockwise rotation: counterclockwise rotation with angle -A
+		// cos(-A) = cos(A) but sin(-A) = -sin(A)
+		sinA = -sinA;
+	}
+	Matrix rotA(Vector(1, 0, 0), Vector(0, cosA, -sinA), Vector(0, sinA, cosA));
+	// Rotate u
+	u = (rotA*u).normalized();
+	
+	// Get the sin and cos of the angle between u and the x axis (B)
+	double cosB = u.dot(xAxis);
+	double sinB = u.cross(xAxis).length();
+	// Build a matrix that rotates around the z axis with angle B, thereby
+	// rotating u onto the x axis. We need clockwise rotation if u.x is
+	// positive, counterclockwise rotation otherwise.
+	if (u.x > 0) {
+		// Angle negation trick, see above
+		sinB = -sinB;
+	}
+	Matrix rotB(Vector(cosB, -sinB, 0), Vector(sinB, cosB, 0), Vector(0, 0, 1));
+	
+	// Compute inverse if requested
+	if (inverse) {
+		Matrix invRotA(Vector(1, 0, 0), Vector(0, cosA, sinA), Vector(0, -sinA, cosA));
+		Matrix invRotB(Vector(cosB, sinB, 0), Vector(-sinB, cosB, 0), Vector(0, 0, 1));
+		*inverse = invRotA*invRotB;
+	}
+	
+	return rotB*rotA;
+}
