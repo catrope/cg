@@ -49,7 +49,7 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 	// Quadratic formula
 	double a = D.y*D.y + D.z*D.z;
 	double b = 2*O.y*D.y + 2*O.z*D.z;
-	double c = O.y*O.y + O.z*O.z - r*2;
+	double c = O.y*O.y + O.z*O.z - r*r;
 	double d = b*b - 4*a*c;
 	if (d < 0)
 		// No solutions
