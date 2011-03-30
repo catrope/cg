@@ -21,6 +21,7 @@
 #include "triangle.h"
 #include "model.h"
 #include "quad.h"
+#include "cylinder.h"
 #include "material.h"
 #include "light.h"
 #include "image.h"
@@ -107,6 +108,14 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["size"] >> size;
 		Model *model = new Model(pos, filename, size, axis, angle);
 		returnObject = model;
+	} else if (objectType == "cylinder") {
+		Point start, end;
+		node["start"] >> start;
+		node["end"] >> end;
+		double r;
+		node["radius"] >> r;
+		Cylinder *cylinder = new Cylinder(start, end, r, axis, angle);
+		returnObject = cylinder;
 	}
 	
 	if (returnObject) {
