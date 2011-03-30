@@ -14,6 +14,7 @@
 /* Apparently Mac OS X puts the GLUT headers somewhere different. 
 	 For windows we use freeglut. 
  */
+
 #if defined(__APPLE__)&& defined(__MACH__)
 #include <GLUT/glut.h>
 #elif defined(_WIN32)
@@ -222,34 +223,6 @@ glmReadOBJ(char* filename);
 GLvoid
 glmWriteOBJ(GLMmodel* model, char* filename, GLuint mode);
 
-/* glmDraw: Renders the model to the current OpenGL context using the
- * mode specified.
- *
- * model - initialized GLMmodel structure
- * mode  - a bitwise OR of values describing what is to be rendered.
- *	GLM_NONE - render with only vertices
- *	GLM_FLAT - render with facet normals
- *	GLM_SMOOTH - render with vertex normals
- *	GLM_TEXTURE - render with texture coords
- *	GLM_FLAT and GLM_SMOOTH should not both be specified.
- */
-GLvoid
-glmDraw(GLMmodel* model, GLuint mode);
-
-/* glmList: Generates and returns a display list for the model using
- * the mode specified.
- *
- * model - initialized GLMmodel structure
- * mode - a bitwise OR of values describing what is to be rendered.
- *	GLM_NONE - render with only vertices
- *	GLM_FLAT - render with facet normals
- *	GLM_SMOOTH - render with vertex normals
- *	GLM_TEXTURE - render with texture coords
- *	GLM_FLAT and GLM_SMOOTH should not both be specified.
- */
-GLuint
-glmList(GLMmodel* model, GLuint mode);
-
 /* glmWeld: eliminate (weld) vectors that are within an epsilon of
  * each other.
  *
@@ -263,16 +236,6 @@ glmWeld(GLMmodel* model, GLfloat epsilon);
 
 double * glmModelDoubleArray(GLMmodel *model, unsigned int *cnt);
 
-/* glmInitVBO: initialize VBOs
- */
-void
-glmInitVBO(GLMmodel *model);
-
-void
-glmDestroyVBO(GLMmodel *model);
-
-void
-glmDrawVBO(GLMmodel *model);
 
 
 #ifdef __cplusplus
