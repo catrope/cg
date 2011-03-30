@@ -59,8 +59,8 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 	// Check validity of t1 and t2
 	double L = (B - A).length();
 	Point atT1 = O + t1*D, atT2 = O + t2*D;
-	bool t1Valid = (atT1.x >= 0 && atT1.x <= L);
-	bool t2Valid = (atT2.x >= 0 && atT2.x <= L);
+	bool t1Valid = t1 >= 0 && (atT1.x >= 0 && atT1.x <= L);
+	bool t2Valid = t2 >= 0 && (atT2.x >= 0 && atT2.x <= L);
 	double t;
 	
 	/* Our cylinders are massive, not hollow.
@@ -78,26 +78,26 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 		// This will happen within the cylinder because atT2.x >= 0
 		t1 += -atT1.x / D.x;
 		atT1 = O + t1*D;
-		t1Valid = true;
+		t1Valid = t1 >= 0;
 	}
 	if (atT2.x < 0 && atT1.x >= 0) {
 		// Same as above, with t1 and t2 reversed
 		t2 += -atT2.x / D.x;
 		atT2 = O + t2*D;
-		t2Valid = true;
+		t2Valid = t2 >= 0;
 	}
 	if (atT1.x <= L && atT2.x > L) {
 		// Set t2 to where the ray intersects the x=L plane
 		// This will happen within the cylinder because atT1.x <= L
 		t2 -= (atT2.x - L) / D.x;
 		atT2 = O + t2*D;
-		t2Valid = true;
+		t2Valid = t2 >= 0;
 	}
 	if (atT2.x <= L && atT1.x > L) {
 		// Same as above, with t1 and t2 reversed
 		t1 -= (atT1.x - L) / D.x;
 		atT1 = O + t1*D;
-		t1Valid = true;
+		t1Valid = t1 >= 0;
 	}
 	
 	
@@ -108,8 +108,19 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 	t = t1Valid && t1 <= t2 ? t1 : t2;
 	
 	// Compute the normal
+	Vector N;
 	Point P = O + t*D;
-	Vector N = P - Vector(P.x, 0, 0);
+	Point Pproj(P.x, 0, 0);
+	if (fabs((P - Pproj).length_2() - r*r) < 0.01)
+		// P is on the cylinder
+		N = P - Pproj;
+	// else P is on a bounding circle. Figure out which one
+	else if (Pproj.x - L/2 < 0)
+		// P is on the circle around A
+		N = B - A;
+	else
+		// P is on the circle around B
+		N = A - B;
 	
 	// Transform the normal back to the world system
 	N = (invRotToX*N + A).normalized();
