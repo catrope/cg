@@ -123,7 +123,7 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 		N = A - B;
 	
 	// Transform the normal back to the world system
-	N = (invRotToX*N + A).normalized();
+	N = (invRotToX*N).normalized();
 	
 	// If the intersection was on the inside of the cylinder,
 	// flip the normal
