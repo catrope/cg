@@ -20,8 +20,6 @@
 #include <iostream>
 #include <math.h>
 
-/************************** Sphere **********************************/
-
 Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 {
 	/*
@@ -64,19 +62,50 @@ Hit Cylinder::intersect(const Ray &ray, bool closest, double maxT)
 	bool t1Valid = (atT1.x >= 0 && atT1.x <= L);
 	bool t2Valid = (atT2.x >= 0 && atT2.x <= L);
 	double t;
-	if(t1Valid) {
-		if(t2Valid)
-			// Use the lowest value
-			t = (t1 <= t2 ? t1 : t2);
-		else
-			t = t1;
-	} else {
-		if(t2Valid)
-			t = t2;
-		else
-			// Both are invalid, no intersection
-			return Hit::NO_HIT();
+	
+	/* Our cylinders are massive, not hollow.
+	 * If the ray intersects the circle around A or B, we care
+	 * about that too.
+	 * These intersections are detected by checking if a ray enters
+	 * the cylinder on one side of A and exits on the other side.
+	 * If so, we adjust the relevant tN and atTN values to match the
+	 * intersection point with the x=0 plane (for A) or x=L plane (for B),
+	 * which will automatically be inside the circle because it's between
+	 * the entry and exit points.
+	 */
+	if (atT1.x < 0 && atT2.x >= 0) {
+		// Set t1 to where the ray intersects the x=0 plane
+		// This will happen within the cylinder because atT2.x >= 0
+		t1 += -atT1.x / D.x;
+		atT1 = O + t1*D;
+		t1Valid = true;
 	}
+	if (atT2.x < 0 && atT1.x >= 0) {
+		// Same as above, with t1 and t2 reversed
+		t2 += -atT2.x / D.x;
+		atT2 = O + t2*D;
+		t2Valid = true;
+	}
+	if (atT1.x <= L && atT2.x > L) {
+		// Set t2 to where the ray intersects the x=L plane
+		// This will happen within the cylinder because atT1.x <= L
+		t2 -= (atT2.x - L) / D.x;
+		atT2 = O + t2*D;
+		t2Valid = true;
+	}
+	if (atT2.x <= L && atT1.x > L) {
+		// Same as above, with t1 and t2 reversed
+		t1 -= (atT1.x - L) / D.x;
+		atT1 = O + t1*D;
+		t1Valid = true;
+	}
+	
+	
+	// If both t1 and t2 are invalid, there is no intersection
+	if (!t1Valid && !t2Valid)
+		return Hit::NO_HIT();
+	// Choose the lowest valid t
+	t = t1Valid && t1 <= t2 ? t1 : t2;
 	
 	// Compute the normal
 	Point P = O + t*D;

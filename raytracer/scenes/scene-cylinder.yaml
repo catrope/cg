@@ -69,7 +69,7 @@ Objects:
 - type: cylinder
   start: [210,120,300]
   end: [230,90,100]
-  radius: 100
+  radius: 10
   material: # red
     color: [1.0,0.0,0.0]
     ka: 0.2

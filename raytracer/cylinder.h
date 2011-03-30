@@ -26,6 +26,7 @@ class Cylinder : public Object
 public:
 	Cylinder(Point axisStart, Point axisEnd, double radius, Vector &rot, double angle) :
 			Object(rot, angle), A(axisStart), B(axisEnd), r(radius) {
+		// FIXME: Doesn't take rotations into account
 		// Precompute rotations needed for intersect()
 		rotToX = Matrix::rotationOntoXAxis(B - A, &invRotToX);
 	}
