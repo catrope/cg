@@ -23,6 +23,7 @@
 #include "quad.h"
 #include "cylinder.h"
 #include "material.h"
+#include "csg.h"
 #include "light.h"
 #include "image.h"
 #include "yaml/yaml.h"
@@ -116,12 +117,28 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["radius"] >> r;
 		Cylinder *cylinder = new Cylinder(start, end, r, axis, angle);
 		returnObject = cylinder;
+	} else if (objectType == "csg") {
+		Object *first, *second;
+		Csg::Operation op;
+		Point pos;
+		node["position"] >> pos;
+		first = parseObject(node["first"]);
+		second = parseObject(node["second"]);
+		op = parseCsgOperation(node.FindValue("operation"));
+		Csg *csg = new Csg(first, second, pos, op);
+		returnObject = csg;
 	}
 	
-	if (returnObject) {
+	
+	if (returnObject) 
+	{
 		// read the material and attach to object
-		returnObject->material = parseMaterial(node["material"]);
-		
+		const YAML::Node *materialNode = node.FindValue("material");
+		if (materialNode)
+			returnObject->material = parseMaterial(node["material"]);
+		else
+			returnObject->material = new Material();
+
 		// Read the texture, if present
 		const YAML::Node *textureNode = node.FindValue("texture");
 		if (textureNode)
@@ -159,6 +176,16 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 	}
 
 	return returnObject;
+}
+
+Csg::Operation Raytracer::parseCsgOperation(const YAML::Node* node)
+{
+	std::string op;
+	if(node == NULL) return Csg::opUnion;
+	*node >> op;
+	if(op == "intersect") return Csg::opIntersect;
+	else if(op == "difference") return Csg::opDifference;
+	else return Csg::opUnion;
 }
 
 Light* Raytracer::parseLight(const YAML::Node& node)
