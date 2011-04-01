@@ -1,0 +1,33 @@
+RenderMode: normal
+
+Shadows: true
+Camera:
+    eye: [10, 10, 50]
+    center: [0, 0, 0]
+    up: [0, 0.03, 0]
+    viewSize: [800, 800]
+
+Lights:
+- position: [200, 200, 500]
+  color: [1, 1, 1]
+
+Objects:
+- type: cylinder
+  start: [0, 0, -3]
+  end:   [0, 0, 3]
+  radius: 1.8
+  material: #red
+    color: [1,0,0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.8
+    n: 16
+- type: sphere
+  position: [5, 0, 0]
+  radius: 2
+  material: #red
+    color: [1,0,0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.8
+    n: 16
