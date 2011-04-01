@@ -25,10 +25,11 @@ std::map<std::string, Instance*> Instance::map;
 
 Instance::Instance(Point pos, const std::string &name) : Object(Vector(0, 0, 1), 0.0), position(pos)
 {
-	 material = new Material();
-	 
 	 if (Instance::map.count(name))
+	 {
 	 	objects = Instance::map[name]->objects;
+	 	material = Instance::map[name]->material;
+	 }
 	 else
 	 {
 	 	objects = new std::vector<Object*>();
@@ -51,6 +52,8 @@ Hit Instance::intersect(const Ray &ray, bool closest, double maxT)
 				break;
 		}
 	}
+	
+	if (material) min_hit.makeObj(this);
 	
 	return min_hit;
 }
