@@ -1,6 +1,6 @@
 //
 //  Framework for a raytracer
-//  File: csg.h
+//  File: instance.h
 //
 //  Created for the Computer Science course "Introduction Computer Graphics"
 //  taught at the University of Groningen by Tobias Isenberg.
@@ -16,32 +16,27 @@
 //  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html 
 //
 
-#ifndef CSG_H
-#define CSG_H
+#ifndef INSTANCE_H
+#define INSTANCE_H
 
 #include "object.h"
+#include "triple.h"
+#include <vector>
+#include <string>
+#include <map>
 
-class Csg : public Object
+class Instance : public Object
 {
 public:
-	enum Operation {
-		opUnion, opIntersect, opDifference
-	};
+	Instance(Point pos, const std::string &name);
 	
-	Csg(Object *o1, Object *o2, Point pos, Csg::Operation op) : Object(Vector(0, 0, 1), 0.0), 
-		o1(o1), o2(o2), position(pos), op(op)  { }
-
 	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter() { return position; }
+	void addObject(Object *o) { objects->push_back(o); }
 	
-	Object *o1, *o2;
 	Point position;
-	Operation op;
-	
-private:
-	Hit closestHit(const Ray &ray);
-	Hit isect(Ray ray);
-	Hit diff(Ray ray);
+	std::vector<Object*> *objects;
+	static std::map<std::string, Instance*> map;
 };
 
-#endif /* end of include guard: CSG_H */
+#endif /* end of include guard: INSTANCE_H */

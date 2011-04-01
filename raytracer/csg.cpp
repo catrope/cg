@@ -1,6 +1,6 @@
 //
 //  Framework for a raytracer
-//  File: sphere.cpp
+//  File: csg.cpp
 //
 //  Created for the Computer Science course "Introduction Computer Graphics"
 //  taught at the University of Groningen by Tobias Isenberg.

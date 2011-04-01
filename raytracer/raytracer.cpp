@@ -24,6 +24,7 @@
 #include "cylinder.h"
 #include "material.h"
 #include "csg.h"
+#include "instance.h"
 #include "light.h"
 #include "image.h"
 #include "yaml/yaml.h"
@@ -127,6 +128,25 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		op = parseCsgOperation(node.FindValue("operation"));
 		Csg *csg = new Csg(first, second, pos, op);
 		returnObject = csg;
+	} else if (objectType == "instance") {
+		Point pos;
+		std::string name;
+		node["position"] >> pos;
+		node["name"] >> name;
+		Instance *inst = new Instance(pos, name);
+		
+		// Read and parse objects
+		const YAML::Node *objects = node.FindValue("objects");
+		if (objects) {
+			for(YAML::Iterator it=objects->begin();it!=objects->end();++it) {
+				Object *obj = parseObject(*it);
+				// Only add object if it is recognized
+				if (obj)
+					inst->addObject(obj);
+			}
+		}
+		
+		returnObject = inst;
 	}
 	
 	
