@@ -29,6 +29,7 @@ class Instance : public Object
 {
 public:
 	Instance(Point pos, const std::string &name);
+	~Instance() { delete objects; }
 	
 	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter() { return position; }
