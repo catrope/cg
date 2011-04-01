@@ -44,6 +44,8 @@ int main()
 	test(Vector(0, -3, 4));
 	test(Vector(0, 3, -4));
 	test(Vector(0, -3, -4));
+	test(Vector(5, 0, 0));
+	test(Vector(-5, 0, 0));
 	return 0;
 }
 
