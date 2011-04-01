@@ -6,6 +6,7 @@
 #define QUAD_H
 
 #include "object.h"
+#include "triangle.h"
 
 class Quad : public Object
 {
@@ -25,12 +26,22 @@ public:
 		p2 = newp2;
 		p3 = newp3;
 		p4 = newp4;
+		
+		t1 = new Triangle(p1, p2, p3);
+		t2 = new Triangle(p1, p3, p4);
+	}
+	
+	~Quad()
+	{
+		delete t1;
+		delete t2;
 	}
 	
 	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter();
-
+	
 	Point p1, p2, p3, p4;
+	Triangle *t1, *t2;
 };
 
 #endif /* end of include guard: QUAD_H */

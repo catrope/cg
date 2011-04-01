@@ -9,17 +9,14 @@
 
 Hit Quad::intersect(const Ray &ray, bool closest, double maxT)
 {
-	Hit h1 = Triangle(p1, p2, p3).intersect(ray, closest, maxT);
+	// simply pick the closest hit
+	static const double inf = std::numeric_limits<double>::infinity();
+	Hit h1 = t1->intersect(ray, true, inf);
+	Hit h2 = t2->intersect(ray, true, inf);
+	Hit h = ( (h1.t < h2.t) ? h1 : h2);
 	
-	if (h1.hasHit() && !closest) return Hit(h1.t, h1.N, this);
-	
-	Hit h2 = Triangle(p1, p3, p4).intersect(ray, closest, maxT);
-	double inf = std::numeric_limits<double>::infinity();
-	
-	if (!(h1.hasHit() || h2.hasHit())) return Hit::NO_HIT();
-	
-	Hit h = ( (h1.t < inf) ? h1 : h2);
-	return Hit(h.t, h.N, this);
+	h.makeObj(this);
+	return h;
 }
 
 Point Quad::getRotationCenter()
