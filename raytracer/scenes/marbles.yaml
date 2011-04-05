@@ -1,4 +1,4 @@
-RenderMode: ssdepth
+RenderMode: passes
 
 Shadows: true
 MaxRecursionDepth: 25
@@ -33,7 +33,6 @@ SuperSampling:
   #factor: 32
   factor: 16
   minFactor: 4
-  threshold: 0.012
   jitter: true
 
 Objects:

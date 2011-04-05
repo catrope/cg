@@ -242,6 +242,7 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	else if(mode == "gooch") return Scene::gooch;
 	else if(mode == "ssdepth") return Scene::ssdepth;
 	else if(mode == "photon") return Scene::photon;
+	else if(mode == "passes") return Scene::passes;
 	else return Scene::phong;
 }
 
@@ -433,21 +434,14 @@ bool Raytracer::readScene(const std::string& inputFilename)
 	return true;
 }
 
-void Raytracer::renderToFile(const std::string& outputFilename)
+void Raytracer::renderToFile(const std::string& filename)
 {
 	if (scene->mode == Scene::photon)
 	{
-		scene->writePhotonMaps(outputFilename);
+		scene->writePhotonMaps(filename);
 	}
 	else
 	{
-		std::string filename = outputFilename + ".png";
-		Camera cam = scene->getCamera();
-		Image img(cam.viewWidth, cam.viewHeight);
-		cout << "Tracing..." << endl;
-		scene->render(img);
-		cout << "Writing image to " << outputFilename << "..." << endl;
-		img.write_png(filename.c_str());
-		cout << "Done." << endl;
+		scene->render(filename);
 	}
 }

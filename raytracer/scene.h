@@ -37,7 +37,7 @@ private:
 	unsigned int maxRecursionDepth;
 	double minRecursionWeight;
 	unsigned int superSamplingFactor, superSamplingTotal, superSamplingMinFactor;
-	double superSamplingThreshold;
+	double superSamplingThreshold, superSamplingThresholdSquared;
 	bool superSamplingJitter;
 	Color globalAmbient;
 	double goochB, goochY, goochAlpha, goochBeta;
@@ -67,8 +67,6 @@ private:
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
 	inline Color exposureRay(Point pixel, Point eye);
-	void superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, unsigned int * subpixel, Point origPixel, Vector xvec, Vector yvec, unsigned int factor);
-	inline Color superSampleRay(Point origPixel, Vector xvec, Vector yvec);
 	inline Color apertureRay(Vector pixel, unsigned int subpixel);
 	Hit intersectRay(const Ray &ray, bool closest, double maxT, bool traceLights);
 	void computeGlobalAmbient();
@@ -79,9 +77,14 @@ private:
 	void renderPhotons();
 	void blurPhotonMaps();
 	
+	void superSampleRay(Color * totalCol, double * variance, unsigned int nPoints, Point origPixel, Vector xvec, Vector yvec, unsigned int factor);
+	void renderPass(Image &img, Image &depthImg, Image &variance, Vector xvec, Vector yvec, unsigned int nPoints, unsigned int factor);
+	void saveImage(const std::string& filename, const Image &img, const Image &depthImg, unsigned int factor);
+	void saveDepthImage(const std::string& filename, const Image &img, unsigned int nPoints);
+	
 public:	
 	enum RenderMode {
-		phong, zbuffer, normal, texcoords, gooch, ssdepth, photon
+		phong, zbuffer, normal, texcoords, gooch, ssdepth, photon, passes
 	} mode;
 	
 	Image *background;
@@ -89,17 +92,17 @@ public:
 	Scene() { background = NULL; }
 	~Scene() { if (background) delete background; }
 	
-	void writePhotonMaps(const std::string& outputFilename);
+	void writePhotonMaps(const std::string& filename);
 	Color trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight, bool traceLights);
-	void render(Image &img);
+	void render(const std::string& filename);
 	void addObject(Object *o);
 	void addLight(Light *l);
 	void setEye(Triple e);
 	void setCamera(Camera c) { camera = c; }
 	Camera getCamera() { return camera; }	
 	void setSuperSampling(unsigned int f, unsigned int fmin, double threshold, bool jitter)
-	{ superSamplingFactor = f; superSamplingMinFactor = fmin; superSamplingThreshold = threshold; 
-	superSamplingJitter = jitter; superSamplingTotal = f*f; }
+	{ superSamplingFactor = f; superSamplingMinFactor = fmin; superSamplingTotal = f*f; superSamplingThreshold = threshold; 
+	superSamplingJitter = jitter; superSamplingThresholdSquared = threshold*threshold; }
 	void setRenderMode(Scene::RenderMode m) { mode = m; }
 	void setShadows(bool b) { shadows = b; }
 	void setEdges(double e) { edges = e; }

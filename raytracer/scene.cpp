@@ -436,18 +436,10 @@ inline Color Scene::apertureRay(Point pixel, unsigned int subpixel)
 }
 
 
-void Scene::superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, unsigned int * subpixel, Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
+void Scene::superSampleRay(Color * totalCol, double * variance, unsigned int nPoints, Point origPixel, Vector xvec, Vector yvec, unsigned int factor)
 {
-	if (*nPoints >= superSamplingTotal) return;
-	
 	unsigned int i=0;
 	unsigned int num = factor*factor;
-	
-	if (mode == ssdepth && *nPoints + num >= superSamplingTotal)
-	{
-		*nPoints += num;
-		return;
-	}
 	
 	Color colGrid[num];
 	Vector xoffset, yoffset, xstart, ystart, xvec2, yvec2;
@@ -458,6 +450,7 @@ void Scene::superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, un
 	xstart = -xvec2*(double)factor/2.0;
 	ystart = -yvec2*(double)factor/2.0;
 	
+	int subpixel = nPoints;
 	for (int y = 0; y < (int)factor; y++)
 	{
 		for (int x = 0; x < (int)factor; x++)
@@ -472,51 +465,68 @@ void Scene::superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, un
 			}
 
 			Point pixel = origPixel + xoffset + yoffset;
-			colGrid[i] = apertureRay(pixel, *subpixel++);
+			colGrid[i] = apertureRay(pixel, subpixel++);
 			*totalCol += colGrid[i++];
 		}
 	}
 	
-	*nPoints += num;
+	Color avgCol = *totalCol / (nPoints + num);
 	
-	Color avgCol = *totalCol / *nPoints;
-	
-	double variance = 0.0;
+	*variance = 0.0;
 	for (unsigned int i = 0; i < num; i++)
 	{
-		variance += (colGrid[i] - avgCol).length_2();
+		*variance += (colGrid[i] - avgCol).length_2();
 	}
-	variance /= num;
-	
-	if (variance >= superSamplingThreshold*superSamplingThreshold)
-	{
-		superSampleRayRecursion(totalCol, nPoints, subpixel, origPixel, xvec, yvec, factor*2);
-	}
+	*variance /= num;
 }
 
-inline Color Scene::superSampleRay(Point origPixel, Vector xvec, Vector yvec)
+void Scene::renderPass(Image &img, Image &depthImg, Image &variance, Vector xvec, Vector yvec, unsigned int nPoints, unsigned int factor)
 {
-	if (superSamplingFactor > 1)
+	int w = camera.viewWidth;
+	int h = camera.viewHeight;
+	int done = 0, lastPercent = 0;
+	Point pos = camera.center - yvec*(double)h/2.0 - xvec*(double)w/2.0;
+	
+	#pragma omp parallel for
+	for (int y = 0; y < h; y++)
 	{
-		Color totalCol(0,0,0);
-		unsigned int nPoints = 0;
-		unsigned int subpixel = 0;
-		superSampleRayRecursion(&totalCol, &nPoints, &subpixel, origPixel, xvec, yvec, 
-			min(superSamplingFactor, superSamplingMinFactor));
-		
-		if (mode == ssdepth)
+		#pragma omp parallel for
+		for (int x = 0; x < w; x++)
 		{
-			double grey = (double)nPoints / (double)(superSamplingTotal*2);
-			totalCol = Color(grey, grey, grey);
+			if (variance(x,y).r >= superSamplingThresholdSquared || factor <= superSamplingMinFactor)
+			{
+				unsigned int num = factor*factor;
+				depthImg(x,y) += Color(num, num, num);
+				if (!(mode == ssdepth && (nPoints + num) > superSamplingTotal))
+				{
+					Point pixel = pos + yvec*(double)y + xvec*(double)x;
+					if (factor > 1)
+					{
+						superSampleRay(&img(x,y), &variance(x,y).r, nPoints, pixel, xvec, yvec, factor);
+					}
+					else
+					{
+						img(x,y) = apertureRay(pixel, 0);
+					}
+				}
+				
+				#pragma omp atomic
+					done++;
+				
+				if (omp_get_thread_num() == 0)
+				{
+					if ((int)((done*100)/(w*h)) > lastPercent)
+					{
+						lastPercent = (done*100)/(w*h);
+						printf("%i%% ", lastPercent);
+						fflush(stdout);
+					}
+				}
+			}
 		}
-		else
-			totalCol /= nPoints;
-		
-		totalCol.clamp();
-		return totalCol;
 	}
-	else
-		return apertureRay(origPixel, 0);
+	
+	printf("\n");
 }
 
 void Scene::computeGlobalAmbient()
@@ -629,7 +639,7 @@ void Scene::blurPhotonMaps()
 	}
 }
 
-void Scene::writePhotonMaps(const std::string& outputFilename)
+void Scene::writePhotonMaps(const std::string& filename)
 {
 	if (photonFactor > 0)
 	{
@@ -643,18 +653,43 @@ void Scene::writePhotonMaps(const std::string& outputFilename)
 	{
 		if (objects[i]->photonblurmap)
 		{
-			char filename[250];
-			sprintf(filename, "%s-%i.png", outputFilename.c_str(), i);
-			objects[i]->photonblurmap->write_png(filename);
+			char outputFilename[250];
+			sprintf(outputFilename, "%s-%i.png", filename.c_str(), i);
+			objects[i]->photonblurmap->write_png(outputFilename);
 		}
 	}
 }
 
-void Scene::render(Image &img)
+void Scene::saveImage(const std::string& filename, const Image &img, const Image &depthImg, unsigned int factor)
 {
-	int w = camera.viewWidth;
-	int h = camera.viewHeight;
-	int done = 0, lastPercent = 0;
+	char outputFilename[256];
+	sprintf(outputFilename, "%s-%u.png", filename.c_str(), factor);
+	
+	Image outputImage(camera.viewWidth, camera.viewHeight);
+	
+	for (int y=0; y<camera.viewHeight; y++)
+		for (int x=0; x<camera.viewWidth; x++)
+			outputImage(x, y) = img(x, y) / depthImg(x, y).r;
+
+	outputImage.write_png(outputFilename);
+}
+
+void Scene::saveDepthImage(const std::string& filename, const Image &img, unsigned int nPoints)
+{
+	char outputFilename[256];
+	sprintf(outputFilename, "%s-depth.png", filename.c_str());
+	
+	Image outputImage(camera.viewWidth, camera.viewHeight);
+	
+	for (int y=0; y<camera.viewHeight; y++)
+		for (int x=0; x<camera.viewWidth; x++)
+			outputImage(x, y) = img(x, y) / nPoints;
+
+	outputImage.write_png(outputFilename);
+}
+
+void Scene::render(const std::string& filename)
+{
 	time_t start, end;
 	
 	time(&start);
@@ -676,32 +711,26 @@ void Scene::render(Image &img)
 		blurPhotonMaps();
 	}
 	
-	Point pos = camera.center - yvec*(double)h/2.0 - xvec*(double)w/2.0;
 	
-	#pragma omp parallel for
-	for (int y = 0; y < h; y++)
+	unsigned int factor = min(superSamplingMinFactor, superSamplingFactor);
+	if (factor < 1) factor = 1;
+	unsigned int nPoints = 0;
+	
+	Image img(camera.viewWidth, camera.viewHeight);
+	Image depthImg(camera.viewWidth, camera.viewHeight);
+	Image variance(camera.viewWidth, camera.viewHeight);
+	
+	while (nPoints < superSamplingTotal)
 	{
-		#pragma omp parallel for
-		for (int x = 0; x < w; x++)
-		{
-			Point pixel = pos + yvec*(double)y + xvec*(double)x ;
-			
-			img(x,y) = superSampleRay(pixel, xvec, yvec);
-			
-			#pragma omp atomic
-				done++;
-			
-			if (omp_get_thread_num() == 0)
-			{
-				if ((int)((done*100)/(w*h)) > lastPercent)
-				{
-					lastPercent = (done*100)/(w*h);
-					printf("%i%% ", lastPercent);
-					fflush(stdout);
-				}
-			}
-		}
+		printf("Tracing %ux%u...\n", factor, factor);
+		renderPass(img, depthImg, variance, xvec, yvec, nPoints, factor);
+		nPoints += factor*factor;
+		if (mode == passes) saveImage(filename, img, depthImg, factor);
+		factor *= 2;
 	}
+	
+	if (mode != passes && mode != ssdepth) saveImage(filename, img, depthImg, factor);
+	if (mode == passes || mode == ssdepth) saveDepthImage(filename, depthImg, nPoints*2);
 	
 	time(&end);
 	
