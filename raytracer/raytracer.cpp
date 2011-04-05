@@ -185,9 +185,23 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		}
 		if (node.FindValue("bumpfactor"))
 			node["bumpfactor"] >> returnObject->bumpfactor;
-			
+		
+		const YAML::Node *darkmapNode = node.FindValue("darkmap");
+		if (darkmapNode)
+		{
+			std::string darkmap;
+			*darkmapNode >> darkmap;
+			returnObject->darkmap = new Image(darkmap.c_str());
+		}
+		const YAML::Node *photonblurmapNode = node.FindValue("photonblurmap");
+		if (photonblurmapNode)
+		{
+			std::string photonblurmap;
+			*photonblurmapNode >> photonblurmap;
+			returnObject->photonblurmap = new Image(photonblurmap.c_str());
+		}
 		const YAML::Node *photonmapNode = node.FindValue("photonmapSize");
-		if (photonmapNode)
+		if (!photonblurmapNode && photonmapNode)
 		{
 			int photonmapSize;
 			*photonmapNode >> photonmapSize;
@@ -227,6 +241,7 @@ Scene::RenderMode Raytracer::parseRenderMode(const YAML::Node* node)
 	else if(mode == "texcoords") return Scene::texcoords;
 	else if(mode == "gooch") return Scene::gooch;
 	else if(mode == "ssdepth") return Scene::ssdepth;
+	else if(mode == "photon") return Scene::photon;
 	else return Scene::phong;
 }
 
@@ -349,7 +364,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 				scene->setSuperSampling(
 					parseUnsignedInt(doc["SuperSampling"].FindValue("factor"), 1),
 					parseUnsignedInt(doc["SuperSampling"].FindValue("minFactor"), 4),
-					parseOptionalDouble(doc["SuperSampling"].FindValue("threshold"), 0.003),
+					parseOptionalDouble(doc["SuperSampling"].FindValue("threshold"), 0.012),
 					parseBool(doc["SuperSampling"].FindValue("jitter"), true)
 				);
 			}
@@ -370,6 +385,14 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			else
 			{
 				scene->setGoochParameters(0.55, 0.3, 0.25, 0.5);
+			}
+			
+			const YAML::Node *backgroundNode = doc.FindValue("background");
+			if (backgroundNode)
+			{
+				std::string background;
+				*backgroundNode >> background;
+				scene->background = new Image(background.c_str());
 			}
 
 			// Read and parse the scene objects
@@ -412,11 +435,19 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 void Raytracer::renderToFile(const std::string& outputFilename)
 {
-	Camera cam = scene->getCamera();
-	Image img(cam.viewWidth, cam.viewHeight);
-	cout << "Tracing..." << endl;
-	scene->render(img);
-	cout << "Writing image to " << outputFilename << "..." << endl;
-	img.write_png(outputFilename.c_str());
-	cout << "Done." << endl;
+	if (scene->mode == Scene::photon)
+	{
+		scene->writePhotonMaps(outputFilename);
+	}
+	else
+	{
+		std::string filename = outputFilename + ".png";
+		Camera cam = scene->getCamera();
+		Image img(cam.viewWidth, cam.viewHeight);
+		cout << "Tracing..." << endl;
+		scene->render(img);
+		cout << "Writing image to " << outputFilename << "..." << endl;
+		img.write_png(filename.c_str());
+		cout << "Done." << endl;
+	}
 }

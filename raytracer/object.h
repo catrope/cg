@@ -25,11 +25,12 @@
 #include "material.h"
 #include "hit.h"
 #include "ray.h"
+#include <vector>
 
 class Object {
 public:
 	Material *material;
-	Image *texture, *specularTexture, *bumpmap, *photonmap, *photonblurmap;
+	Image *texture, *specularTexture, *bumpmap, *photonmap, *photonblurmap, *darkmap;
 	double bumpfactor;
 	
 	Object(const Vector &rotationVector, double rotationAngle) :
@@ -42,6 +43,7 @@ public:
 		bumpmap = NULL;
 		photonmap = NULL;
 		photonblurmap = NULL;
+		darkmap = NULL;
 		bumpfactor = 1.0;
 	}
 
@@ -59,6 +61,8 @@ public:
 			delete photonmap;
 		if (photonblurmap)
 			delete photonblurmap;
+		if (darkmap)
+			delete darkmap;
 	}
 	
 	/**
@@ -69,7 +73,6 @@ public:
 	 * @return Hit object
 	 */
 	virtual Hit intersect(const Ray &ray, bool closest, double maxT) = 0;
-	
 	
 	virtual Point getRotationCenter() = 0;
 	// TODO: Implement these three in Triangle and Quad and make them pure virtual

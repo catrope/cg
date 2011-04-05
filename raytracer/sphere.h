@@ -20,6 +20,7 @@
 #define SPHERE_H_115209AE
 
 #include "object.h"
+#include <vector>
 
 class Sphere : public Object
 {

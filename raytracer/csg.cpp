@@ -19,8 +19,8 @@
 #include "csg.h"
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 
-/************************** Sphere **********************************/
 
 Hit Csg::intersect(const Ray &ray, bool closest, double maxT)
 {
@@ -45,6 +45,7 @@ Hit Csg::intersect(const Ray &ray, bool closest, double maxT)
 	hit.makeObj(this);
 	return hit;
 }
+
 
 Hit Csg::closestHit(const Ray &ray)
 {

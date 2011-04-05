@@ -97,7 +97,9 @@ void Object::addPhoton(const Point &p, Color &color)
 	{
 		double u, v;
 		getTexCoords(p, u, v);
-		photonmap->setColorAt(u, v, color + photonmap->colorAt(u, v));
+		Color newColor = color + photonmap->colorAt(u, v);
+		newColor.clamp();
+		photonmap->setColorAt(u, v, newColor);
 	}
 }
 
@@ -105,4 +107,5 @@ void Object::blurPhotonMap(int radius)
 {
 	photonblurmap = new Image(photonmap->width(), photonmap->height());
 	photonmap->blur(photonblurmap, radius);
+	delete photonmap;
 }

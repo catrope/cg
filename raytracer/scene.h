@@ -20,6 +20,7 @@
 #define SCENE_H_KNBLQLP6
 
 #include <vector>
+#include <string>
 #include "triple.h"
 #include "light.h"
 #include "object.h"
@@ -49,6 +50,7 @@ private:
 	Color calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	Color calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight);
 	
+	inline Color backgroundColor(const Vector *V);
 	inline Vector reflectVector(Vector *N, Vector *V);
 	inline void reflect(Color *color, Object *obj, Point *hit, Vector *N, Vector *V, double ks, unsigned int recursionDepth, double recursionWeight);
 	inline Vector refractVector(Object *obj, Point *hit, Vector *N, Vector *V, double nOut, double nIn);
@@ -61,6 +63,7 @@ private:
 	inline bool edgeDetection(Color *color, Vector *N, Vector *V);
 	inline Vector lightVector(Point *hit, Light *light);
 	inline void photons(Color *color, Object *obj, Point *hit);
+	inline void darkmap(Color *color, Object *obj, Point *hit);
 	
 	inline Color anaglyphRay(Point pixel, Point eye);
 	inline Color exposureRay(Point pixel, Point eye);
@@ -78,9 +81,15 @@ private:
 	
 public:	
 	enum RenderMode {
-		phong, zbuffer, normal, texcoords, gooch, ssdepth
+		phong, zbuffer, normal, texcoords, gooch, ssdepth, photon
 	} mode;
 	
+	Image *background;
+	
+	Scene() { background = NULL; }
+	~Scene() { if (background) delete background; }
+	
+	void writePhotonMaps(const std::string& outputFilename);
 	Color trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight, bool traceLights);
 	void render(Image &img);
 	void addObject(Object *o);

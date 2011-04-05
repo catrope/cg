@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <omp.h>
+#include <string>
 
 Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursionWeight, bool traceLights)
 {
@@ -31,7 +32,7 @@ Color Scene::trace(const Ray &ray, unsigned int recursionDepth, double recursion
 	Hit min_hit = intersectRay(ray, true, std::numeric_limits<double>::infinity(), traceLights);
 	if (!min_hit.hasHit())
 		// No hit? Return background color
-		return Color(0.0, 0.0, 0.0);
+		return backgroundColor(&ray.D);
 
 	Point hit = ray.at(min_hit.t); //the hit point
 	Object *obj = min_hit.obj;
@@ -82,6 +83,20 @@ Hit Scene::intersectRay(const Ray &ray, bool closest, double maxT, bool traceLig
 	}
 	
 	return min_hit;
+}
+
+inline Color Scene::backgroundColor(const Vector *V)
+{
+	if (background) 
+	{
+		double theta = acos(V->y);
+		double phi = atan2(V->z, V->x);
+		while (phi < 0.0)
+			phi += 2*M_PI;
+		return background->colorAt(phi/(2*M_PI), theta/M_PI);
+	}
+	else
+		return Color(0,0,0);
 }
 
 inline Vector Scene::reflectVector(Vector *N, Vector *V)
@@ -276,6 +291,16 @@ inline void Scene::photons(Color *color, Object *obj, Point *hit)
 	*color += obj->getPhotons(*hit);
 }
 
+inline void Scene::darkmap(Color *color, Object *obj, Point *hit)
+{
+	if (obj->darkmap)
+	{
+		double u, v;
+		obj->getTexCoords(*hit, u, v);
+		*color += (1-color->length_2()) * obj->darkmap->colorAt(u, v);
+	}
+}
+
 Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned int recursionDepth, double recursionWeight)
 {
 	Color color(0.0, 0.0, 0.0);
@@ -304,6 +329,9 @@ Color Scene::calcPhong(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	// Reflection and refraction
 	reflect(&color, obj, hit, N, V, ks, recursionDepth, recursionWeight);
 	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
+	
+	// Dark map
+	darkmap(&color, obj, hit);
 	
 	color.clamp();
 	return color;
@@ -336,6 +364,9 @@ Color Scene::calcGooch(Object *obj, Point *hit, Vector *N, Vector *V, unsigned i
 	// Reflection and refraction
 	reflect(&color, obj, hit, N, V, ks, recursionDepth, recursionWeight);
 	refract(&color, obj, hit, N, V, recursionDepth, recursionWeight);
+	
+	// Dark map
+	darkmap(&color, obj, hit);
 	
 	color.clamp();
 	return color;
@@ -455,7 +486,7 @@ void Scene::superSampleRayRecursion(Color * totalCol, unsigned int * nPoints, un
 	{
 		variance += (colGrid[i] - avgCol).length_2();
 	}
-	variance /= *nPoints;
+	variance /= num;
 	
 	if (variance >= superSamplingThreshold*superSamplingThreshold)
 	{
@@ -595,6 +626,27 @@ void Scene::blurPhotonMaps()
 	for (int i = 0; i < (int)objects.size(); ++i)
 	{
 		if (objects[i]->photonmap) objects[i]->blurPhotonMap(photonBlur);
+	}
+}
+
+void Scene::writePhotonMaps(const std::string& outputFilename)
+{
+	if (photonFactor > 0)
+	{
+		printf("Tracing photons...\n");
+		renderPhotons();
+		printf("Blurring photon maps...\n");
+		blurPhotonMaps();
+	}
+	
+	for (int i = 0; i < (int)objects.size(); ++i)
+	{
+		if (objects[i]->photonblurmap)
+		{
+			char filename[250];
+			sprintf(filename, "%s-%i.png", outputFilename.c_str(), i);
+			objects[i]->photonblurmap->write_png(filename);
+		}
 	}
 }
 

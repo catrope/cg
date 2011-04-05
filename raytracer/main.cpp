@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 		char appendix[30];
 		time( &rawtime );
 		timeinfo = localtime( &rawtime );
-		strftime(appendix, 30, "-%Y%m%d-%H%M%S.png", timeinfo);
+		strftime(appendix, 30, "-%Y%m%d-%H%M%S", timeinfo);
 
 		ofname += appendix;
 	}

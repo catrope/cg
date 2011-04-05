@@ -33,11 +33,12 @@ public:
 
 	virtual Hit intersect(const Ray &ray, bool closest, double maxT);
 	virtual Point getRotationCenter() { return position; }
+	virtual void getTexCoords(const Point &p, double &x, double &y) { o1->getTexCoords(p-position, x, y); }
+	virtual Point getPointFromTexCoords(double u, double v) { return o1->getPointFromTexCoords(u, v) + position; }
 	
 	Object *o1, *o2;
 	Point position;
 	Operation op;
-	
 private:
 	Hit closestHit(const Ray &ray);
 	Hit isect(Ray ray);
