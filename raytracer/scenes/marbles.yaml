@@ -1,4 +1,4 @@
-RenderMode: passes
+#RenderMode: passes
 
 Shadows: true
 MaxRecursionDepth: 25
@@ -8,12 +8,18 @@ MinRecursionWeight: 0.05
 Camera:
     eye: [40,10,250]
     center: [0,5,70]
+    
+    # low res
     up: [0,0.2,0]
     viewSize: [600,400]
+    #apertureRadius: 0.2
+    #apertureSamples: 6
+    
+    # high res
     #up: [0,0.04,0]
     #viewSize: [3000,2000]
-    #apertureRadius: 0.02
-    #apertureSamples: 32
+    #apertureRadius: 0.04
+    #apertureSamples: 16
 
 Lights:
 - position: [300,200,-400]
@@ -31,8 +37,9 @@ background: galaxy.png
 
 SuperSampling:
   #factor: 32
-  factor: 16
-  minFactor: 4
+  #factor: 16
+  factor: 1
+  minFactor: 4 # perhaps even better to start with 6 or something?
   jitter: true
 
 Objects:
@@ -64,7 +71,7 @@ Objects:
     kd: 0.0
     ks: 0.7
     n: 32
-    refract: 0.6
+    refract: 0.8
     eta: 1.44
 - type: sphere
   position: [-60,0,50]

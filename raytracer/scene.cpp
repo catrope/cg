@@ -509,18 +509,18 @@ void Scene::renderPass(Image &img, Image &depthImg, Image &variance, Vector xvec
 						img(x,y) = apertureRay(pixel, 0);
 					}
 				}
-				
-				#pragma omp atomic
-					done++;
-				
-				if (omp_get_thread_num() == 0)
+			}
+			
+			#pragma omp atomic
+				done++;
+			
+			if (omp_get_thread_num() == 0)
+			{
+				if ((int)((done*100)/(w*h)) > lastPercent)
 				{
-					if ((int)((done*100)/(w*h)) > lastPercent)
-					{
-						lastPercent = (done*100)/(w*h);
-						printf("%i%% ", lastPercent);
-						fflush(stdout);
-					}
+					lastPercent = (done*100)/(w*h);
+					printf("%i%% ", lastPercent);
+					fflush(stdout);
 				}
 			}
 		}
