@@ -729,7 +729,7 @@ void Scene::render(const std::string& filename)
 		factor *= 2;
 	}
 	
-	if (mode != passes && mode != ssdepth) saveImage(filename, img, depthImg, factor);
+	if (mode != passes && mode != ssdepth) saveImage(filename, img, depthImg, 0);
 	if (mode == passes || mode == ssdepth) saveDepthImage(filename, depthImg, nPoints*2);
 	
 	time(&end);
