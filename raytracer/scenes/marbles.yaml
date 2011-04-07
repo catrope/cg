@@ -38,7 +38,7 @@ background: galaxy.png
 SuperSampling:
   factor: 40
   #factor: 1
-  minFactor: 5
+  minFactor: 4
   jitter: true
 
 Objects:

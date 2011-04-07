@@ -1,31 +1,21 @@
----
-#  This is an example scene description for the raytracer framework created 
-#  for the Computer Science course "Introduction to Computer Graphics"
-#  taught at the University of Groningen by Tobias Isenberg.
-#
-#  The scene description format we use is based on YAML, which is a human friendly 
-#  data serialization standard. This gives us a flexible format which should be
-#  fairly easy to make both backward and forward compatible (i.e., by ignoring
-#  unknown directives). In addition parsers are available for many languages.
-#  See http://www.yaml.org/ for more information on YAML.
-#
-#  The example scene description should largely speak for itself. By now
-#  it should be clear that the #-character can be used to insert comments.
+RenderMode: passes
 
 Camera:
     eye: [200,200,1000]
     center: [200,200,230]
     up: [0,0.4,0]
     viewSize: [800,500]
-    apertureRadius: 1
-    apertureSamples: 1
     anaglyph: true
+    grey: true
     eyesOffset: [15,0,0]
 
+MaxRecursionDepth: 25
+MinRecursionWeight: 0.05
+
 Shadows: true
-MaxRecursionDepth: 2
 SuperSampling:
-  factor: 2
+  factor: 32
+  minFactor: 8
   jitter: true
 
 Lights:

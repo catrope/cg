@@ -98,3 +98,6 @@ Objects:
 - type: instance
   name: block2
   position: [5, -6, 0]
+- type: instance
+  name: block2
+  position: [-5, 6, 0]
